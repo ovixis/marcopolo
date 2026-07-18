@@ -9,16 +9,16 @@ export function ReadinessList() {
   const pct = Math.round((done / readinessItems.length) * 100);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <div>
-        <div className="mb-1.5 flex items-baseline justify-between text-sm">
+        <div className="mb-2 flex items-baseline justify-between text-base">
           <span className="text-muted-foreground">
             {done} of {readinessItems.length} complete
           </span>
           <span className="font-medium tabular-nums">{pct}%</span>
         </div>
         <div
-          className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+          className="h-2.5 w-full overflow-hidden rounded-full bg-muted"
           role="progressbar"
           aria-valuenow={pct}
           aria-valuemin={0}
@@ -31,26 +31,26 @@ export function ReadinessList() {
         </div>
       </div>
 
-      <ul className="flex flex-col gap-2.5">
+      <ul className="flex flex-col gap-3">
         {readinessItems.map((item) => (
-          <li key={item.label} className="flex items-center gap-2.5 text-sm">
+          <li key={item.label} className="flex items-center gap-3 text-base">
             {item.status === "done" && (
               <CircleCheck
-                className="size-4 shrink-0"
+                className="size-5 shrink-0"
                 style={{ color: chartColors.primary }}
                 aria-label="Done"
               />
             )}
             {item.status === "processing" && (
               <Clock3
-                className="size-4 shrink-0"
+                className="size-5 shrink-0"
                 style={{ color: chartColors.processing }}
                 aria-label="In progress"
               />
             )}
             {item.status === "todo" && (
               <CircleDashed
-                className="size-4 shrink-0"
+                className="size-5 shrink-0"
                 style={{ color: chartColors.attention }}
                 aria-label="To do"
               />

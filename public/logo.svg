@@ -1,131 +1,78 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <!-- Marco Polo — portolan wind rose, the East ray elongated (the journey to the Orient),
-       a dashed route sailing off toward a destination star.
-       Deep navy / electric cyan / brushed titanium. -->
+  <!-- Marco Polo — brushed-silver / argent compass rose (light mode). -->
   <defs>
-    <radialGradient id="bg" cx="42%" cy="40%" r="85%">
-      <stop offset="0%"  stop-color="#0B1B31"/>
-      <stop offset="55%" stop-color="#071224"/>
-      <stop offset="100%" stop-color="#030710"/>
+    <linearGradient id="agL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.5" stop-color="#e4e8ec"/>
+      <stop offset="1" stop-color="#c1c7cf"/>
+    </linearGradient>
+    <linearGradient id="agD" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a9afb7"/>
+      <stop offset="1" stop-color="#6d747d"/>
+    </linearGradient>
+    <linearGradient id="agML" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f1f3f5"/>
+      <stop offset="1" stop-color="#ccd1d7"/>
+    </linearGradient>
+    <linearGradient id="agMD" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b7bdc5"/>
+      <stop offset="1" stop-color="#868d96"/>
+    </linearGradient>
+    <radialGradient id="agHub" cx="0.4" cy="0.34" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#ccd1d8"/>
+      <stop offset="1" stop-color="#7c838c"/>
     </radialGradient>
-
-    <!-- titanium facets -->
-    <linearGradient id="tiLight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F2F6FA"/>
-      <stop offset="100%" stop-color="#B4C0CC"/>
-    </linearGradient>
-    <linearGradient id="tiDark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7E8C9B"/>
-      <stop offset="100%" stop-color="#4A5766"/>
-    </linearGradient>
-    <linearGradient id="tiDim" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#9AA7B4"/>
-      <stop offset="100%" stop-color="#5D6A78"/>
-    </linearGradient>
-    <linearGradient id="tiDimDark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#57646F"/>
-      <stop offset="100%" stop-color="#333F4C"/>
-    </linearGradient>
-
-    <!-- east ray, electric cyan -->
-    <linearGradient id="eastLight" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#4ADCF5"/>
-      <stop offset="100%" stop-color="#9BF1FF"/>
-    </linearGradient>
-    <linearGradient id="eastDark" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0B84AB"/>
-      <stop offset="100%" stop-color="#2CB4D6"/>
-    </linearGradient>
-
-    <filter id="glowCyan" x="-400%" y="-400%" width="900%" height="900%">
-      <feGaussianBlur stdDeviation="16" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="glowTight" x="-400%" y="-400%" width="900%" height="900%">
-      <feGaussianBlur stdDeviation="7" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="haze" x="-150%" y="-150%" width="400%" height="400%">
-      <feGaussianBlur stdDeviation="26"/>
-    </filter>
   </defs>
 
-  <!-- ======== background ======== -->
-  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- outer ring -->
+  <circle cx="512" cy="512" r="374" fill="none" stroke="#c7ccd3" stroke-width="7" opacity="0.7"/>
+  <circle cx="512" cy="512" r="374" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.6"/>
+  <circle cx="512" cy="512" r="330" fill="none" stroke="#b9bfc7" stroke-width="2" opacity="0.4"/>
 
-  <!-- faint portolan rhumb lines radiating from the rose -->
-  <g stroke="#8FB4D9" stroke-width="1.5" opacity="0.07">
-    <path d="M482 512 H-40 M482 512 H1064"/>
-    <path d="M482 512 V-40 M482 512 V1064"/>
-    <path d="M-40 -10 L1004 1034 M-40 1034 L1004 -10" transform="translate(0 0)"/>
-    <g transform="rotate(22.5 482 512)">
-      <path d="M482 512 H-40 M482 512 H1064 M482 512 V-40 M482 512 V1064"/>
+  <!-- intercardinal (short) points -->
+  <g>
+    <g transform="rotate(45 512 512)">
+      <path d="M512 300 L490 472 L512 512 Z" fill="url(#agML)"/>
+      <path d="M512 300 L534 472 L512 512 Z" fill="url(#agMD)"/>
     </g>
-    <g transform="rotate(67.5 482 512)">
-      <path d="M482 512 H-40 M482 512 H1064 M482 512 V-40 M482 512 V1064"/>
+    <g transform="rotate(135 512 512)">
+      <path d="M512 300 L490 472 L512 512 Z" fill="url(#agML)"/>
+      <path d="M512 300 L534 472 L512 512 Z" fill="url(#agMD)"/>
     </g>
-  </g>
-  <!-- faint chart circle, deliberately open (not a dial) -->
-  <path d="M 482 158 A 354 354 0 1 0 836 512" fill="none" stroke="#9FB6CC" stroke-opacity="0.14" stroke-width="2"/>
-  <circle cx="482" cy="512" r="292" fill="none" stroke="#9FB6CC" stroke-opacity="0.08" stroke-width="1.5" stroke-dasharray="2 18"/>
-
-  <!-- ambient glow under the mark -->
-  <ellipse cx="520" cy="540" rx="330" ry="300" fill="#0E9EC7" opacity="0.10" filter="url(#haze)"/>
-
-  <!-- ======== wind rose (centered at 482,512) ======== -->
-  <!-- intercardinal points (short, dim titanium) -->
-  <g transform="rotate(45 482 512)">
-    <g transform="translate(482 512)">
-      <path d="M0 -206 L34 -34 L0 0 Z" fill="url(#tiDimDark)"/>
-      <path d="M0 -206 L-34 -34 L0 0 Z" fill="url(#tiDim)"/>
-      <path d="M0 206 L34 34 L0 0 Z" fill="url(#tiDim)"/>
-      <path d="M0 206 L-34 34 L0 0 Z" fill="url(#tiDimDark)"/>
-      <path d="M-206 0 L-34 -34 L0 0 Z" fill="url(#tiDim)"/>
-      <path d="M-206 0 L-34 34 L0 0 Z" fill="url(#tiDimDark)"/>
-      <path d="M206 0 L34 -34 L0 0 Z" fill="url(#tiDimDark)"/>
-      <path d="M206 0 L34 34 L0 0 Z" fill="url(#tiDim)"/>
+    <g transform="rotate(225 512 512)">
+      <path d="M512 300 L490 472 L512 512 Z" fill="url(#agML)"/>
+      <path d="M512 300 L534 472 L512 512 Z" fill="url(#agMD)"/>
+    </g>
+    <g transform="rotate(315 512 512)">
+      <path d="M512 300 L490 472 L512 512 Z" fill="url(#agML)"/>
+      <path d="M512 300 L534 472 L512 512 Z" fill="url(#agMD)"/>
     </g>
   </g>
 
-  <!-- cardinal points (long, bright titanium) — East replaced by the cyan journey ray -->
-  <g transform="translate(482 512)">
-    <!-- North -->
-    <path d="M0 -336 L44 -44 L0 0 Z" fill="url(#tiDark)"/>
-    <path d="M0 -336 L-44 -44 L0 0 Z" fill="url(#tiLight)"/>
-    <!-- South -->
-    <path d="M0 336 L44 44 L0 0 Z" fill="url(#tiLight)"/>
-    <path d="M0 336 L-44 44 L0 0 Z" fill="url(#tiDark)"/>
-    <!-- West -->
-    <path d="M-336 0 L-44 -44 L0 0 Z" fill="url(#tiLight)"/>
-    <path d="M-336 0 L-44 44 L0 0 Z" fill="url(#tiDark)"/>
-
-    <!-- EAST — the journey: elongated, electric cyan, glowing -->
-    <path d="M462 0 L52 -52 L0 0 Z" fill="#22D3EE" opacity="0.5" filter="url(#haze)"/>
-    <path d="M462 0 L52 -52 L0 0 Z" fill="url(#eastLight)" filter="url(#glowTight)"/>
-    <path d="M462 0 L52 52 L0 0 Z" fill="url(#eastDark)"/>
-    <circle cx="462" cy="0" r="8" fill="#C8F8FF" filter="url(#glowCyan)"/>
+  <!-- cardinal (long) points -->
+  <g>
+    <g>
+      <path d="M512 148 L466 466 L512 512 Z" fill="url(#agL)"/>
+      <path d="M512 148 L558 466 L512 512 Z" fill="url(#agD)"/>
+    </g>
+    <g transform="rotate(90 512 512)">
+      <path d="M512 148 L466 466 L512 512 Z" fill="url(#agL)"/>
+      <path d="M512 148 L558 466 L512 512 Z" fill="url(#agD)"/>
+    </g>
+    <g transform="rotate(180 512 512)">
+      <path d="M512 148 L466 466 L512 512 Z" fill="url(#agL)"/>
+      <path d="M512 148 L558 466 L512 512 Z" fill="url(#agD)"/>
+    </g>
+    <g transform="rotate(270 512 512)">
+      <path d="M512 148 L466 466 L512 512 Z" fill="url(#agL)"/>
+      <path d="M512 148 L558 466 L512 512 Z" fill="url(#agD)"/>
+    </g>
   </g>
 
-  <!-- hub: minimal, off-dial -->
-  <circle cx="482" cy="512" r="30" fill="#050D18"/>
-  <circle cx="482" cy="512" r="30" fill="none" stroke="#22D3EE" stroke-width="4" filter="url(#glowTight)"/>
-  <circle cx="482" cy="512" r="9" fill="#E8F4F9"/>
-
-  <!-- ======== the route: dashed course sailing to the north-east ======== -->
-  <path d="M 560 780 C 780 740 880 600 848 452 C 824 340 740 280 700 254"
-        fill="none" stroke="#22D3EE" stroke-opacity="0.28" stroke-width="22"
-        stroke-linecap="round" filter="url(#haze)"/>
-  <path d="M 560 780 C 780 740 880 600 848 452 C 824 340 740 280 700 254"
-        fill="none" stroke="#5CE1F6" stroke-width="9"
-        stroke-linecap="round" stroke-dasharray="0.5 34" filter="url(#glowTight)"/>
-
-  <!-- destination star (four-point spark, Stella Maris) -->
-  <g transform="translate(676 226)">
-    <path d="M0 -46 C4 -14 14 -4 46 0 C14 4 4 14 0 46 C-4 14 -14 4 -46 0 C-14 -4 -4 -14 0 -46 Z"
-          fill="#D9FAFF" filter="url(#glowCyan)"/>
-    <circle r="7" fill="#FFFFFF"/>
-  </g>
-  <!-- two faint companion stars -->
-  <circle cx="812" cy="150" r="5" fill="#9BD9EA" opacity="0.7" filter="url(#glowTight)"/>
-  <circle cx="180" cy="208" r="4" fill="#9BD9EA" opacity="0.45"/>
+  <!-- hub -->
+  <circle cx="512" cy="512" r="60" fill="url(#agHub)"/>
+  <circle cx="512" cy="512" r="60" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2.5"/>
+  <circle cx="512" cy="512" r="21" fill="#5c636c"/>
+  <circle cx="503" cy="503" r="8" fill="#ffffff" opacity="0.85"/>
 </svg>

@@ -6,9 +6,9 @@ const STATUS_COLOR: Record<DocStatus, string> = {
   action: chartColors.attention,
 };
 
-const SIZE = 148;
-const R = 56;
-const STROKE = 16;
+const SIZE = 184;
+const R = 70;
+const STROKE = 20;
 const GAP_DEG = 4;
 
 function arcPath(startDeg: number, endDeg: number): string {
@@ -59,18 +59,18 @@ export function DocsDonut() {
           ))}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-semibold tabular-nums">
+          <span className="text-4xl font-semibold tabular-nums">
             {travelDocs.readyPct}%
           </span>
-          <span className="text-xs text-muted-foreground">ready</span>
+          <span className="text-sm text-muted-foreground">ready</span>
         </div>
       </div>
 
-      <ul className="flex flex-1 flex-col gap-2.5">
+      <ul className="flex flex-1 flex-col gap-3">
         {travelDocs.segments.map((segment) => (
-          <li key={segment.label} className="flex items-center gap-2.5 text-sm">
+          <li key={segment.label} className="flex items-center gap-3 text-base">
             <span
-              className="size-2.5 shrink-0 rounded-full"
+              className="size-3 shrink-0 rounded-full"
               style={{ backgroundColor: STATUS_COLOR[segment.status] }}
               aria-hidden
             />

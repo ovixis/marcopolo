@@ -1,8 +1,8 @@
 import { chartColors, demoTrip } from "@/lib/demo-dashboard";
 import { formatMoney } from "@/lib/format";
 
-const SIZE = 120;
-const STROKE = 11;
+const SIZE = 148;
+const STROKE = 14;
 const R = (SIZE - STROKE) / 2;
 const C = 2 * Math.PI * R;
 
@@ -41,24 +41,24 @@ export function BudgetRing() {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xl font-semibold tabular-nums">{pct}%</span>
-          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <span className="text-3xl font-semibold tabular-nums">{pct}%</span>
+          <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
             used
           </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5 text-sm">
+      <div className="flex flex-col gap-2 text-base">
         <div>
-          <div className="text-lg font-semibold tabular-nums">
+          <div className="text-2xl font-semibold tabular-nums">
             {formatMoney(String(demoTrip.budgetSpent), demoTrip.currency)}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-sm text-muted-foreground">
             of {formatMoney(String(demoTrip.budgetTotal), demoTrip.currency)}{" "}
             budget
           </div>
         </div>
-        <div className="text-xs text-emerald-400">
+        <div className="text-sm font-medium text-emerald-600">
           {formatMoney(String(remaining), demoTrip.currency)} left
         </div>
       </div>

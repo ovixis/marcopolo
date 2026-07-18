@@ -67,7 +67,7 @@ const SUGGESTIONS = [
 ];
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
 
 /** The single Ask Marco surface — a self-contained card for the dashboard. */
 export function AskMarco() {
@@ -190,20 +190,20 @@ export function AskMarco() {
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       {/* header — portrait + status + model toggle */}
-      <div className="flex items-center gap-3 border-b border-border p-3">
-        <MarcoFace thinking={sending} width={72} />
+      <div className="flex items-center gap-4 border-b border-border p-4">
+        <MarcoFace thinking={sending} width={96} />
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-lg">Ask Marco</span>
+          <div className="flex items-center gap-2.5">
+            <span className="font-serif text-2xl">Ask Marco</span>
             <span
               className={cn(
-                "size-2 rounded-full",
+                "size-2.5 rounded-full",
                 connected ? "bg-emerald-500" : "bg-muted-foreground/40",
               )}
               aria-label={connected ? "connected" : "not connected"}
             />
           </div>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="truncate text-sm text-muted-foreground">
             {sending
               ? "charting your route…"
               : connected
@@ -213,11 +213,11 @@ export function AskMarco() {
         </div>
         <button
           onClick={() => setShowConnect((v) => !v)}
-          className="rounded-lg border border-border bg-card p-2 text-muted-foreground transition-colors hover:text-foreground"
+          className="rounded-lg border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:text-foreground"
           aria-label="Model settings"
           aria-expanded={showConnect}
         >
-          <Settings2 className="size-4" />
+          <Settings2 className="size-5" />
         </button>
       </div>
 
@@ -276,22 +276,22 @@ export function AskMarco() {
       )}
 
       {/* conversation */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-6">
         {messages.length === 0 && (
-          <div className="mx-auto max-w-md pt-6 text-center">
-            <h2 className="font-serif text-2xl text-foreground">
+          <div className="mx-auto max-w-xl pt-10 text-center">
+            <h2 className="font-serif text-4xl text-foreground">
               Where shall we go?
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-3 text-base text-muted-foreground">
               I aggregate live flights, hotels, and experiences, then chart the
               route and the budget. Ask me anything travel.
             </p>
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-7 flex flex-col gap-3">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5"
+                  className="rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5"
                 >
                   {s}
                 </button>
@@ -300,12 +300,12 @@ export function AskMarco() {
           </div>
         )}
 
-        <div className="mx-auto flex max-w-xl flex-col gap-4">
+        <div className="mx-auto flex max-w-2xl flex-col gap-4">
           {messages.map((message, index) =>
             message.role === "user" ? (
               <div
                 key={index}
-                className="self-end rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-sm text-primary-foreground"
+                className="self-end rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-[15px] text-primary-foreground"
               >
                 {message.content}
               </div>
@@ -313,7 +313,7 @@ export function AskMarco() {
               <div
                 key={index}
                 className={cn(
-                  "self-start rounded-2xl rounded-bl-sm border px-4 py-3 text-sm leading-relaxed",
+                  "self-start rounded-2xl rounded-bl-sm border px-5 py-3.5 text-[15px] leading-relaxed",
                   message.error
                     ? "border-destructive/30 bg-destructive/10 text-destructive"
                     : "border-border bg-card",
@@ -375,10 +375,10 @@ export function AskMarco() {
       </div>
 
       {/* composer */}
-      <div className="border-t border-border p-3">
-        <div className="mx-auto flex max-w-xl items-end gap-2">
+      <div className="border-t border-border p-4">
+        <div className="mx-auto flex max-w-2xl items-end gap-2.5">
           <textarea
-            className={`${inputClass} max-h-40 min-h-11 resize-none`}
+            className={`${inputClass} max-h-40 min-h-12 resize-none`}
             rows={1}
             placeholder={
               connected ? "Ask Marco… (Enter to send)" : "Connect a model, then ask away…"
@@ -396,10 +396,10 @@ export function AskMarco() {
           <button
             onClick={() => send()}
             disabled={sending || input.trim().length === 0}
-            className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+            className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
             aria-label="Send"
           >
-            <Send className="size-4" />
+            <Send className="size-5" />
           </button>
         </div>
       </div>
