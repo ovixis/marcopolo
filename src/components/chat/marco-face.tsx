@@ -1,39 +1,38 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 
-import { MARCO_ASCII } from "./marco-ascii";
-
 /**
- * Marco Polo as an ASCII portrait plate — luminance-ramped from a public-domain
- * ~1600 portrait (see marco-ascii.ts for the source + license), rendered
- * light-on-dark like a sepia daguerreotype in an explorer's journal. GSAP fades
- * it in and pulses it while Marco is "thinking".
+ * Marco Polo portrait plate. A crisp Floyd–Steinberg-dithered duotone rendered
+ * from a public-domain ~1600 portrait (commons.wikimedia.org/wiki/
+ * File:Marco_Polo_portrait.jpg, Public Domain Mark 1.0) — a sepia "journal
+ * plate" look. GSAP fades it in and pulses it while Marco is thinking.
  */
 export function MarcoFace({
   thinking = false,
-  size = 4.6,
+  width = 120,
 }: {
   thinking?: boolean;
-  /** monospace font-size in px — controls the plate's overall scale */
-  size?: number;
+  /** rendered width in px (image is portrait, height follows) */
+  width?: number;
 }) {
-  const plateRef = useRef<HTMLDivElement>(null);
-  const artRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null);
   const pulseRef = useRef<gsap.core.Tween | null>(null);
 
   useEffect(() => {
-    const plate = plateRef.current;
-    if (!plate) return;
+    const frame = frameRef.current;
+    if (!frame) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gsap.set(plate, { opacity: 1, scale: 1 });
+      gsap.set(frame, { opacity: 1, scale: 1 });
       return;
     }
-    const tween = gsap.from(plate, {
+    const tween = gsap.from(frame, {
       opacity: 0,
       scale: 0.94,
-      duration: 0.7,
+      duration: 0.6,
       ease: "power3.out",
     });
     return () => {
@@ -42,20 +41,20 @@ export function MarcoFace({
   }, []);
 
   useEffect(() => {
-    const art = artRef.current;
-    if (!art) return;
+    const img = imgRef.current;
+    if (!img) return;
     pulseRef.current?.kill();
-    if (thinking && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      pulseRef.current = gsap.to(art, {
-        opacity: 0.55,
-        duration: 0.7,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
-      });
-    } else {
-      pulseRef.current = gsap.to(art, { opacity: 1, duration: 0.4 });
-    }
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    pulseRef.current =
+      thinking && !reduce
+        ? gsap.to(img, {
+            opacity: 0.6,
+            duration: 0.7,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut",
+          })
+        : gsap.to(img, { opacity: 1, duration: 0.4 });
     return () => {
       pulseRef.current?.kill();
     };
@@ -63,38 +62,19 @@ export function MarcoFace({
 
   return (
     <div
-      ref={plateRef}
-      className="relative overflow-hidden rounded-lg"
-      style={{ background: "#221a11", padding: "10px 12px" }}
-      role="img"
-      aria-label="ASCII portrait of Marco Polo"
+      ref={frameRef}
+      className="shrink-0 overflow-hidden rounded-lg border border-[#c9bfa8] bg-[#efe6d3] p-1 shadow-sm"
+      style={{ width }}
     >
-      {/* warm vignette */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          boxShadow: "inset 0 0 26px rgba(0,0,0,0.55)",
-          background:
-            "radial-gradient(ellipse at 50% 38%, rgba(232,214,166,0.06), transparent 70%)",
-        }}
-      />
-      <div
-        ref={artRef}
-        className="relative select-none"
-        style={{
-          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-          fontSize: `${size}px`,
-          lineHeight: `${size}px`,
-          fontWeight: 700,
-          color: "#e8d6a6",
-          letterSpacing: "0.5px",
-        }}
-      >
-        {MARCO_ASCII.map((line, i) => (
-          <pre key={i} className="m-0 whitespace-pre">
-            {line || " "}
-          </pre>
-        ))}
+      <div ref={imgRef} className="overflow-hidden rounded">
+        <Image
+          src="/marco-portrait.png"
+          alt="Portrait of Marco Polo"
+          width={240}
+          height={324}
+          className="h-auto w-full select-none"
+          priority
+        />
       </div>
     </div>
   );

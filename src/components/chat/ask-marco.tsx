@@ -69,7 +69,8 @@ const SUGGESTIONS = [
 const inputClass =
   "w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
 
-export function AskMarco({ compact = false }: { compact?: boolean }) {
+/** The single Ask Marco surface — a self-contained card for the dashboard. */
+export function AskMarco() {
   const [config, setConfig] = useState<AiConfig>({
     provider: "anthropic",
     model: "claude-opus-4-8",
@@ -95,19 +96,6 @@ export function AskMarco({ compact = false }: { compact?: boolean }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activity]);
-
-  // Pick up a prompt handed off from elsewhere (e.g. the Overview command bar).
-  useEffect(() => {
-    try {
-      const handoff = sessionStorage.getItem("marco.prefill");
-      if (handoff) {
-        sessionStorage.removeItem("marco.prefill");
-        setInput(handoff);
-      }
-    } catch {
-      // storage unavailable — nothing to hand off
-    }
-  }, []);
 
   function updateConfig(patch: Partial<AiConfig>) {
     setConfig((previous) => {
@@ -199,276 +187,221 @@ export function AskMarco({ compact = false }: { compact?: boolean }) {
     }
   }
 
-  const connectForm = (
-    <div className="flex flex-col gap-3">
-      <select
-        className={inputClass}
-        value={config.provider}
-        onChange={(e) => {
-          const provider = e.target.value as AiProvider;
-          const preset = PROVIDERS.find((p) => p.id === provider);
-          updateConfig({ provider, model: preset?.defaultModel ?? "" });
-        }}
-        aria-label="AI provider"
-      >
-        {PROVIDERS.map((p) => (
-          <option key={p.id} value={p.id} className="bg-card">
-            {p.label}
-          </option>
-        ))}
-      </select>
-      <input
-        className={inputClass}
-        placeholder="model, e.g. claude-opus-4-8"
-        value={config.model}
-        onChange={(e) => updateConfig({ model: e.target.value })}
-        aria-label="Model name"
-      />
-      {config.provider === "custom" && (
-        <input
-          className={inputClass}
-          placeholder="base URL, e.g. http://localhost:11434/v1"
-          value={config.baseUrl}
-          onChange={(e) => updateConfig({ baseUrl: e.target.value })}
-          aria-label="Base URL"
-        />
-      )}
-      <input
-        className={inputClass}
-        type="password"
-        placeholder="API key"
-        value={config.apiKey}
-        onChange={(e) => updateConfig({ apiKey: e.target.value })}
-        aria-label="API key"
-      />
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        Your key stays on this device and is sent only to your chosen model
-        provider. Marco uses it to run the agent that calls the travel APIs.
-      </p>
-    </div>
-  );
-
-  const conversation = (
-    <>
-      {messages.length === 0 && (
-        <div
-          className={cn(
-            "mx-auto text-center",
-            compact ? "max-w-md pt-6" : "max-w-lg pt-16",
-          )}
-        >
-          <h2
-            className={cn(
-              "font-serif text-foreground",
-              compact ? "text-2xl" : "text-3xl",
-            )}
-          >
-            Where shall we go?
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            I aggregate live flights, hotels, and experiences, then chart the
-            route and the budget. Ask me anything travel.
-          </p>
-          <div className="mt-5 flex flex-col gap-2">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => send(s)}
-                className="rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className={cn("mx-auto flex flex-col gap-4", compact ? "max-w-xl" : "max-w-2xl")}>
-        {messages.map((message, index) =>
-          message.role === "user" ? (
-            <div
-              key={index}
-              className="self-end rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-sm text-primary-foreground"
-            >
-              {message.content}
-            </div>
-          ) : (
-            <div
-              key={index}
-              className={cn(
-                "self-start rounded-2xl rounded-bl-sm border px-4 py-3 text-sm leading-relaxed",
-                message.error
-                  ? "border-destructive/30 bg-destructive/10 text-destructive"
-                  : "border-border bg-card",
-              )}
-            >
-              {message.tools && message.tools.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-1.5">
-                  {[...new Set(message.tools)].map((tool) => (
-                    <span
-                      key={tool}
-                      className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
-                    >
-                      <Wrench className="size-2.5" aria-hidden />
-                      {TOOL_LABELS[tool] ?? tool}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="chat-markdown">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {message.content}
-                </ReactMarkdown>
-              </div>
-            </div>
-          ),
-        )}
-
-        {sending && (
-          <div className="self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
-              consulting the maps…
-            </div>
-            {activity.length > 0 && (
-              <ul className="mt-2 flex flex-col gap-1.5">
-                {activity.map((item, index) => (
-                  <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {item.done ? (
-                      item.ok ? (
-                        <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
-                      ) : (
-                        <CircleX className="size-3.5 text-destructive" aria-hidden />
-                      )
-                    ) : (
-                      <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
-                    )}
-                    <span className="font-medium text-foreground">
-                      {TOOL_LABELS[item.name] ?? item.name}
-                    </span>
-                    {item.summary}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
-    </>
-  );
-
-  const composer = (
-    <div className={cn("mx-auto flex items-end gap-2", compact ? "max-w-xl" : "max-w-2xl")}>
-      <textarea
-        className={`${inputClass} max-h-40 min-h-11 resize-none`}
-        rows={1}
-        placeholder={
-          connected
-            ? "Ask Marco… (Enter to send)"
-            : "Connect a model, then ask away…"
-        }
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            send();
-          }
-        }}
-        aria-label="Message"
-      />
-      <button
-        onClick={() => send()}
-        disabled={sending || input.trim().length === 0}
-        className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
-        aria-label="Send"
-      >
-        <Send className="size-4" />
-      </button>
-    </div>
-  );
-
-  // ===== compact: a single self-contained card for the dashboard =====
-  if (compact) {
-    return (
-      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="flex items-center gap-3 border-b border-border p-3">
-          <MarcoFace thinking={sending} size={2.7} />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-serif text-lg">Ask Marco</span>
-              <span
-                className={cn(
-                  "size-2 rounded-full",
-                  connected ? "bg-emerald-500" : "bg-muted-foreground/40",
-                )}
-                aria-label={connected ? "connected" : "not connected"}
-              />
-            </div>
-            <p className="truncate text-xs text-muted-foreground">
-              {sending
-                ? "charting your route…"
-                : connected
-                  ? config.model
-                  : "connect a model to begin"}
-            </p>
-          </div>
-          <button
-            onClick={() => setShowConnect((v) => !v)}
-            className="rounded-lg border border-border bg-card p-2 text-muted-foreground transition-colors hover:text-foreground"
-            aria-label="Model settings"
-            aria-expanded={showConnect}
-          >
-            <Settings2 className="size-4" />
-          </button>
-        </div>
-
-        {showConnect && (
-          <div className="border-b border-border bg-secondary/40 p-3">
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-              <Plug className="size-4 text-primary" aria-hidden />
-              Your model
-            </div>
-            {connectForm}
-          </div>
-        )}
-
-        <div className="flex-1 overflow-y-auto p-4">{conversation}</div>
-        <div className="border-t border-border p-3">{composer}</div>
-      </div>
-    );
-  }
-
-  // ===== full: the immersive /chat page =====
   return (
-    <div className="flex h-full bg-background text-foreground">
-      <div className="flex w-80 shrink-0 flex-col border-r border-border">
-        <div className="flex items-center justify-center border-b border-border p-6">
-          <MarcoFace thinking={sending} size={5.6} />
-        </div>
-        <div className="px-5 py-3 text-center text-xs uppercase tracking-[0.3em] text-primary/80">
-          {sending ? "charting your route…" : "Marco · at your service"}
-        </div>
-        <div className="flex flex-col gap-3 border-t border-border p-5">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <Plug className="size-4 text-primary" aria-hidden />
-            Your model
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      {/* header — portrait + status + model toggle */}
+      <div className="flex items-center gap-3 border-b border-border p-3">
+        <MarcoFace thinking={sending} width={72} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="font-serif text-lg">Ask Marco</span>
             <span
               className={cn(
-                "ml-auto size-2 rounded-full",
+                "size-2 rounded-full",
                 connected ? "bg-emerald-500" : "bg-muted-foreground/40",
               )}
               aria-label={connected ? "connected" : "not connected"}
             />
           </div>
-          {connectForm}
+          <p className="truncate text-xs text-muted-foreground">
+            {sending
+              ? "charting your route…"
+              : connected
+                ? config.model
+                : "connect a model to begin"}
+          </p>
+        </div>
+        <button
+          onClick={() => setShowConnect((v) => !v)}
+          className="rounded-lg border border-border bg-card p-2 text-muted-foreground transition-colors hover:text-foreground"
+          aria-label="Model settings"
+          aria-expanded={showConnect}
+        >
+          <Settings2 className="size-4" />
+        </button>
+      </div>
+
+      {/* collapsible model connect */}
+      {showConnect && (
+        <div className="flex flex-col gap-2.5 border-b border-border bg-secondary/40 p-3">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Plug className="size-4 text-primary" aria-hidden />
+            Your model
+          </div>
+          <select
+            className={inputClass}
+            value={config.provider}
+            onChange={(e) => {
+              const provider = e.target.value as AiProvider;
+              const preset = PROVIDERS.find((p) => p.id === provider);
+              updateConfig({ provider, model: preset?.defaultModel ?? "" });
+            }}
+            aria-label="AI provider"
+          >
+            {PROVIDERS.map((p) => (
+              <option key={p.id} value={p.id} className="bg-card">
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <input
+            className={inputClass}
+            placeholder="model, e.g. claude-opus-4-8"
+            value={config.model}
+            onChange={(e) => updateConfig({ model: e.target.value })}
+            aria-label="Model name"
+          />
+          {config.provider === "custom" && (
+            <input
+              className={inputClass}
+              placeholder="base URL, e.g. http://localhost:11434/v1"
+              value={config.baseUrl}
+              onChange={(e) => updateConfig({ baseUrl: e.target.value })}
+              aria-label="Base URL"
+            />
+          )}
+          <input
+            className={inputClass}
+            type="password"
+            placeholder="API key"
+            value={config.apiKey}
+            onChange={(e) => updateConfig({ apiKey: e.target.value })}
+            aria-label="API key"
+          />
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Your key stays on this device and is sent only to your chosen model
+            provider. Marco uses it to run the agent that calls the travel APIs.
+          </p>
+        </div>
+      )}
+
+      {/* conversation */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {messages.length === 0 && (
+          <div className="mx-auto max-w-md pt-6 text-center">
+            <h2 className="font-serif text-2xl text-foreground">
+              Where shall we go?
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              I aggregate live flights, hotels, and experiences, then chart the
+              route and the budget. Ask me anything travel.
+            </p>
+            <div className="mt-5 flex flex-col gap-2">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => send(s)}
+                  className="rounded-xl border border-border bg-card px-3.5 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mx-auto flex max-w-xl flex-col gap-4">
+          {messages.map((message, index) =>
+            message.role === "user" ? (
+              <div
+                key={index}
+                className="self-end rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-sm text-primary-foreground"
+              >
+                {message.content}
+              </div>
+            ) : (
+              <div
+                key={index}
+                className={cn(
+                  "self-start rounded-2xl rounded-bl-sm border px-4 py-3 text-sm leading-relaxed",
+                  message.error
+                    ? "border-destructive/30 bg-destructive/10 text-destructive"
+                    : "border-border bg-card",
+                )}
+              >
+                {message.tools && message.tools.length > 0 && (
+                  <div className="mb-2 flex flex-wrap gap-1.5">
+                    {[...new Set(message.tools)].map((tool) => (
+                      <span
+                        key={tool}
+                        className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
+                      >
+                        <Wrench className="size-2.5" aria-hidden />
+                        {TOOL_LABELS[tool] ?? tool}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="chat-markdown">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            ),
+          )}
+
+          {sending && (
+            <div className="self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
+                consulting the maps…
+              </div>
+              {activity.length > 0 && (
+                <ul className="mt-2 flex flex-col gap-1.5">
+                  {activity.map((item, index) => (
+                    <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {item.done ? (
+                        item.ok ? (
+                          <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
+                        ) : (
+                          <CircleX className="size-3.5 text-destructive" aria-hidden />
+                        )
+                      ) : (
+                        <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
+                      )}
+                      <span className="font-medium text-foreground">
+                        {TOOL_LABELS[item.name] ?? item.name}
+                      </span>
+                      {item.summary}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          <div ref={bottomRef} />
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex-1 overflow-y-auto px-8 py-8">{conversation}</div>
-        <div className="border-t border-border p-4">{composer}</div>
+      {/* composer */}
+      <div className="border-t border-border p-3">
+        <div className="mx-auto flex max-w-xl items-end gap-2">
+          <textarea
+            className={`${inputClass} max-h-40 min-h-11 resize-none`}
+            rows={1}
+            placeholder={
+              connected ? "Ask Marco… (Enter to send)" : "Connect a model, then ask away…"
+            }
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            aria-label="Message"
+          />
+          <button
+            onClick={() => send()}
+            disabled={sending || input.trim().length === 0}
+            className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+            aria-label="Send"
+          >
+            <Send className="size-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

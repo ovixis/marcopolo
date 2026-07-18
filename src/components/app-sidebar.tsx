@@ -8,7 +8,6 @@ import {
   BookOpen,
   CalendarRange,
   Images,
-  LayoutGrid,
   MessageSquare,
   Plug,
   Sparkles,
@@ -18,11 +17,10 @@ import {
 import { backendStatus, type BackendStatus } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
 
-// Flights, hotels, and experiences intentionally have no menu entry — they run
-// as background actions inside Ask Marco. Everything the traveler still touches
-// directly stays here.
+// The home ("/") is the unified command center — Ask Marco + the trip overview.
+// Flights, hotels, and experiences run as background actions inside the chat,
+// so they have no menu entry; only what the traveler touches directly stays.
 const NAV_ITEMS = [
-  { href: "/", label: "Overview", icon: LayoutGrid },
   { href: "/itinerary", label: "Itinerary", icon: CalendarRange },
   { href: "/budget", label: "Budget", icon: Wallet },
   { href: "/photos", label: "Photos", icon: Images },
@@ -53,7 +51,7 @@ export function AppSidebar() {
     backendStatus().then(setStatus).catch(() => setStatus(null));
   }, []);
 
-  const chatActive = pathname === "/chat" || pathname.startsWith("/chat/");
+  const homeActive = pathname === "/";
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
@@ -72,10 +70,10 @@ export function AppSidebar() {
       {/* Ask Marco — the primary command surface */}
       <div className="px-3">
         <Link
-          href="/chat"
+          href="/"
           className={cn(
             "flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors",
-            chatActive
+            homeActive
               ? "border-primary/40 bg-primary/10"
               : "border-border bg-gradient-to-r from-[#55692f]/10 to-[#7a8450]/10 hover:border-primary/40",
           )}

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, Compass, Users } from "lucide-react";
 
 import { AskMarco } from "@/components/chat/ask-marco";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { BudgetRing } from "@/components/dashboard/budget-ring";
 import { DocsDonut } from "@/components/dashboard/docs-donut";
 import { ReadinessList } from "@/components/dashboard/readiness-list";
@@ -19,10 +18,10 @@ export default function Home() {
     <div className="flex h-full gap-4 p-4 lg:gap-5 lg:p-6">
       {/* main — Ask Marco */}
       <div className="min-w-0 flex-1">
-        <AskMarco compact />
+        <AskMarco />
       </div>
 
-      {/* aside — compact overview */}
+      {/* aside — compact overview (fits one screen) */}
       <aside className="hidden w-80 shrink-0 flex-col gap-4 overflow-y-auto pb-1 xl:flex">
         <section className={`${card} p-4`}>
           <div className="mb-3 flex items-center justify-between">
@@ -59,11 +58,6 @@ export default function Home() {
         <section className={`${card} p-4`}>
           <h2 className="mb-3 text-sm font-semibold">Travel documents</h2>
           <DocsDonut />
-        </section>
-
-        <section className={`${card} p-4`}>
-          <h2 className="mb-3 text-sm font-semibold">Recent activity</h2>
-          <ActivityFeed />
         </section>
       </aside>
     </div>
