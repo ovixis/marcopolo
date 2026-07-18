@@ -405,3 +405,35 @@ mod tests {
         assert_eq!(cabin_class(Some("ECONOMY")), "economy");
     }
 }
+
+#[cfg(test)]
+mod live_tests {
+    use super::*;
+
+    /// Exercises the real Duffel endpoint through the production code path.
+    /// Run with: set -a; source ../.env; set +a; cargo test -- --ignored
+    #[tokio::test]
+    #[ignore = "live API call; requires DUFFEL_API_KEY in the environment"]
+    async fn live_flight_search_returns_offers() {
+        let client = DuffelClient::from_env();
+        assert!(client.is_configured(), "DUFFEL_API_KEY not set");
+        let query = FlightSearchQuery {
+            origin: "JFK".into(),
+            destination: "LHR".into(),
+            departure_date: "2026-08-17".into(),
+            return_date: None,
+            adults: 1,
+            children: 0,
+            infants: 0,
+            travel_class: None,
+            non_stop: false,
+            currency: None,
+        };
+        let result = client.search_flights(&query).await.expect("search failed");
+        assert!(!result.demo);
+        assert!(!result.offers.is_empty(), "expected live flight offers");
+        let offer = &result.offers[0];
+        assert!(!offer.itineraries.is_empty());
+        assert!(offer.total_price.parse::<f64>().unwrap() > 0.0);
+    }
+}

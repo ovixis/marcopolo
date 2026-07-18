@@ -107,3 +107,79 @@ pub fn validate_query(query: &FlightSearchQuery) -> Result<(), ApiError> {
     }
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// Hotels (LiteAPI / Nuitee) — mirror of `src/lib/types/hotels.ts`.
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HotelSearchQuery {
+    pub city: String,
+    /// ISO 3166-1 alpha-2, e.g. "IT"
+    pub country_code: String,
+    /// ISO date
+    pub check_in: String,
+    /// ISO date
+    pub check_out: String,
+    pub adults: u32,
+    #[serde(default)]
+    pub children: u32,
+    pub rooms: u32,
+    pub currency: Option<String>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct HotelSearchResult {
+    pub offers: Vec<HotelOffer>,
+    pub currency: String,
+    /// True when results are locally generated because no API key is configured.
+    pub demo: bool,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct HotelOffer {
+    pub id: String,
+    pub name: String,
+    pub address: String,
+    pub city: String,
+    pub country: String,
+    pub star_rating: Option<u32>,
+    /// 0-10 guest review score
+    pub review_score: Option<f64>,
+    pub review_count: Option<u32>,
+    /// Total stay price as decimal string
+    pub total_price: String,
+    pub currency: String,
+    pub photo_url: Option<String>,
+    pub latitude: Option<f64>,
+    pub longitude: Option<f64>,
+    pub room_name: Option<String>,
+    pub board_name: Option<String>,
+    pub free_cancellation: bool,
+}
+
+pub fn validate_hotel_query(query: &HotelSearchQuery) -> Result<(), ApiError> {
+    if query.city.trim().is_empty() {
+        return Err(ApiError::InvalidInput("city must not be empty".to_owned()));
+    }
+    let cc = query.country_code.trim();
+    if cc.len() != 2 || !cc.chars().all(|c| c.is_ascii_alphabetic()) {
+        return Err(ApiError::InvalidInput(format!(
+            "countryCode must be a 2-letter ISO code, got \"{cc}\""
+        )));
+    }
+    if query.check_in.len() != 10 || query.check_out.len() != 10 {
+        return Err(ApiError::InvalidInput(
+            "checkIn/checkOut must be ISO dates (YYYY-MM-DD)".to_owned(),
+        ));
+    }
+    if query.check_out <= query.check_in {
+        return Err(ApiError::InvalidInput(
+            "checkOut must be after checkIn".to_owned(),
+        ));
+    }
+    Ok(())
+}

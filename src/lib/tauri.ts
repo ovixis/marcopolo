@@ -10,15 +10,25 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   FlightSearchQuery,
   FlightSearchResult,
+  HotelSearchQuery,
+  HotelSearchResult,
   LocationSuggestion,
 } from "./types";
-import { webFallbackFlights, webFallbackLocations } from "./web-fallback";
+import {
+  webFallbackFlights,
+  webFallbackHotels,
+  webFallbackLocations,
+} from "./web-fallback";
 
 export interface BackendStatus {
   flightsProvider: string;
   flightsConfigured: boolean;
   /** "test" | "live" | "demo" (or "browser" in the web preview) */
   environment: string;
+  hotelsProvider: string;
+  hotelsConfigured: boolean;
+  /** "live" | "sandbox" | "demo" */
+  hotelsEnvironment: string;
   version: string;
 }
 
@@ -61,12 +71,24 @@ export async function searchLocations(
   return invoke<LocationSuggestion[]>("search_locations", { keyword });
 }
 
+export async function searchHotels(
+  query: HotelSearchQuery,
+): Promise<HotelSearchResult> {
+  if (!isTauri()) {
+    return webFallbackHotels(query);
+  }
+  return invoke<HotelSearchResult>("search_hotels", { query });
+}
+
 export async function backendStatus(): Promise<BackendStatus> {
   if (!isTauri()) {
     return {
       flightsProvider: "duffel",
       flightsConfigured: false,
       environment: "browser",
+      hotelsProvider: "liteapi",
+      hotelsConfigured: false,
+      hotelsEnvironment: "browser",
       version: "web-preview",
     };
   }

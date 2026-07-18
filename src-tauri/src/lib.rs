@@ -1,12 +1,16 @@
 mod demo;
 mod duffel;
 mod error;
+mod liteapi;
 mod types;
 
 use duffel::DuffelClient;
 use error::ApiError;
+use liteapi::LiteApiClient;
 use serde::Serialize;
-use types::{FlightSearchQuery, FlightSearchResult, LocationSuggestion};
+use types::{
+    FlightSearchQuery, FlightSearchResult, HotelSearchQuery, HotelSearchResult, LocationSuggestion,
+};
 
 #[tauri::command]
 async fn search_flights(
@@ -24,6 +28,14 @@ async fn search_locations(
     state.search_locations(&keyword).await
 }
 
+#[tauri::command]
+async fn search_hotels(
+    state: tauri::State<'_, LiteApiClient>,
+    query: HotelSearchQuery,
+) -> Result<HotelSearchResult, ApiError> {
+    state.search_hotels(&query).await
+}
+
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct BackendStatus {
@@ -31,15 +43,25 @@ struct BackendStatus {
     flights_configured: bool,
     /// "test" | "live" | "demo"
     environment: String,
+    hotels_provider: String,
+    hotels_configured: bool,
+    /// "live" | "sandbox" | "demo"
+    hotels_environment: String,
     version: String,
 }
 
 #[tauri::command]
-fn backend_status(state: tauri::State<'_, DuffelClient>) -> BackendStatus {
+fn backend_status(
+    flights: tauri::State<'_, DuffelClient>,
+    hotels: tauri::State<'_, LiteApiClient>,
+) -> BackendStatus {
     BackendStatus {
         flights_provider: "duffel".to_owned(),
-        flights_configured: state.is_configured(),
-        environment: state.environment().to_owned(),
+        flights_configured: flights.is_configured(),
+        environment: flights.environment().to_owned(),
+        hotels_provider: "liteapi".to_owned(),
+        hotels_configured: hotels.is_configured(),
+        hotels_environment: hotels.environment().to_owned(),
         version: env!("CARGO_PKG_VERSION").to_owned(),
     }
 }
@@ -52,6 +74,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(DuffelClient::from_env())
+        .manage(LiteApiClient::from_env())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -65,6 +88,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             search_flights,
             search_locations,
+            search_hotels,
             backend_status
         ])
         .run(tauri::generate_context!())

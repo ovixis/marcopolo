@@ -6,6 +6,9 @@ import type {
   FlightOffer,
   FlightSearchQuery,
   FlightSearchResult,
+  HotelOffer,
+  HotelSearchQuery,
+  HotelSearchResult,
   LocationSuggestion,
 } from "./types";
 
@@ -82,6 +85,43 @@ export function webFallbackFlights(
       offer("web-1", "BA", "British Airways", 8, 7, "420.00"),
       offer("web-2", "AF", "Air France", 11, 8, "365.00"),
       offer("web-3", "DL", "Delta Air Lines", 17, 7, "489.00"),
+    ],
+  };
+}
+
+export function webFallbackHotels(query: HotelSearchQuery): HotelSearchResult {
+  const currency = query.currency ?? "USD";
+  const city = query.city.trim() || "Sample City";
+  const hotel = (
+    id: string,
+    name: string,
+    stars: number,
+    score: number,
+    price: string,
+    freeCancellation: boolean,
+  ): HotelOffer => ({
+    id,
+    name: name.replace("{}", city),
+    address: "12 Explorer Street",
+    city,
+    country: query.countryCode.toUpperCase(),
+    starRating: stars,
+    reviewScore: score,
+    reviewCount: 1200,
+    totalPrice: price,
+    currency,
+    roomName: "Double Room",
+    boardName: "Room Only",
+    freeCancellation,
+  });
+
+  return {
+    currency,
+    demo: true,
+    offers: [
+      hotel("web-h1", "Grand {} Palace", 5, 9.1, "540.00", true),
+      hotel("web-h2", "The {} House", 4, 8.8, "360.00", true),
+      hotel("web-h3", "Old Town {} Inn", 3, 7.9, "220.00", false),
     ],
   };
 }

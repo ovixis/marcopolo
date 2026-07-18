@@ -27,7 +27,8 @@ src/                    Next.js frontend (static export)
   lib/tauri.ts          Typed bridge to Rust commands (+ browser fallback)
 src-tauri/              Rust backend
   src/duffel.rs         Duffel client (flights)
-  src/types.rs          Flight domain / IPC types
+  src/liteapi.rs        LiteAPI client (hotels)
+  src/types.rs          Domain / IPC types (flights + hotels)
   src/demo.rs           Demo-mode sample data
   src/error.rs          Error type serialized to the frontend
 supabase/migrations/    Database schema (Postgres + RLS)

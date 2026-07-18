@@ -17,7 +17,7 @@ MIT licensed.
 | Feature | Status | Provider |
 | --- | --- | --- |
 | ✈️ Flight search | ✅ MVP | Duffel |
-| 🏨 Hotel search | 🚧 Roadmap (weeks 5-8) | Booking.com |
+| 🏨 Hotel search | ✅ MVP | LiteAPI (Nuitee) |
 | 🎟️ Experiences | 🚧 Roadmap (weeks 5-8) | Viator |
 | 📅 Itinerary builder | 🚧 Roadmap (weeks 9-10) | — |
 | 💰 Budget tracker | 🚧 Roadmap (weeks 9-10) | — |
@@ -68,6 +68,7 @@ optional — missing keys simply keep that feature in demo mode.
 | Variable | Purpose |
 | --- | --- |
 | `DUFFEL_API_KEY` | Real flight search. Free test-mode keys at [app.duffel.com](https://app.duffel.com) — test keys (`duffel_test_…`) return sandbox offers, live keys real content |
+| `LITEAPI_API_KEY` | Real hotel search. Keys at [liteapi.travel](https://liteapi.travel) — searches are free; only confirmed bookings are billed |
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth, trips database, photo storage |
 | `ANTHROPIC_API_KEY` | AI journal synthesis (roadmap) |
 
@@ -86,7 +87,7 @@ only ever see their own trips, photos, and messages.
 ```
 ┌────────────────────────────────────────────────┐
 │ Tauri shell (Rust)                             │
-│  • Provider API clients (Duffel, …)            │
+│  • Provider API clients (Duffel, LiteAPI, …)   │
 │  • API keys stay in the native process         │
 │  • Demo-mode data generation                   │
 │    ▲ typed IPC commands                        │
@@ -109,7 +110,7 @@ only ever see their own trips, photos, and messages.
 We'd love your help — see [CONTRIBUTING.md](CONTRIBUTING.md) for the dev
 workflow, project layout, and how to pick up an issue. Good first areas:
 
-- Hotel search (Booking.com) and experiences (Viator) provider clients
+- Experiences (Viator) provider client
 - Itinerary drag-and-drop builder
 - Budget tracker with multi-currency support
 

@@ -388,3 +388,146 @@ mod tests {
         let _ = crosses_midnight;
     }
 }
+
+// ---------------------------------------------------------------------------
+// Hotels demo data
+// ---------------------------------------------------------------------------
+
+use crate::types::{HotelOffer, HotelSearchQuery, HotelSearchResult};
+
+const HOTEL_TEMPLATES: &[(&str, u32, f64, u32, &str, &str, bool)] = &[
+    // (name pattern, stars, review score, review count, room, board, free cancellation)
+    (
+        "Grand {} Palace",
+        5,
+        9.1,
+        2841,
+        "Deluxe King Room",
+        "Breakfast Included",
+        true,
+    ),
+    (
+        "The {} House",
+        4,
+        8.8,
+        1932,
+        "Superior Double Room",
+        "Room Only",
+        true,
+    ),
+    (
+        "{} Central Hotel",
+        4,
+        8.4,
+        3310,
+        "Classic Double Room",
+        "Room Only",
+        false,
+    ),
+    (
+        "Hotel {} Garden",
+        3,
+        8.1,
+        1287,
+        "Standard Twin Room",
+        "Breakfast Included",
+        true,
+    ),
+    (
+        "{} Boutique Suites",
+        4,
+        9.3,
+        764,
+        "Junior Suite",
+        "Room Only",
+        false,
+    ),
+    (
+        "Old Town {} Inn",
+        3,
+        7.9,
+        2075,
+        "Cozy Double Room",
+        "Room Only",
+        true,
+    ),
+    (
+        "{} Riverside Hotel",
+        5,
+        9.0,
+        1554,
+        "Executive Room",
+        "Breakfast Included",
+        false,
+    ),
+];
+
+/// Nights between two ISO dates (fallback 1 when unparsable).
+fn nights_between(check_in: &str, check_out: &str) -> u32 {
+    fn day_index(date: &str) -> Option<i64> {
+        let parts: Vec<u32> = date.split('-').filter_map(|p| p.parse().ok()).collect();
+        let [y, m, d] = parts[..] else { return None };
+        // Days since a fixed epoch, good enough for date differences.
+        let mut days = i64::from(y) * 365 + i64::from(y / 4) + i64::from(d);
+        days += (1..m)
+            .map(|mm| i64::from(days_in_month(y, mm)))
+            .sum::<i64>();
+        Some(days)
+    }
+    match (day_index(check_in), day_index(check_out)) {
+        (Some(a), Some(b)) if b > a => (b - a) as u32,
+        _ => 1,
+    }
+}
+
+pub fn hotel_results(query: &HotelSearchQuery) -> HotelSearchResult {
+    let city = {
+        let trimmed = query.city.trim();
+        let mut chars = trimmed.chars();
+        match chars.next() {
+            Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+            None => "Sample City".to_owned(),
+        }
+    };
+    let currency = query.currency.clone().unwrap_or_else(|| "USD".to_owned());
+    let seed = fnv1a(&format!("{city}-{}", query.check_in));
+    let nights = nights_between(&query.check_in, &query.check_out);
+    let rooms = query.rooms.max(1);
+    let base_night = 70 + (seed % 160) as u32; // city price level: 70..230 per night
+
+    let offers = HOTEL_TEMPLATES
+        .iter()
+        .enumerate()
+        .map(
+            |(i, (pattern, stars, score, reviews, room, board, free_cancel))| {
+                let offer_seed = seed.wrapping_add(i as u64 * 6151);
+                let night_price = base_night + stars * 40 + (offer_seed % 45) as u32;
+                let total = night_price * nights * rooms;
+                HotelOffer {
+                    id: format!("demo-hotel-{i}"),
+                    name: pattern.replace("{}", &city),
+                    address: format!("{} Explorer Street", 12 + (offer_seed % 180)),
+                    city: city.clone(),
+                    country: query.country_code.to_uppercase(),
+                    star_rating: Some(*stars),
+                    review_score: Some(*score),
+                    review_count: Some(*reviews),
+                    total_price: format!("{total}.00"),
+                    currency: currency.clone(),
+                    photo_url: None,
+                    latitude: None,
+                    longitude: None,
+                    room_name: Some((*room).to_owned()),
+                    board_name: Some((*board).to_owned()),
+                    free_cancellation: *free_cancel,
+                }
+            },
+        )
+        .collect();
+
+    HotelSearchResult {
+        offers,
+        currency,
+        demo: true,
+    }
+}
