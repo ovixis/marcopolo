@@ -1,119 +1,153 @@
 import Link from "next/link";
 import {
-  ArrowRight,
-  BookOpen,
-  CalendarRange,
-  Hotel,
-  Images,
-  MessageSquare,
-  Plane,
+  FlaskConical,
+  Globe2,
+  PlaneTakeoff,
+  Plus,
   Ticket,
   Wallet,
 } from "lucide-react";
 
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { BookingsTable } from "@/components/dashboard/bookings-table";
+import { DocsDonut } from "@/components/dashboard/docs-donut";
+import { JournalTeaser } from "@/components/dashboard/journal-teaser";
+import { NextTripCard } from "@/components/dashboard/next-trip-card";
+import { ReadinessList } from "@/components/dashboard/readiness-list";
+import { SpendChart } from "@/components/dashboard/spend-chart";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardDescription,
+  CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-const FEATURES = [
-  {
-    href: "/flights",
-    icon: Plane,
-    title: "Flights",
-    description: "Search real-time flight offers powered by Amadeus.",
-    ready: true,
-  },
-  {
-    href: "/hotels",
-    icon: Hotel,
-    title: "Hotels",
-    description: "Compare stays via Booking.com.",
-    ready: false,
-  },
-  {
-    href: "/experiences",
-    icon: Ticket,
-    title: "Experiences",
-    description: "Find tours and activities via Viator.",
-    ready: false,
-  },
-  {
-    href: "/itinerary",
-    icon: CalendarRange,
-    title: "Itinerary",
-    description: "Plan each day with drag-and-drop.",
-    ready: false,
-  },
-  {
-    href: "/budget",
-    icon: Wallet,
-    title: "Budget",
-    description: "Track costs in real time across categories.",
-    ready: false,
-  },
-  {
-    href: "/photos",
-    icon: Images,
-    title: "Photos",
-    description: "Your trip gallery, stored in your own Supabase.",
-    ready: false,
-  },
-  {
-    href: "/journal",
-    icon: BookOpen,
-    title: "AI Journal",
-    description: "Claude turns photos and notes into trip stories.",
-    ready: false,
-  },
-  {
-    href: "/agents",
-    icon: MessageSquare,
-    title: "Travel Agents",
-    description: "Message a human expert when you want one.",
-    ready: false,
-  },
-];
+import { demoTrip } from "@/lib/demo-dashboard";
 
 export default function Home() {
+  const budgetPct = Math.round(
+    (demoTrip.budgetSpent / demoTrip.budgetTotal) * 100,
+  );
+
   return (
-    <div className="mx-auto max-w-5xl px-8 py-12">
-      <div className="mb-10">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Where to next?
-        </h1>
-        <p className="mt-2 max-w-xl text-muted-foreground">
-          Marco Polo brings flights, stays, experiences, planning, and memories
-          into one open-source desktop app.
-        </p>
+    <div className="mx-auto max-w-6xl px-8 py-10">
+      {/* ===== Header ===== */}
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-1 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+            Overview
+          </p>
+          <h1 className="font-serif text-4xl tracking-tight">
+            Your journeys, at a glance
+          </h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-medium">
+            <FlaskConical className="size-3.5 text-amber-600 dark:text-amber-500" aria-hidden />
+            Demo trip
+          </span>
+          <Button nativeButton={false} render={<Link href="/flights" />}>
+            <Plus className="size-4" aria-hidden />
+            Plan a trip
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map(({ href, icon: Icon, title, description, ready }) => (
-          <Link key={href} href={href} className="group">
-            <Card className="h-full transition-colors group-hover:border-primary/50">
+      {/* ===== KPI row ===== */}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          hero
+          icon={PlaneTakeoff}
+          label="Next departure"
+          value={`${demoTrip.daysToDeparture} days`}
+          note={`${demoTrip.title} · ${demoTrip.dateRange}`}
+        />
+        <StatCard
+          icon={Wallet}
+          label="Trip budget used"
+          value={`${budgetPct}%`}
+          progress={budgetPct}
+          note={`$${demoTrip.budgetSpent.toLocaleString()} of $${demoTrip.budgetTotal.toLocaleString()}`}
+        />
+        <StatCard
+          icon={Ticket}
+          label="Bookings confirmed"
+          value="6 of 8"
+          note="2 pending confirmation"
+        />
+        <StatCard
+          icon={Globe2}
+          label="Countries visited"
+          value="14"
+          note="+2 this year"
+        />
+      </div>
+
+      {/* ===== Main grid ===== */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* left / wide column */}
+        <div className="flex flex-col gap-6 lg:col-span-2">
+          <Card>
+            <CardHeader className="flex-row items-center justify-between">
+              <CardTitle className="text-base">Spending overview</CardTitle>
+              <span className="text-xs text-muted-foreground">
+                Cumulative · {demoTrip.title}
+              </span>
+            </CardHeader>
+            <CardContent>
+              <SpendChart />
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <Card>
               <CardHeader>
-                <div className="mb-1 flex items-center justify-between">
-                  <Icon className="size-5 text-primary" aria-hidden />
-                  {ready ? (
-                    <ArrowRight
-                      className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-                      aria-hidden
-                    />
-                  ) : (
-                    <span className="rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                      Soon
-                    </span>
-                  )}
-                </div>
-                <CardTitle className="text-base">{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
+                <CardTitle className="text-base">Trip readiness</CardTitle>
               </CardHeader>
+              <CardContent>
+                <ReadinessList />
+              </CardContent>
             </Card>
-          </Link>
-        ))}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Travel documents</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DocsDonut />
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between">
+              <CardTitle className="text-base">Recent bookings</CardTitle>
+              <Link
+                href="/budget"
+                className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+              >
+                View budget →
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <BookingsTable />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* right / narrow column */}
+        <div className="flex flex-col gap-6">
+          <NextTripCard />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Recent activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ActivityFeed />
+            </CardContent>
+          </Card>
+          <JournalTeaser />
+        </div>
       </div>
     </div>
   );
