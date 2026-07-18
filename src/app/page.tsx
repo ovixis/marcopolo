@@ -1,61 +1,46 @@
 import Link from "next/link";
-import { ArrowRight, CalendarRange, Compass, Users } from "lucide-react";
+import { ArrowRight, CalendarDays, Compass, Users } from "lucide-react";
 
+import { AskMarco } from "@/components/chat/ask-marco";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { BudgetRing } from "@/components/dashboard/budget-ring";
-import { CapabilityRail } from "@/components/dashboard/capability-rail";
-import { CommandHero } from "@/components/dashboard/command-hero";
 import { DocsDonut } from "@/components/dashboard/docs-donut";
-import { JournalTeaser } from "@/components/dashboard/journal-teaser";
 import { ReadinessList } from "@/components/dashboard/readiness-list";
-import { SpendChart } from "@/components/dashboard/spend-chart";
 import { demoTrip } from "@/lib/demo-dashboard";
 
-const panel =
-  "rounded-2xl border border-border bg-card p-5 shadow-sm";
+const card = "rounded-2xl border border-border bg-card shadow-sm";
 
-function PanelHeader({
-  title,
-  action,
-}: {
-  title: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="mb-4 flex items-center justify-between">
-      <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
-      {action}
-    </div>
-  );
-}
-
+/**
+ * The unified command center: Ask Marco (compact) is the main surface, with a
+ * tight column of trip-overview widgets beside it — everything on one screen.
+ */
 export default function Home() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8 lg:px-8">
-      <CommandHero />
+    <div className="flex h-full gap-4 p-4 lg:gap-5 lg:p-6">
+      {/* main — Ask Marco */}
+      <div className="min-w-0 flex-1">
+        <AskMarco compact />
+      </div>
 
-      {/* ===== bento: trip · capabilities · documents ===== */}
-      <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-6">
-        <section className={`${panel} lg:col-span-2`}>
-          <PanelHeader
-            title="Next voyage"
-            action={
-              <Link
-                href="/itinerary"
-                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-              >
-                Itinerary
-                <ArrowRight className="size-3.5" aria-hidden />
-              </Link>
-            }
-          />
-          <div className="mb-4 flex items-center gap-2">
-            <Compass className="size-4 text-primary" aria-hidden />
-            <span className="text-lg font-semibold">{demoTrip.title}</span>
+      {/* aside — compact overview */}
+      <aside className="hidden w-80 shrink-0 flex-col gap-4 overflow-y-auto pb-1 xl:flex">
+        <section className={`${card} p-4`}>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Compass className="size-4 text-primary" aria-hidden />
+              <span className="font-serif text-lg">{demoTrip.title}</span>
+            </div>
+            <Link
+              href="/itinerary"
+              className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              Itinerary
+              <ArrowRight className="size-3.5" aria-hidden />
+            </Link>
           </div>
           <div className="mb-4 flex items-center gap-4 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <CalendarRange className="size-3.5" aria-hidden />
+              <CalendarDays className="size-3.5" aria-hidden />
               {demoTrip.dateRange}
             </span>
             <span className="flex items-center gap-1.5">
@@ -66,47 +51,21 @@ export default function Home() {
           <BudgetRing />
         </section>
 
-        <section className={`${panel} lg:col-span-2`}>
-          <PanelHeader title="Ask Marco" />
-          <CapabilityRail />
-        </section>
-
-        <section className={`${panel} lg:col-span-2`}>
-          <PanelHeader title="Travel documents" />
-          <DocsDonut />
-        </section>
-      </div>
-
-      {/* ===== bento: spending · readiness ===== */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-6">
-        <section className={`${panel} lg:col-span-4`}>
-          <PanelHeader
-            title="Spending overview"
-            action={
-              <span className="text-xs text-muted-foreground">
-                Cumulative · {demoTrip.title}
-              </span>
-            }
-          />
-          <SpendChart />
-        </section>
-
-        <section className={`${panel} lg:col-span-2`}>
-          <PanelHeader title="Trip readiness" />
+        <section className={`${card} p-4`}>
+          <h2 className="mb-3 text-sm font-semibold">Trip readiness</h2>
           <ReadinessList />
         </section>
-      </div>
 
-      {/* ===== bento: activity · journal ===== */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-6">
-        <section className={`${panel} lg:col-span-3`}>
-          <PanelHeader title="Recent activity" />
+        <section className={`${card} p-4`}>
+          <h2 className="mb-3 text-sm font-semibold">Travel documents</h2>
+          <DocsDonut />
+        </section>
+
+        <section className={`${card} p-4`}>
+          <h2 className="mb-3 text-sm font-semibold">Recent activity</h2>
           <ActivityFeed />
         </section>
-        <div className="lg:col-span-3">
-          <JournalTeaser />
-        </div>
-      </div>
+      </aside>
     </div>
   );
 }
