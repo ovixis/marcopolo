@@ -1,0 +1,20 @@
+import { Images } from "lucide-react";
+
+import { ComingSoon } from "@/components/coming-soon";
+
+export default function PhotosPage() {
+  return (
+    <ComingSoon
+      icon={Images}
+      title="Photo Gallery"
+      description="Your trip photos, stored in your own Supabase project — you own the storage."
+      phase="Weeks 11-12"
+      planned={[
+        "Drag-and-drop uploads to a private Supabase Storage bucket",
+        "Timeline grouped by trip day, with EXIF date and location",
+        "Captions and favorites",
+        "Feeds the AI journal for narrative synthesis",
+      ]}
+    />
+  );
+}
