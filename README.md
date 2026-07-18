@@ -72,6 +72,24 @@ optional — missing keys simply keep that feature in demo mode.
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth, trips database, photo storage |
 | `ANTHROPIC_API_KEY` | AI journal synthesis (roadmap) |
 
+## Connect your AI (MCP)
+
+While the app is open it runs a local **MCP server** on
+`http://127.0.0.1:1254/mcp` (port = Marco Polo's birth year; override with
+`MARCOPOLO_MCP_PORT`). Any MCP-capable AI client — Claude, ChatGPT/OpenAI
+agents, Grok, Kimi, Cursor — can use the app's travel search as tools:
+`search_flights`, `search_hotels`, and `search_locations`.
+
+The in-app **AI Connect** page has copy-paste setup snippets per client. The
+quick version for Claude Code:
+
+```bash
+claude mcp add --transport http marco-polo http://127.0.0.1:1254/mcp
+```
+
+The server binds to localhost only. Cloud-hosted AIs need a tunnel (ngrok,
+cloudflared) to reach it — the AI Connect page explains the trade-offs.
+
 ### Supabase setup (optional)
 
 1. Create a project at [supabase.com](https://supabase.com) (free tier is fine).

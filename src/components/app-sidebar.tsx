@@ -11,6 +11,7 @@ import {
   Images,
   MessageSquare,
   Plane,
+  Plug,
   Ticket,
   Wallet,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { href: "/photos", label: "Photos", icon: Images },
   { href: "/journal", label: "Journal", icon: BookOpen },
   { href: "/agents", label: "Travel Agents", icon: MessageSquare },
+  { href: "/connect", label: "AI Connect", icon: Plug },
 ];
 
 export function AppSidebar() {

@@ -2,7 +2,10 @@ mod demo;
 mod duffel;
 mod error;
 mod liteapi;
+mod mcp;
 mod types;
+
+use std::sync::Arc;
 
 use duffel::DuffelClient;
 use error::ApiError;
@@ -14,7 +17,7 @@ use types::{
 
 #[tauri::command]
 async fn search_flights(
-    state: tauri::State<'_, DuffelClient>,
+    state: tauri::State<'_, Arc<DuffelClient>>,
     query: FlightSearchQuery,
 ) -> Result<FlightSearchResult, ApiError> {
     state.search_flights(&query).await
@@ -22,7 +25,7 @@ async fn search_flights(
 
 #[tauri::command]
 async fn search_locations(
-    state: tauri::State<'_, DuffelClient>,
+    state: tauri::State<'_, Arc<DuffelClient>>,
     keyword: String,
 ) -> Result<Vec<LocationSuggestion>, ApiError> {
     state.search_locations(&keyword).await
@@ -30,7 +33,7 @@ async fn search_locations(
 
 #[tauri::command]
 async fn search_hotels(
-    state: tauri::State<'_, LiteApiClient>,
+    state: tauri::State<'_, Arc<LiteApiClient>>,
     query: HotelSearchQuery,
 ) -> Result<HotelSearchResult, ApiError> {
     state.search_hotels(&query).await
@@ -47,13 +50,15 @@ struct BackendStatus {
     hotels_configured: bool,
     /// "live" | "sandbox" | "demo"
     hotels_environment: String,
+    /// Local MCP endpoint AI clients can connect to.
+    mcp_endpoint: String,
     version: String,
 }
 
 #[tauri::command]
 fn backend_status(
-    flights: tauri::State<'_, DuffelClient>,
-    hotels: tauri::State<'_, LiteApiClient>,
+    flights: tauri::State<'_, Arc<DuffelClient>>,
+    hotels: tauri::State<'_, Arc<LiteApiClient>>,
 ) -> BackendStatus {
     BackendStatus {
         flights_provider: "duffel".to_owned(),
@@ -62,6 +67,7 @@ fn backend_status(
         hotels_provider: "liteapi".to_owned(),
         hotels_configured: hotels.is_configured(),
         hotels_environment: hotels.environment().to_owned(),
+        mcp_endpoint: mcp::endpoint(),
         version: env!("CARGO_PKG_VERSION").to_owned(),
     }
 }
@@ -72,10 +78,17 @@ pub fn run() {
     // real environment variables.
     let _ = dotenvy::dotenv();
 
+    let flights = Arc::new(DuffelClient::from_env());
+    let hotels = Arc::new(LiteApiClient::from_env());
+    let mcp_state = mcp::McpState {
+        flights: flights.clone(),
+        hotels: hotels.clone(),
+    };
+
     tauri::Builder::default()
-        .manage(DuffelClient::from_env())
-        .manage(LiteApiClient::from_env())
-        .setup(|app| {
+        .manage(flights)
+        .manage(hotels)
+        .setup(move |app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -83,6 +96,9 @@ pub fn run() {
                         .build(),
                 )?;
             }
+            // Background MCP server: lets external AI clients (Claude,
+            // ChatGPT, Grok, Kimi, …) use Marco Polo's travel search.
+            tauri::async_runtime::spawn(mcp::serve(mcp_state));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

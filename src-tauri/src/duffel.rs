@@ -35,6 +35,15 @@ impl DuffelClient {
         }
     }
 
+    /// A client with no key, always serving demo data. Used by tests.
+    #[cfg(test)]
+    pub(crate) fn unconfigured() -> Self {
+        Self {
+            http: reqwest::Client::new(),
+            api_key: None,
+        }
+    }
+
     pub fn is_configured(&self) -> bool {
         self.api_key.is_some()
     }

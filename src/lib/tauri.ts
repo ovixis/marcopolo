@@ -29,6 +29,8 @@ export interface BackendStatus {
   hotelsConfigured: boolean;
   /** "live" | "sandbox" | "demo" */
   hotelsEnvironment: string;
+  /** Local MCP endpoint external AI clients can connect to. */
+  mcpEndpoint: string;
   version: string;
 }
 
@@ -89,6 +91,7 @@ export async function backendStatus(): Promise<BackendStatus> {
       hotelsProvider: "liteapi",
       hotelsConfigured: false,
       hotelsEnvironment: "browser",
+      mcpEndpoint: "http://127.0.0.1:1254/mcp",
       version: "web-preview",
     };
   }
