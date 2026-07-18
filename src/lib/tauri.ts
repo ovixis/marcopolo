@@ -97,3 +97,48 @@ export async function backendStatus(): Promise<BackendStatus> {
   }
   return invoke<BackendStatus>("backend_status");
 }
+
+// ---------------------------------------------------------------------------
+// Ask Marco chat (desktop-only: the agent loop runs in Rust)
+// ---------------------------------------------------------------------------
+
+export type AiProvider = "anthropic" | "openai" | "grok" | "kimi" | "custom";
+
+export interface AiChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AiChatRequest {
+  provider: AiProvider;
+  model: string;
+  apiKey: string;
+  baseUrl?: string;
+  messages: AiChatMessage[];
+}
+
+export type AiChatEvent =
+  | { type: "toolStart"; name: string; summary: string }
+  | { type: "toolEnd"; name: string; ok: boolean };
+
+export interface AiChatReply {
+  text: string;
+  toolsUsed: string[];
+}
+
+export async function aiChat(
+  request: AiChatRequest,
+  onEvent: (event: AiChatEvent) => void,
+): Promise<AiChatReply> {
+  if (!isTauri()) {
+    throw {
+      code: "web_preview",
+      message:
+        "Ask Marco runs the agent inside the desktop app — open Marco Polo (not the browser preview) to chat.",
+    } satisfies BackendError;
+  }
+  const { Channel } = await import("@tauri-apps/api/core");
+  const channel = new Channel<AiChatEvent>();
+  channel.onmessage = onEvent;
+  return invoke<AiChatReply>("ai_chat", { request, onEvent: channel });
+}

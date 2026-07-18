@@ -183,3 +183,40 @@ pub fn validate_hotel_query(query: &HotelSearchQuery) -> Result<(), ApiError> {
     }
     Ok(())
 }
+
+// ---------------------------------------------------------------------------
+// Experiences (demo until a provider like Viator is integrated).
+// Mirror of `src/lib/types/experiences.ts`.
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExperienceSearchQuery {
+    pub city: String,
+    pub currency: Option<String>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ExperienceSearchResult {
+    pub offers: Vec<ExperienceOffer>,
+    pub currency: String,
+    pub demo: bool,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ExperienceOffer {
+    pub id: String,
+    pub title: String,
+    pub description: String,
+    pub category: String,
+    /// ISO-8601 duration, e.g. "PT3H"
+    pub duration: String,
+    /// 0-5
+    pub rating: f64,
+    pub review_count: u32,
+    pub price_per_person: String,
+    pub currency: String,
+    pub free_cancellation: bool,
+}

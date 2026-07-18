@@ -16,6 +16,7 @@ MIT licensed.
 
 | Feature | Status | Provider |
 | --- | --- | --- |
+| 🧭 Ask Marco (AI chat) | ✅ MVP | your model: Claude, OpenAI, Grok, Kimi, custom |
 | ✈️ Flight search | ✅ MVP | Duffel |
 | 🏨 Hotel search | ✅ MVP | LiteAPI (Nuitee) |
 | 🎟️ Experiences | 🚧 Roadmap (weeks 5-8) | Viator |
@@ -71,6 +72,16 @@ optional — missing keys simply keep that feature in demo mode.
 | `LITEAPI_API_KEY` | Real hotel search. Keys at [liteapi.travel](https://liteapi.travel) — searches are free; only confirmed bookings are billed |
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth, trips database, photo storage |
 | `ANTHROPIC_API_KEY` | AI journal synthesis (roadmap) |
+
+## Ask Marco (built-in AI chat)
+
+The **Ask Marco** page is a ChatGPT-style travel aggregator: pick your model
+(Claude, OpenAI, Grok, Kimi, or any OpenAI-compatible endpoint — including a
+local Ollama), paste your own API key, and ask for a trip. The agent loop runs
+in the Rust backend, calls the app's live travel tools (flights via Duffel,
+hotels via LiteAPI, experiences, airport lookup), and answers with a
+day-by-day plan plus a budget table. Your key stays on your device and is
+sent only to the model provider you chose.
 
 ## Connect your AI (MCP)
 

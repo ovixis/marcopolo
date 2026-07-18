@@ -128,3 +128,60 @@
     @apply font-sans;
   }
 }
+/* Ask Marco chat — markdown rendering on the dark navy surface */
+.chat-markdown > * + * {
+  margin-top: 0.6rem;
+}
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3 {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.chat-markdown h1 { font-size: 1.05rem; }
+.chat-markdown h2 { font-size: 1rem; }
+.chat-markdown h3 { font-size: 0.95rem; }
+.chat-markdown ul,
+.chat-markdown ol {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.chat-markdown ul { list-style: disc; }
+.chat-markdown ol { list-style: decimal; }
+.chat-markdown strong { color: #e2e8f0; }
+.chat-markdown a {
+  color: #67e8f9;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.chat-markdown code {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.8em;
+}
+.chat-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+  display: block;
+  overflow-x: auto;
+}
+.chat-markdown th,
+.chat-markdown td {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+.chat-markdown th {
+  background: rgba(34, 211, 238, 0.08);
+  color: #a5f3fc;
+  font-weight: 600;
+}
+.chat-markdown blockquote {
+  border-left: 2px solid rgba(34, 211, 238, 0.4);
+  padding-left: 0.75rem;
+  color: #94a3b8;
+}

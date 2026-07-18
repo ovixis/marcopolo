@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Plane,
   Plug,
+  Sparkles,
   Ticket,
   Wallet,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
+  { href: "/chat", label: "Ask Marco", icon: Sparkles },
   { href: "/flights", label: "Flights", icon: Plane },
   { href: "/hotels", label: "Hotels", icon: Hotel },
   { href: "/experiences", label: "Experiences", icon: Ticket },

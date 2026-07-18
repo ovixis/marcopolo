@@ -531,3 +531,116 @@ pub fn hotel_results(query: &HotelSearchQuery) -> HotelSearchResult {
         demo: true,
     }
 }
+
+// ---------------------------------------------------------------------------
+// Experiences demo data
+// ---------------------------------------------------------------------------
+
+use crate::types::{ExperienceOffer, ExperienceSearchQuery, ExperienceSearchResult};
+
+#[allow(clippy::type_complexity)]
+const EXPERIENCE_TEMPLATES: &[(&str, &str, &str, &str, f64, u32, u32, bool)] = &[
+    // (title, description, category, duration, rating, reviews, base price, free cancel)
+    (
+        "{} Old Town Walking Tour",
+        "Small-group walk through the historic center with a local guide.",
+        "culture",
+        "PT3H",
+        4.8,
+        2140,
+        35,
+        true,
+    ),
+    (
+        "{} Street Food Crawl",
+        "Taste the city's most-loved dishes across five neighborhood spots.",
+        "food_and_drink",
+        "PT3H30M",
+        4.9,
+        1305,
+        68,
+        true,
+    ),
+    (
+        "Day Trip from {}",
+        "Full-day excursion to the region's most scenic nearby highlights.",
+        "tours",
+        "PT9H",
+        4.6,
+        980,
+        115,
+        false,
+    ),
+    (
+        "{} Museum & Skip-the-Line Pass",
+        "Priority entry to the city's landmark museum with audio guide.",
+        "culture",
+        "PT2H30M",
+        4.5,
+        3320,
+        28,
+        true,
+    ),
+    (
+        "Sunset Cruise in {}",
+        "Golden-hour boat ride with a welcome drink and skyline views.",
+        "water",
+        "PT2H",
+        4.7,
+        760,
+        55,
+        true,
+    ),
+    (
+        "{} Cooking Class",
+        "Hands-on class with a local chef, market visit included.",
+        "food_and_drink",
+        "PT4H",
+        4.9,
+        645,
+        95,
+        false,
+    ),
+];
+
+pub fn experience_results(query: &ExperienceSearchQuery) -> ExperienceSearchResult {
+    let city = {
+        let trimmed = query.city.trim();
+        let mut chars = trimmed.chars();
+        match chars.next() {
+            Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+            None => "Sample City".to_owned(),
+        }
+    };
+    let currency = query.currency.clone().unwrap_or_else(|| "USD".to_owned());
+    let seed = fnv1a(&city);
+
+    let offers = EXPERIENCE_TEMPLATES
+        .iter()
+        .enumerate()
+        .map(
+            |(i, (title, description, category, duration, rating, reviews, base, free_cancel))| {
+                let offer_seed = seed.wrapping_add(i as u64 * 3571);
+                let price = base + (offer_seed % 20) as u32;
+                ExperienceOffer {
+                    id: format!("demo-exp-{i}"),
+                    title: title.replace("{}", &city),
+                    description: (*description).to_owned(),
+                    category: (*category).to_owned(),
+                    duration: (*duration).to_owned(),
+                    rating: *rating,
+                    review_count: *reviews,
+                    price_per_person: format!("{price}.00"),
+                    currency: currency.clone(),
+                    free_cancellation: *free_cancel,
+                }
+            },
+        )
+        .collect();
+
+    ExperienceSearchResult {
+        offers,
+        currency,
+        demo: true,
+    }
+}

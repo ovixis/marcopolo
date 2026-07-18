@@ -1,8 +1,10 @@
+mod ai;
 mod demo;
 mod duffel;
 mod error;
 mod liteapi;
 mod mcp;
+mod tools;
 mod types;
 
 use std::sync::Arc;
@@ -37,6 +39,15 @@ async fn search_hotels(
     query: HotelSearchQuery,
 ) -> Result<HotelSearchResult, ApiError> {
     state.search_hotels(&query).await
+}
+
+#[tauri::command]
+async fn ai_chat(
+    state: tauri::State<'_, tools::ToolContext>,
+    request: ai::ChatRequest,
+    on_event: tauri::ipc::Channel<ai::ChatEvent>,
+) -> Result<ai::ChatReply, String> {
+    ai::chat(&state, request, on_event).await
 }
 
 #[derive(Serialize)]
@@ -80,14 +91,16 @@ pub fn run() {
 
     let flights = Arc::new(DuffelClient::from_env());
     let hotels = Arc::new(LiteApiClient::from_env());
-    let mcp_state = mcp::McpState {
+    let context = tools::ToolContext {
         flights: flights.clone(),
         hotels: hotels.clone(),
     };
+    let mcp_state = context.clone();
 
     tauri::Builder::default()
         .manage(flights)
         .manage(hotels)
+        .manage(context)
         .setup(move |app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(
@@ -105,6 +118,7 @@ pub fn run() {
             search_flights,
             search_locations,
             search_hotels,
+            ai_chat,
             backend_status
         ])
         .run(tauri::generate_context!())

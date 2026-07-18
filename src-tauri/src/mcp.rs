@@ -7,17 +7,13 @@
 //! only. Default port 1254 (Marco Polo's birth year); override with
 //! `MARCOPOLO_MCP_PORT`.
 
-use std::sync::Arc;
-
 use axum::http::{HeaderValue, StatusCode};
 use axum::response::{IntoResponse, Response};
 use axum::routing::post;
 use axum::{extract::State, Json, Router};
 use serde_json::{json, Value};
 
-use crate::duffel::DuffelClient;
-use crate::liteapi::LiteApiClient;
-use crate::types::{FlightSearchQuery, HotelSearchQuery};
+use crate::tools::{self, ToolContext};
 
 pub const DEFAULT_PORT: u16 = 1254;
 
@@ -32,11 +28,7 @@ pub fn endpoint() -> String {
     format!("http://127.0.0.1:{}/mcp", port())
 }
 
-#[derive(Clone)]
-pub struct McpState {
-    pub flights: Arc<DuffelClient>,
-    pub hotels: Arc<LiteApiClient>,
-}
+pub type McpState = ToolContext;
 
 pub async fn serve(state: McpState) {
     let app = Router::new()
@@ -124,7 +116,7 @@ pub async fn handle_request(state: &McpState, request: &Value) -> Value {
                 .get("arguments")
                 .cloned()
                 .unwrap_or_else(|| json!({}));
-            match call_tool(state, name, arguments).await {
+            match tools::call(state, name, arguments).await {
                 Ok(text) => ok(
                     id,
                     json!({ "content": [{ "type": "text", "text": text }], "isError": false }),
@@ -139,104 +131,30 @@ pub async fn handle_request(state: &McpState, request: &Value) -> Value {
     }
 }
 
-async fn call_tool(state: &McpState, name: &str, arguments: Value) -> Result<String, String> {
-    match name {
-        "search_flights" => {
-            let query: FlightSearchQuery =
-                serde_json::from_value(arguments).map_err(|e| format!("invalid arguments: {e}"))?;
-            let result = state
-                .flights
-                .search_flights(&query)
-                .await
-                .map_err(|e| e.to_string())?;
-            serde_json::to_string_pretty(&result).map_err(|e| e.to_string())
-        }
-        "search_hotels" => {
-            let query: HotelSearchQuery =
-                serde_json::from_value(arguments).map_err(|e| format!("invalid arguments: {e}"))?;
-            let result = state
-                .hotels
-                .search_hotels(&query)
-                .await
-                .map_err(|e| e.to_string())?;
-            serde_json::to_string_pretty(&result).map_err(|e| e.to_string())
-        }
-        "search_locations" => {
-            let keyword = arguments
-                .get("keyword")
-                .and_then(|k| k.as_str())
-                .ok_or_else(|| "invalid arguments: keyword (string) is required".to_owned())?;
-            let result = state
-                .flights
-                .search_locations(keyword)
-                .await
-                .map_err(|e| e.to_string())?;
-            serde_json::to_string_pretty(&result).map_err(|e| e.to_string())
-        }
-        other => Err(format!("unknown tool: {other}")),
-    }
-}
-
 fn tool_definitions() -> Value {
-    json!([
-        {
-            "name": "search_flights",
-            "title": "Search flights",
-            "description": "Search live flight offers between two airports. Results include airlines, times, stops, durations, and total prices. When no provider API key is configured the app returns clearly-flagged demo data (result field `demo: true`).",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "origin": { "type": "string", "description": "Origin IATA code, e.g. JFK" },
-                    "destination": { "type": "string", "description": "Destination IATA code, e.g. LHR" },
-                    "departureDate": { "type": "string", "description": "ISO date, e.g. 2026-08-17" },
-                    "returnDate": { "type": "string", "description": "ISO date; omit for one-way" },
-                    "adults": { "type": "integer", "minimum": 1, "default": 1 },
-                    "children": { "type": "integer", "minimum": 0 },
-                    "infants": { "type": "integer", "minimum": 0 },
-                    "travelClass": { "type": "string", "enum": ["ECONOMY", "PREMIUM_ECONOMY", "BUSINESS", "FIRST"] },
-                    "nonStop": { "type": "boolean", "description": "Only nonstop itineraries" },
-                    "currency": { "type": "string", "description": "ISO 4217, e.g. USD" }
-                },
-                "required": ["origin", "destination", "departureDate", "adults"]
-            }
-        },
-        {
-            "name": "search_hotels",
-            "title": "Search hotels",
-            "description": "Search hotel stays in a city with live rates: names, stars, guest scores, cheapest room and board, cancellation flags, and total stay prices. When no provider API key is configured the app returns clearly-flagged demo data (result field `demo: true`).",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "city": { "type": "string", "description": "City name, e.g. Rome" },
-                    "countryCode": { "type": "string", "description": "ISO 3166-1 alpha-2, e.g. IT" },
-                    "checkIn": { "type": "string", "description": "ISO date" },
-                    "checkOut": { "type": "string", "description": "ISO date" },
-                    "adults": { "type": "integer", "minimum": 1, "default": 2 },
-                    "children": { "type": "integer", "minimum": 0 },
-                    "rooms": { "type": "integer", "minimum": 1, "default": 1 },
-                    "currency": { "type": "string", "description": "ISO 4217, e.g. EUR" }
-                },
-                "required": ["city", "countryCode", "checkIn", "checkOut", "adults", "rooms"]
-            }
-        },
-        {
-            "name": "search_locations",
-            "title": "Search airports & cities",
-            "description": "Resolve a free-text place name into airport/city IATA codes. Use this before search_flights when the user gives a city name instead of a code.",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "keyword": { "type": "string", "description": "Free text, e.g. 'Tokyo' or 'Heathrow'" }
-                },
-                "required": ["keyword"]
-            }
-        }
-    ])
+    Value::Array(
+        tools::definitions()
+            .into_iter()
+            .map(|tool| {
+                json!({
+                    "name": tool.name,
+                    "title": tool.title,
+                    "description": tool.description,
+                    "inputSchema": tool.schema,
+                })
+            })
+            .collect(),
+    )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    use std::sync::Arc;
+
+    use crate::duffel::DuffelClient;
+    use crate::liteapi::LiteApiClient;
 
     fn demo_state() -> McpState {
         McpState {
@@ -259,7 +177,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn tools_list_exposes_three_tools() {
+    async fn tools_list_exposes_all_tools() {
         let response = handle_request(
             &demo_state(),
             &json!({ "jsonrpc": "2.0", "id": 2, "method": "tools/list" }),
@@ -269,7 +187,12 @@ mod tests {
         let names: Vec<&str> = tools.iter().filter_map(|t| t["name"].as_str()).collect();
         assert_eq!(
             names,
-            vec!["search_flights", "search_hotels", "search_locations"]
+            vec![
+                "search_flights",
+                "search_hotels",
+                "search_experiences",
+                "search_locations"
+            ]
         );
     }
 

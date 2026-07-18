@@ -35,9 +35,9 @@ export function HotelOfferCard({
       <CardContent className="flex items-stretch gap-0 p-0">
         <div className="relative h-36 w-44 shrink-0 bg-gradient-to-br from-[#0B2540] to-[#0E7490]">
           {offer.photoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- remote hotel
-            // photos come from arbitrary supplier CDNs; next/image adds nothing
-            // with unoptimized static export.
+            /* Remote hotel photos come from arbitrary supplier CDNs;
+               next/image adds nothing with unoptimized static export. */
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={offer.photoUrl}
               alt=""
