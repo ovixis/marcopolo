@@ -2,7 +2,7 @@
 //! Results are derived from a hash of the route, so the same search always
 //! returns the same offers.
 
-use crate::amadeus::{
+use crate::types::{
     FlightOffer, FlightPoint, FlightSearchQuery, FlightSearchResult, Itinerary, LocationSuggestion,
     Segment,
 };

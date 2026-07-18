@@ -16,7 +16,7 @@ MIT licensed.
 
 | Feature | Status | Provider |
 | --- | --- | --- |
-| ✈️ Flight search | ✅ MVP | Amadeus |
+| ✈️ Flight search | ✅ MVP | Duffel |
 | 🏨 Hotel search | 🚧 Roadmap (weeks 5-8) | Booking.com |
 | 🎟️ Experiences | 🚧 Roadmap (weeks 5-8) | Viator |
 | 📅 Itinerary builder | 🚧 Roadmap (weeks 9-10) | — |
@@ -67,8 +67,7 @@ optional — missing keys simply keep that feature in demo mode.
 
 | Variable | Purpose |
 | --- | --- |
-| `AMADEUS_CLIENT_ID` / `AMADEUS_CLIENT_SECRET` | Real flight search. Free keys at [developers.amadeus.com](https://developers.amadeus.com) |
-| `AMADEUS_ENV` | `test` (default, sandbox data) or `production` |
+| `DUFFEL_API_KEY` | Real flight search. Free test-mode keys at [app.duffel.com](https://app.duffel.com) — test keys (`duffel_test_…`) return sandbox offers, live keys real content |
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Auth, trips database, photo storage |
 | `ANTHROPIC_API_KEY` | AI journal synthesis (roadmap) |
 
@@ -87,8 +86,8 @@ only ever see their own trips, photos, and messages.
 ```
 ┌────────────────────────────────────────────────┐
 │ Tauri shell (Rust)                             │
-│  • Provider API clients (Amadeus, …)           │
-│  • OAuth token caching, secrets stay native    │
+│  • Provider API clients (Duffel, …)            │
+│  • API keys stay in the native process         │
 │  • Demo-mode data generation                   │
 │    ▲ typed IPC commands                        │
 │    ▼                                           │
@@ -103,7 +102,7 @@ only ever see their own trips, photos, and messages.
 - The frontend is a fully static Next.js export; the same UI runs in a plain
   browser (`pnpm dev`) with sample data for fast UI iteration.
 - Domain types are mirrored between `src/lib/types/` (TypeScript) and
-  `src-tauri/src/amadeus.rs` (Rust) — keep them in sync when contributing.
+  `src-tauri/src/types.rs` (Rust) — keep them in sync when contributing.
 
 ## Contributing
 

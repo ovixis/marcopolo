@@ -1,6 +1,6 @@
 /**
  * Flight search domain types.
- * These mirror the Rust types in `src-tauri/src/amadeus.rs` — keep in sync.
+ * These mirror the Rust types in `src-tauri/src/types.rs` — keep in sync.
  */
 
 export type TravelClass = "ECONOMY" | "PREMIUM_ECONOMY" | "BUSINESS" | "FIRST";

@@ -26,7 +26,8 @@ src/                    Next.js frontend (static export)
   lib/types/            Domain types shared across features
   lib/tauri.ts          Typed bridge to Rust commands (+ browser fallback)
 src-tauri/              Rust backend
-  src/amadeus.rs        Amadeus client (flights) + IPC types
+  src/duffel.rs         Duffel client (flights)
+  src/types.rs          Flight domain / IPC types
   src/demo.rs           Demo-mode sample data
   src/error.rs          Error type serialized to the frontend
 supabase/migrations/    Database schema (Postgres + RLS)

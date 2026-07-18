@@ -44,12 +44,14 @@ impl serde::Serialize for ApiError {
 }
 
 /// Build a Provider error from a non-success HTTP response, extracting the
-/// error detail Amadeus-style bodies carry in `errors[0].detail` when present.
+/// human-readable detail from `errors[0]`-style bodies (Duffel uses
+/// `errors[0].message`, other providers use `detail`/`title`).
 pub async fn provider_error(provider: &'static str, response: reqwest::Response) -> ApiError {
     let status = response.status().as_u16();
     let message = match response.json::<serde_json::Value>().await {
         Ok(body) => body
-            .pointer("/errors/0/detail")
+            .pointer("/errors/0/message")
+            .or_else(|| body.pointer("/errors/0/detail"))
             .or_else(|| body.pointer("/errors/0/title"))
             .or_else(|| body.pointer("/error_description"))
             .and_then(|v| v.as_str())

@@ -15,8 +15,10 @@ import type {
 import { webFallbackFlights, webFallbackLocations } from "./web-fallback";
 
 export interface BackendStatus {
-  amadeusConfigured: boolean;
-  amadeusEnvironment: string;
+  flightsProvider: string;
+  flightsConfigured: boolean;
+  /** "test" | "live" | "demo" (or "browser" in the web preview) */
+  environment: string;
   version: string;
 }
 
@@ -62,8 +64,9 @@ export async function searchLocations(
 export async function backendStatus(): Promise<BackendStatus> {
   if (!isTauri()) {
     return {
-      amadeusConfigured: false,
-      amadeusEnvironment: "browser",
+      flightsProvider: "duffel",
+      flightsConfigured: false,
+      environment: "browser",
       version: "web-preview",
     };
   }

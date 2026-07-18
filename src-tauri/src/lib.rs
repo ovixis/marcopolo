@@ -1,14 +1,16 @@
-mod amadeus;
 mod demo;
+mod duffel;
 mod error;
+mod types;
 
-use amadeus::{AmadeusClient, FlightSearchQuery, FlightSearchResult, LocationSuggestion};
+use duffel::DuffelClient;
 use error::ApiError;
 use serde::Serialize;
+use types::{FlightSearchQuery, FlightSearchResult, LocationSuggestion};
 
 #[tauri::command]
 async fn search_flights(
-    state: tauri::State<'_, AmadeusClient>,
+    state: tauri::State<'_, DuffelClient>,
     query: FlightSearchQuery,
 ) -> Result<FlightSearchResult, ApiError> {
     state.search_flights(&query).await
@@ -16,7 +18,7 @@ async fn search_flights(
 
 #[tauri::command]
 async fn search_locations(
-    state: tauri::State<'_, AmadeusClient>,
+    state: tauri::State<'_, DuffelClient>,
     keyword: String,
 ) -> Result<Vec<LocationSuggestion>, ApiError> {
     state.search_locations(&keyword).await
@@ -25,16 +27,19 @@ async fn search_locations(
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct BackendStatus {
-    amadeus_configured: bool,
-    amadeus_environment: String,
+    flights_provider: String,
+    flights_configured: bool,
+    /// "test" | "live" | "demo"
+    environment: String,
     version: String,
 }
 
 #[tauri::command]
-fn backend_status(state: tauri::State<'_, AmadeusClient>) -> BackendStatus {
+fn backend_status(state: tauri::State<'_, DuffelClient>) -> BackendStatus {
     BackendStatus {
-        amadeus_configured: state.is_configured(),
-        amadeus_environment: state.environment().to_owned(),
+        flights_provider: "duffel".to_owned(),
+        flights_configured: state.is_configured(),
+        environment: state.environment().to_owned(),
         version: env!("CARGO_PKG_VERSION").to_owned(),
     }
 }
@@ -46,7 +51,7 @@ pub fn run() {
     let _ = dotenvy::dotenv();
 
     tauri::Builder::default()
-        .manage(AmadeusClient::from_env())
+        .manage(DuffelClient::from_env())
         .setup(|app| {
             if cfg!(debug_assertions) {
                 app.handle().plugin(

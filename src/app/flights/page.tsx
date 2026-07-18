@@ -78,17 +78,13 @@ export default function FlightsPage() {
         <div className="mt-4 flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
           <FlaskConical className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
           <p>
-            <span className="font-medium">Demo data.</span> No Amadeus API key is
+            <span className="font-medium">Demo data.</span> No Duffel API key is
             configured, so these offers are locally generated samples. Add{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              AMADEUS_CLIENT_ID
-            </code>{" "}
-            and{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              AMADEUS_CLIENT_SECRET
+              DUFFEL_API_KEY
             </code>{" "}
             to your <code className="rounded bg-muted px-1 py-0.5 text-xs">.env</code>{" "}
-            to search real flights — see the README.
+            to search real flights — free test keys at duffel.com, see the README.
           </p>
         </div>
       )}

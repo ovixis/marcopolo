@@ -77,8 +77,8 @@ export function AppSidebar() {
         {status ? (
           <div className="flex items-center justify-between gap-2">
             <span>v{status.version}</span>
-            {status.amadeusConfigured ? (
-              <Badge variant="secondary">{status.amadeusEnvironment}</Badge>
+            {status.flightsConfigured ? (
+              <Badge variant="secondary">{status.environment}</Badge>
             ) : (
               <Badge variant="outline">demo mode</Badge>
             )}
