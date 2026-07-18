@@ -48,11 +48,11 @@ export function Globe() {
       root.add(spin);
 
       const R = 2;
-      const GREEN = new THREE.Color("#2f7d4e");
-      const TERRA = new THREE.Color("#c4633b");
-      const SKY = new THREE.Color("#3f82a8");
-      const SAND = new THREE.Color("#d8b25e");
-      const PAPER = new THREE.Color("#f7f3ea");
+      const GREEN = new THREE.Color("#55692f");
+      const TERRA = new THREE.Color("#b0623c");
+      const SKY = new THREE.Color("#3f7e8c");
+      const SAND = new THREE.Color("#d6c58e");
+      const PAPER = new THREE.Color("#f5f0e5");
 
       const toVec3 = (lat: number, lng: number, r: number) => {
         const phi = (90 - lat) * (Math.PI / 180);
@@ -87,7 +87,7 @@ export function Globe() {
       const dots = new THREE.Points(
         dotGeo,
         new THREE.PointsMaterial({
-          color: new THREE.Color("#4f9268"),
+          color: new THREE.Color("#6e7f4a"),
           size: 0.03,
           transparent: true,
           opacity: 0.85,

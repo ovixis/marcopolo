@@ -38,8 +38,8 @@ const FACE: string[] = [
 ];
 
 const INK = "#1c3323"; // deep forest ink
-const GLOW_IDLE = "0 0 5px rgba(47,125,78,0.25)";
-const GLOW_THINK = "0 0 14px rgba(196,99,59,0.6)"; // terracotta glow
+const GLOW_IDLE = "0 0 5px rgba(85,105,47,0.25)";
+const GLOW_THINK = "0 0 14px rgba(176,98,60,0.6)"; // terracotta glow
 
 export function MarcoFace({ thinking }: { thinking: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -67,8 +67,8 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
       const count = 340;
       const positions = new Float32Array(count * 3);
       const colors = new Float32Array(count * 3);
-      const green = new THREE.Color("#2f7d4e");
-      const sky = new THREE.Color("#3f82a8");
+      const green = new THREE.Color("#55692f");
+      const sky = new THREE.Color("#7b5f3a");
       for (let i = 0; i < count; i++) {
         positions[i * 3] = (Math.random() - 0.5) * 16;
         positions[i * 3 + 1] = (Math.random() - 0.5) * 16;
@@ -94,7 +94,7 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
       const ring = new THREE.Mesh(
         new THREE.TorusGeometry(3.1, 0.005, 8, 128),
         new THREE.MeshBasicMaterial({
-          color: 0x2f7d4e,
+          color: 0x55692f,
           transparent: true,
           opacity: 0.18,
         }),
@@ -185,7 +185,7 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
     if (thinking) {
       shimmerRef.current = gsap.to(lines, {
         opacity: 0.45,
-        color: "#c4633b",
+        color: "#b0623c",
         textShadow: GLOW_THINK,
         duration: 0.35,
         stagger: { each: 0.05, yoyo: true, repeat: -1 },

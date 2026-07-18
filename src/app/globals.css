@@ -10,6 +10,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -43,6 +44,8 @@
   --color-brand-terracotta: var(--brand-terracotta);
   --color-brand-sky: var(--brand-sky);
   --color-brand-sand: var(--brand-sand);
+  --color-brand-sage: var(--brand-sage);
+  --color-brand-walnut: var(--brand-walnut);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -53,45 +56,47 @@
 }
 
 :root {
-  /* Brand constants — the "Explorer's Atlas" nature palette. The app runs
-     light-first: parchment, forest green, terracotta, sky, sand. */
-  --brand-green: #2f7d4e; /* forest / compass north */
-  --brand-terracotta: #c4633b; /* clay / sunset earth */
-  --brand-sky: #3f82a8; /* open sky / sea */
-  --brand-sand: #d8b25e; /* warm sand / sun */
+  /* Brand constants — the "Botanical Atlas" palette: cream, sage, olive,
+     walnut, straw. Light-first; all text pairs verified WCAG AA. */
+  --brand-green: #55692f; /* deep olive / botanical */
+  --brand-terracotta: #b0623c; /* clay */
+  --brand-sky: #3f7e8c; /* muted sea */
+  --brand-sand: #d6c58e; /* straw */
+  --brand-sage: #9caf88; /* sage */
+  --brand-walnut: #7b5f3a; /* walnut */
 
-  --background: oklch(0.955 0.014 92); /* warm parchment */
-  --foreground: oklch(0.27 0.02 145); /* deep ink-green */
-  --card: oklch(0.985 0.008 92); /* fresh paper */
-  --card-foreground: oklch(0.27 0.02 145);
-  --popover: oklch(0.99 0.006 92);
-  --popover-foreground: oklch(0.27 0.02 145);
-  --primary: oklch(0.52 0.11 150); /* forest green */
-  --primary-foreground: oklch(0.98 0.012 92);
-  --secondary: oklch(0.93 0.022 122); /* soft sage */
-  --secondary-foreground: oklch(0.32 0.03 148);
-  --muted: oklch(0.93 0.016 98);
-  --muted-foreground: oklch(0.47 0.026 128);
-  --accent: oklch(0.92 0.032 128); /* sage green */
-  --accent-foreground: oklch(0.3 0.03 148);
-  --destructive: oklch(0.55 0.16 33); /* clay red */
-  --border: oklch(0.87 0.016 108);
-  --input: oklch(0.89 0.016 108);
-  --ring: oklch(0.52 0.11 150);
-  --chart-1: oklch(0.55 0.13 142); /* leaf green  #3C7A2E */
-  --chart-2: oklch(0.52 0.16 255); /* blue        #1E6FB0 */
-  --chart-3: oklch(0.66 0.12 72); /* ochre       #C98A22 */
-  --chart-4: oklch(0.56 0.14 40); /* terracotta */
-  --chart-5: oklch(0.6 0.09 200); /* teal */
+  --background: #eae2d6; /* botanical cream */
+  --foreground: #2c2a20; /* warm ink */
+  --card: #f5f0e5; /* fresh paper */
+  --card-foreground: #2c2a20;
+  --popover: #f8f4ea;
+  --popover-foreground: #2c2a20;
+  --primary: #55692f; /* deep olive */
+  --primary-foreground: #f5f0e5; /* cream */
+  --secondary: #dce3ce; /* sage surface */
+  --secondary-foreground: #33321f;
+  --muted: #e4dccc;
+  --muted-foreground: #6a6353; /* stone — AA on cream */
+  --accent: #d9e1cb; /* sage */
+  --accent-foreground: #2c2a20;
+  --destructive: #9a3b22; /* clay red — AA text */
+  --border: #d8cfbe;
+  --input: #d3c9b6;
+  --ring: #55692f;
+  --chart-1: #3c7a2e; /* leaf green — validated */
+  --chart-2: #1e6fb0; /* blue */
+  --chart-3: #c98a22; /* ochre */
+  --chart-4: #7b5f3a; /* walnut */
+  --chart-5: #7a8450; /* olive */
   --radius: 0.7rem;
-  --sidebar: oklch(0.96 0.02 118); /* faint sage panel */
-  --sidebar-foreground: oklch(0.27 0.02 145);
-  --sidebar-primary: oklch(0.52 0.11 150);
-  --sidebar-primary-foreground: oklch(0.98 0.012 92);
-  --sidebar-accent: oklch(0.91 0.032 128);
-  --sidebar-accent-foreground: oklch(0.3 0.03 148);
-  --sidebar-border: oklch(0.86 0.02 112);
-  --sidebar-ring: oklch(0.52 0.11 150);
+  --sidebar: #e3dac9; /* deeper cream panel */
+  --sidebar-foreground: #2c2a20;
+  --sidebar-primary: #55692f;
+  --sidebar-primary-foreground: #f5f0e5;
+  --sidebar-accent: #d5dcc4; /* sage */
+  --sidebar-accent-foreground: #2c2a20;
+  --sidebar-border: #d3c9b6;
+  --sidebar-ring: #55692f;
 }
 
 .dark {

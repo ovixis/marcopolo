@@ -69,13 +69,13 @@ export function CommandHero() {
           : "Good evening";
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#faf6ec] via-[#f3f0e2] to-[#edf1e5] shadow-sm">
+    <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#f1eadb] via-[#eae2d6] to-[#e6e7d6] shadow-sm">
       {/* soft nature glows */}
       <div
         className="aurora-layer pointer-events-none absolute -right-24 -top-32 h-[38rem] w-[38rem] rounded-full opacity-60 blur-3xl"
         style={{
           background:
-            "radial-gradient(circle at 50% 50%, rgba(63,130,168,0.22), rgba(47,125,78,0.16) 45%, transparent 70%)",
+            "radial-gradient(circle at 50% 50%, rgba(156,175,136,0.24), rgba(85,105,47,0.16) 45%, transparent 70%)",
         }}
       />
       <div
@@ -83,7 +83,7 @@ export function CommandHero() {
         style={{
           animationDelay: "-9s",
           background:
-            "radial-gradient(circle at 50% 50%, rgba(216,178,94,0.24), transparent 68%)",
+            "radial-gradient(circle at 50% 50%, rgba(214,197,142,0.26), transparent 68%)",
         }}
       />
 
@@ -91,7 +91,7 @@ export function CommandHero() {
       <div className="pointer-events-none absolute inset-y-0 right-[-6%] w-[58%] min-w-[22rem]">
         <Globe />
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#faf6ec] via-[#faf6ec]/75 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#eae2d6] via-[#eae2d6]/75 to-transparent" />
 
       <div
         ref={panelRef}
@@ -129,7 +129,7 @@ export function CommandHero() {
             />
             <button
               type="submit"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#2f7d4e] to-[#3f82a8] px-4 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.02]"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#55692f] to-[#4a5b29] px-4 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.02]"
             >
               Ask Marco
               <ArrowUpRight className="size-4" aria-hidden />

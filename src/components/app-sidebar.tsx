@@ -77,10 +77,10 @@ export function AppSidebar() {
             "flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors",
             chatActive
               ? "border-primary/40 bg-primary/10"
-              : "border-border bg-gradient-to-r from-[#2f7d4e]/10 to-[#3f82a8]/10 hover:border-primary/40",
+              : "border-border bg-gradient-to-r from-[#55692f]/10 to-[#7a8450]/10 hover:border-primary/40",
           )}
         >
-          <span className="rounded-lg bg-gradient-to-br from-[#2f7d4e] to-[#3f82a8] p-1.5 text-white">
+          <span className="rounded-lg bg-gradient-to-br from-[#55692f] to-[#4a5b29] p-1.5 text-white">
             <Sparkles className="size-4" aria-hidden />
           </span>
           <span className="min-w-0">
