@@ -166,7 +166,7 @@ async fn anthropic_loop(
             .header("anthropic-version", "2023-06-01")
             .json(&json!({
                 "model": request.model,
-                "max_tokens": 8000,
+                "max_tokens": 16000,
                 "system": SYSTEM_PROMPT,
                 "tools": anthropic_tools(),
                 "messages": messages,
@@ -181,6 +181,15 @@ async fn anthropic_loop(
         let body: Value = response.json().await.map_err(|e| e.to_string())?;
         let content = body["content"].as_array().cloned().unwrap_or_default();
         let stop_reason = body["stop_reason"].as_str().unwrap_or("");
+
+        // Newer Claude models can decline a request (HTTP 200) with an empty
+        // body — surface that instead of returning blank text.
+        if stop_reason == "refusal" {
+            return Ok(ChatReply {
+                text: "The model declined this request (its safety classifier flagged it). Try rephrasing, or connect a different model.".to_owned(),
+                tools_used,
+            });
+        }
 
         if stop_reason != "tool_use" {
             let text = content
@@ -290,6 +299,17 @@ async fn openai_loop(
         }
         let body: Value = response.json().await.map_err(|e| e.to_string())?;
         let message = body["choices"][0]["message"].clone();
+
+        // OpenAI-compatible models report a hard refusal on `message.refusal`.
+        if let Some(refusal) = message["refusal"].as_str() {
+            if !refusal.trim().is_empty() {
+                return Ok(ChatReply {
+                    text: refusal.to_owned(),
+                    tools_used,
+                });
+            }
+        }
+
         let tool_calls = message["tool_calls"]
             .as_array()
             .cloned()

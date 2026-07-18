@@ -26,12 +26,39 @@ export const spendSeries = [
   { label: "Jul", value: 2835 },
 ];
 
-/** Chart palette — validated for light (#FFF) and dark (#262626) surfaces. */
+/**
+ * Chart palette — validated colorblind-safe on the deep-navy dashboard surface
+ * (and on white for the light theme). cyan / violet / amber.
+ */
 export const chartColors = {
   primary: "#0891B2", // cyan — main series / "ready"
-  processing: "#3B82F6", // blue — in progress
+  processing: "#8B5CF6", // violet — in progress
   attention: "#D97706", // amber — needs action
 };
+
+/**
+ * Great-circle routes drawn on the dashboard globe. `active` marks the
+ * upcoming trip (rendered brighter, with a travelling light).
+ * [lat, lng] pairs.
+ */
+export const globeRoutes = [
+  { from: [40.71, -74.01], to: [35.68, 139.69], active: true }, // New York → Tokyo (next)
+  { from: [38.72, -9.14], to: [40.71, -74.01], active: false }, // Lisbon → New York
+  { from: [41.9, 12.5], to: [13.76, 100.5], active: false }, // Rome → Bangkok
+  { from: [51.51, -0.13], to: [38.72, -9.14], active: false }, // London → Lisbon
+  { from: [35.68, 139.69], to: [-33.87, 151.21], active: false }, // Tokyo → Sydney
+] as const;
+
+/** City markers to glow on the globe. [lat, lng]. */
+export const globeCities = [
+  [40.71, -74.01],
+  [35.68, 139.69],
+  [38.72, -9.14],
+  [41.9, 12.5],
+  [13.76, 100.5],
+  [51.51, -0.13],
+  [-33.87, 151.21],
+] as const;
 
 export type DocStatus = "ready" | "processing" | "action";
 

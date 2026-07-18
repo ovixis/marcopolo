@@ -21,7 +21,7 @@ import {
 } from "@/lib/tauri";
 
 const PROVIDERS: { id: AiProvider; label: string; defaultModel: string }[] = [
-  { id: "anthropic", label: "Claude (Anthropic)", defaultModel: "claude-sonnet-5" },
+  { id: "anthropic", label: "Claude (Anthropic)", defaultModel: "claude-opus-4-8" },
   { id: "openai", label: "OpenAI", defaultModel: "gpt-5" },
   { id: "grok", label: "Grok (xAI)", defaultModel: "grok-4" },
   { id: "kimi", label: "Kimi (Moonshot)", defaultModel: "kimi-k2" },
@@ -70,7 +70,7 @@ const inputClass =
 export default function ChatPage() {
   const [config, setConfig] = useState<AiConfig>({
     provider: "anthropic",
-    model: "claude-sonnet-5",
+    model: "claude-opus-4-8",
     apiKey: "",
     baseUrl: "",
   });
@@ -92,6 +92,19 @@ export default function ChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activity]);
+
+  // Pick up a prompt handed off from the dashboard's Ask Marco bar.
+  useEffect(() => {
+    try {
+      const handoff = sessionStorage.getItem("marco.prefill");
+      if (handoff) {
+        sessionStorage.removeItem("marco.prefill");
+        setInput(handoff);
+      }
+    } catch {
+      // storage unavailable — nothing to hand off
+    }
+  }, []);
 
   function updateConfig(patch: Partial<AiConfig>) {
     setConfig((previous) => {
@@ -221,7 +234,7 @@ export default function ChatPage() {
 
           <input
             className={inputClass}
-            placeholder="model, e.g. claude-sonnet-5"
+            placeholder="model, e.g. claude-opus-4-8"
             value={config.model}
             onChange={(e) => updateConfig({ model: e.target.value })}
             aria-label="Model name"
