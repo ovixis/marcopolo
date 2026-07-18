@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Marco Polo — magnetic compass mark. Deep navy / electric cyan / brushed titanium. -->
+  <defs>
+    <!-- Background -->
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#0C1B30"/>
+      <stop offset="55%" stop-color="#081426"/>
+      <stop offset="100%" stop-color="#04070E"/>
+    </radialGradient>
+
+    <!-- Brushed titanium bezel -->
+    <linearGradient id="bezel" x1="18%" y1="8%" x2="82%" y2="92%">
+      <stop offset="0%"  stop-color="#F3F6F9"/>
+      <stop offset="22%" stop-color="#AAB6C2"/>
+      <stop offset="45%" stop-color="#6F7C8B"/>
+      <stop offset="58%" stop-color="#93A0AE"/>
+      <stop offset="78%" stop-color="#D9E1E9"/>
+      <stop offset="100%" stop-color="#7C8997"/>
+    </linearGradient>
+    <linearGradient id="bezelInner" x1="80%" y1="90%" x2="20%" y2="10%">
+      <stop offset="0%"  stop-color="#EDF1F5"/>
+      <stop offset="50%" stop-color="#8B98A6"/>
+      <stop offset="100%" stop-color="#4E5A67"/>
+    </linearGradient>
+
+    <!-- Fluid capsule -->
+    <radialGradient id="capsule" cx="42%" cy="34%" r="80%">
+      <stop offset="0%"  stop-color="#123152"/>
+      <stop offset="60%" stop-color="#0A1E38"/>
+      <stop offset="100%" stop-color="#061223"/>
+    </radialGradient>
+
+    <!-- Glass refraction highlights -->
+    <linearGradient id="glassTop" x1="0%" y1="0%" x2="35%" y2="100%">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="45%" stop-color="#FFFFFF" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="caustic" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#22D3EE" stop-opacity="0.40"/>
+      <stop offset="60%" stop-color="#22D3EE" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Needle facets -->
+    <linearGradient id="needleN-light" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7DEFFF"/>
+      <stop offset="100%" stop-color="#38CDE8"/>
+    </linearGradient>
+    <linearGradient id="needleN-dark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0E9EC7"/>
+      <stop offset="100%" stop-color="#0A7FA6"/>
+    </linearGradient>
+    <linearGradient id="needleS-light" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E6ECF2"/>
+      <stop offset="100%" stop-color="#B9C4CF"/>
+    </linearGradient>
+    <linearGradient id="needleS-dark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8C99A7"/>
+      <stop offset="100%" stop-color="#5E6B79"/>
+    </linearGradient>
+
+    <!-- Hub -->
+    <radialGradient id="hub" cx="38%" cy="32%" r="80%">
+      <stop offset="0%"  stop-color="#F4F7FA"/>
+      <stop offset="55%" stop-color="#A7B3BF"/>
+      <stop offset="100%" stop-color="#5F6C7A"/>
+    </radialGradient>
+
+    <!-- Volumetric top light -->
+    <radialGradient id="volume" cx="50%" cy="0%" r="90%">
+      <stop offset="0%"  stop-color="#8FD9FF" stop-opacity="0.10"/>
+      <stop offset="45%" stop-color="#8FD9FF" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#8FD9FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="glowCyan" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowSoft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softBlur"><feGaussianBlur stdDeviation="18"/></filter>
+    <filter id="needleShadow"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+
+  <!-- ======== Background ======== -->
+  <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="228" fill="url(#volume)"/>
+
+  <!-- Ambient halo behind the instrument -->
+  <circle cx="512" cy="512" r="410" fill="#0E9EC7" opacity="0.10" filter="url(#softBlur)"/>
+
+  <!-- ======== Bezel (brushed titanium) ======== -->
+  <circle cx="512" cy="512" r="402" fill="url(#bezel)"/>
+  <circle cx="512" cy="512" r="352" fill="url(#bezelInner)"/>
+  <!-- thin polished edge lines -->
+  <circle cx="512" cy="512" r="402" fill="none" stroke="#FFFFFF" stroke-opacity="0.35" stroke-width="2"/>
+  <circle cx="512" cy="512" r="376" fill="none" stroke="#0B1622" stroke-opacity="0.30" stroke-width="3"/>
+
+  <!-- ======== Fluid capsule ======== -->
+  <circle cx="512" cy="512" r="340" fill="url(#capsule)"/>
+  <!-- capsule inner shadow rim -->
+  <circle cx="512" cy="512" r="340" fill="none" stroke="#010409" stroke-opacity="0.55" stroke-width="8"/>
+  <!-- liquid meniscus ring -->
+  <circle cx="512" cy="512" r="318" fill="none" stroke="#22D3EE" stroke-opacity="0.14" stroke-width="2"/>
+
+  <!-- degree micro-graduations -->
+  <circle cx="512" cy="512" r="296" fill="none" stroke="#AEB9C4" stroke-opacity="0.30"
+          stroke-width="14" stroke-dasharray="2 22.66"/>
+
+  <!-- ======== Cardinal ticks (text-free N/E/S/W) ======== -->
+  <g fill="#C7D1DB">
+    <rect x="504" y="196" width="16" height="58" rx="8" fill="#22D3EE" filter="url(#glowCyan)"/>
+    <rect x="504" y="774" width="16" height="50" rx="8" opacity="0.9"/>
+    <rect x="196" y="504" width="50" height="16" rx="8" opacity="0.9"/>
+    <rect x="778" y="504" width="50" height="16" rx="8" opacity="0.9"/>
+  </g>
+  <!-- intercardinal dots -->
+  <g fill="#8FA0B0" opacity="0.65">
+    <circle cx="731" cy="293" r="9"/>
+    <circle cx="731" cy="731" r="9"/>
+    <circle cx="293" cy="731" r="9"/>
+    <circle cx="293" cy="293" r="9"/>
+  </g>
+
+  <!-- caustic pool of light in the fluid -->
+  <ellipse cx="400" cy="668" rx="210" ry="150" fill="url(#caustic)"/>
+
+  <!-- ======== Needle (floating, rotated) ======== -->
+  <g transform="rotate(-32 512 512)">
+    <!-- drop shadow in the fluid -->
+    <g transform="translate(14 26)" filter="url(#needleShadow)" opacity="0.5">
+      <path d="M512 242 L560 482 L512 512 L464 482 Z" fill="#000814"/>
+      <path d="M512 782 L560 542 L512 512 L464 542 Z" fill="#000814"/>
+    </g>
+    <!-- glow under the north half -->
+    <path d="M512 242 L560 482 L512 512 L464 482 Z" fill="#22D3EE" opacity="0.55" filter="url(#softBlur)"/>
+    <!-- north half: electric cyan kite, faceted -->
+    <path d="M512 242 L560 482 L512 512 Z" fill="url(#needleN-dark)"/>
+    <path d="M512 242 L464 482 L512 512 Z" fill="url(#needleN-light)"/>
+    <!-- south half: titanium kite, faceted -->
+    <path d="M512 782 L560 542 L512 512 Z" fill="url(#needleS-dark)"/>
+    <path d="M512 782 L464 542 L512 512 Z" fill="url(#needleS-light)"/>
+    <!-- needle ridge line -->
+    <path d="M512 242 L512 782" stroke="#031018" stroke-opacity="0.35" stroke-width="2"/>
+    <!-- north tip spark -->
+    <circle cx="512" cy="248" r="7" fill="#B7F5FF" filter="url(#glowCyan)"/>
+  </g>
+
+  <!-- ======== Hub ======== -->
+  <circle cx="512" cy="512" r="46" fill="#04101C" opacity="0.9"/>
+  <circle cx="512" cy="512" r="38" fill="url(#hub)"/>
+  <circle cx="512" cy="512" r="24" fill="none" stroke="#22D3EE" stroke-width="4" filter="url(#glowSoft)"/>
+  <circle cx="512" cy="512" r="11" fill="#071527"/>
+  <circle cx="500" cy="500" r="6" fill="#FFFFFF" opacity="0.85"/>
+
+  <!-- ======== Glass dome refraction ======== -->
+  <path d="M512 172 A340 340 0 0 0 172 512 A340 340 0 0 1 512 172 Z" fill="none"/>
+  <ellipse cx="392" cy="330" rx="235" ry="150" fill="url(#glassTop)" transform="rotate(-24 392 330)"/>
+  <path d="M736 704 A318 318 0 0 1 610 800 A330 330 0 0 0 736 704 Z" fill="#7DEFFF" opacity="0.10"/>
+
+  <!-- edge vignette -->
+  <rect width="1024" height="1024" rx="228" fill="none" stroke="#000000" stroke-opacity="0.35" stroke-width="6"/>
+</svg>

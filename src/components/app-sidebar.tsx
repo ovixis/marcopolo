@@ -1,12 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
   CalendarRange,
-  Compass,
   Hotel,
   Images,
   MessageSquare,
@@ -41,7 +41,14 @@ export function AppSidebar() {
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
       <Link href="/" className="flex items-center gap-2 px-4 py-5">
-        <Compass className="size-6 text-primary" aria-hidden />
+        <Image
+          src="/logo.svg"
+          alt=""
+          width={28}
+          height={28}
+          className="rounded-md"
+          aria-hidden
+        />
         <span className="text-lg font-semibold tracking-tight">Marco Polo</span>
       </Link>
 

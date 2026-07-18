@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo-1024.png" alt="Marco Polo logo" width="140"/>
+</p>
+
 # Marco Polo 🧭
 
 **An open-source travel aggregator for your desktop.** Search flights, hotels,
@@ -29,7 +33,7 @@ without signing up for anything.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org) ≥ 20 and [pnpm](https://pnpm.io) ≥ 9
+- [Node.js](https://nodejs.org) ≥ 20 and [pnpm](https://pnpm.io) ≥ 10
 - [Rust](https://rustup.rs) (stable)
 - Platform build tools:
   - **macOS**: Xcode Command Line Tools (`xcode-select --install`)
