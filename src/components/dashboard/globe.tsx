@@ -5,9 +5,10 @@ import { useEffect, useRef } from "react";
 import { globeCities, globeRoutes } from "@/lib/demo-dashboard";
 
 /**
- * A dotted navy globe with glowing city markers and animated great-circle
- * flight arcs — the dashboard's hero object. three.js for the 3D, GSAP for the
- * entrance. Degrades to a still globe under prefers-reduced-motion.
+ * A dotted globe rendered in the "explorer's atlas" nature palette — forest
+ * green landmass dots, terracotta cities, sky-blue and green flight arcs on the
+ * parchment surface. three.js for the 3D, GSAP for the entrance. Degrades to a
+ * still globe under prefers-reduced-motion.
  */
 export function Globe() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -41,18 +42,18 @@ export function Globe() {
       camera.position.set(0, 0.4, 7);
 
       const root = new THREE.Group();
-      root.rotation.z = 0.28; // tilt the axis
+      root.rotation.z = 0.28;
       scene.add(root);
-
-      const spin = new THREE.Group(); // everything that rotates with the planet
+      const spin = new THREE.Group();
       root.add(spin);
 
       const R = 2;
-      const CYAN = new THREE.Color("#22d3ee");
-      const WARM = new THREE.Color("#f5b451");
-      const DEEP = new THREE.Color("#0a1120");
+      const GREEN = new THREE.Color("#2f7d4e");
+      const TERRA = new THREE.Color("#c4633b");
+      const SKY = new THREE.Color("#3f82a8");
+      const SAND = new THREE.Color("#d8b25e");
+      const PAPER = new THREE.Color("#f7f3ea");
 
-      // lat/lng (degrees) → point on a sphere of radius r
       const toVec3 = (lat: number, lng: number, r: number) => {
         const phi = (90 - lat) * (Math.PI / 180);
         const theta = (lng + 180) * (Math.PI / 180);
@@ -63,14 +64,14 @@ export function Globe() {
         );
       };
 
-      // --- solid core so back-side dots/arcs stay hidden ---
+      // solid paper core hides back-side dots/arcs
       const core = new THREE.Mesh(
         new THREE.SphereGeometry(R * 0.985, 48, 48),
-        new THREE.MeshBasicMaterial({ color: DEEP }),
+        new THREE.MeshBasicMaterial({ color: PAPER }),
       );
       spin.add(core);
 
-      // --- dotted surface (Fibonacci sphere) ---
+      // dotted surface (Fibonacci sphere)
       const DOTS = 1400;
       const dotPos = new Float32Array(DOTS * 3);
       for (let i = 0; i < DOTS; i++) {
@@ -86,53 +87,27 @@ export function Globe() {
       const dots = new THREE.Points(
         dotGeo,
         new THREE.PointsMaterial({
-          color: new THREE.Color("#2f4a6b"),
-          size: 0.028,
+          color: new THREE.Color("#4f9268"),
+          size: 0.03,
           transparent: true,
-          opacity: 0.9,
+          opacity: 0.85,
           sizeAttenuation: true,
         }),
       );
       spin.add(dots);
 
-      // --- wireframe latitude/longitude shimmer ---
+      // faint meridians
       const wire = new THREE.LineSegments(
         new THREE.WireframeGeometry(new THREE.SphereGeometry(R * 1.001, 24, 16)),
         new THREE.LineBasicMaterial({
-          color: CYAN,
+          color: GREEN,
           transparent: true,
-          opacity: 0.06,
+          opacity: 0.05,
         }),
       );
       spin.add(wire);
 
-      // --- atmosphere rim glow ---
-      const atmosphere = new THREE.Mesh(
-        new THREE.SphereGeometry(R * 1.14, 48, 48),
-        new THREE.ShaderMaterial({
-          transparent: true,
-          side: THREE.BackSide,
-          blending: THREE.AdditiveBlending,
-          uniforms: { glow: { value: CYAN } },
-          vertexShader: `
-            varying float intensity;
-            void main() {
-              vec3 vNormal = normalize(normalMatrix * normal);
-              vec3 vView = normalize(normalMatrix * vec3(0.0, 0.0, 1.0));
-              intensity = pow(0.62 - dot(vNormal, vView), 3.0);
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }`,
-          fragmentShader: `
-            uniform vec3 glow;
-            varying float intensity;
-            void main() {
-              gl_FragColor = vec4(glow, 1.0) * clamp(intensity, 0.0, 1.0);
-            }`,
-        }),
-      );
-      root.add(atmosphere);
-
-      // --- city markers ---
+      // city markers
       const cityPos = new Float32Array(globeCities.length * 3);
       globeCities.forEach(([lat, lng], i) => {
         const v = toVec3(lat, lng, R * 1.01);
@@ -145,8 +120,8 @@ export function Globe() {
       const cities = new THREE.Points(
         cityGeo,
         new THREE.PointsMaterial({
-          color: WARM,
-          size: 0.12,
+          color: TERRA,
+          size: 0.13,
           transparent: true,
           opacity: 0.95,
           sizeAttenuation: true,
@@ -154,8 +129,13 @@ export function Globe() {
       );
       spin.add(cities);
 
-      // --- flight arcs ---
-      type Traveller = { curve: InstanceType<typeof THREE.QuadraticBezierCurve3>; mesh: InstanceType<typeof THREE.Mesh>; speed: number; t: number };
+      // flight arcs
+      type Traveller = {
+        curve: InstanceType<typeof THREE.QuadraticBezierCurve3>;
+        mesh: InstanceType<typeof THREE.Mesh>;
+        speed: number;
+        t: number;
+      };
       const travellers: Traveller[] = [];
       const arcLines: InstanceType<typeof THREE.Line>[] = [];
 
@@ -170,25 +150,21 @@ export function Globe() {
           .normalize()
           .multiplyScalar(R + dist * 0.55);
         const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
-        const pts = curve.getPoints(60);
-        const geo = new THREE.BufferGeometry().setFromPoints(pts);
-        const color = route.active ? CYAN : new THREE.Color("#3f6d94");
+        const geo = new THREE.BufferGeometry().setFromPoints(curve.getPoints(60));
         const line = new THREE.Line(
           geo,
           new THREE.LineBasicMaterial({
-            color,
+            color: route.active ? GREEN : SKY,
             transparent: true,
-            opacity: route.active ? 0.85 : 0.35,
+            opacity: route.active ? 0.85 : 0.45,
           }),
         );
         spin.add(line);
         arcLines.push(line);
 
-        // travelling light along the arc
-        const dotColor = route.active ? CYAN : WARM;
         const traveller = new THREE.Mesh(
           new THREE.SphereGeometry(route.active ? 0.05 : 0.035, 12, 12),
-          new THREE.MeshBasicMaterial({ color: dotColor }),
+          new THREE.MeshBasicMaterial({ color: route.active ? TERRA : SAND }),
         );
         spin.add(traveller);
         travellers.push({
@@ -219,14 +195,12 @@ export function Globe() {
         for (const tr of travellers) {
           tr.t = (tr.t + dt * tr.speed) % 1;
           tr.mesh.position.copy(tr.curve.getPointAt(tr.t));
-          const scale = 0.6 + Math.sin(tr.t * Math.PI) * 0.8;
-          tr.mesh.scale.setScalar(scale);
+          tr.mesh.scale.setScalar(0.6 + Math.sin(tr.t * Math.PI) * 0.8);
         }
         renderer.render(scene, camera);
       };
       render();
 
-      // --- GSAP entrance ---
       if (!reduceMotion) {
         gsap.from(root.scale, {
           x: 0.82,

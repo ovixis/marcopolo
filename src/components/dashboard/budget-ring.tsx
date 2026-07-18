@@ -25,7 +25,7 @@ export function BudgetRing() {
             fill="none"
             stroke="currentColor"
             strokeWidth={STROKE}
-            className="text-white/8"
+            className="text-border"
           />
           <circle
             cx={SIZE / 2}

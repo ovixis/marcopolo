@@ -12,7 +12,7 @@ import { SpendChart } from "@/components/dashboard/spend-chart";
 import { demoTrip } from "@/lib/demo-dashboard";
 
 const panel =
-  "rounded-2xl border border-white/8 bg-white/[0.02] p-5 backdrop-blur-sm";
+  "rounded-2xl border border-border bg-card p-5 shadow-sm";
 
 function PanelHeader({
   title,

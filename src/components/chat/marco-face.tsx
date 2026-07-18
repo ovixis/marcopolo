@@ -1,44 +1,53 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 /**
- * Marco Polo's face in ASCII, animated with GSAP, floating over a three.js
- * starfield. `thinking` switches the animation from a calm breath to a
- * shimmering "consulting the maps" scramble.
+ * Marco Polo as an original ASCII portrait — a bearded explorer in a travelling
+ * cap, in the spirit of the classic iconography (drawn from scratch, not traced
+ * from any stock image). GSAP animates it; a faint three.js mote-field of green
+ * and sky drifts behind it on the parchment surface. Calm "breath" when idle,
+ * a shimmering "consulting the maps" scramble while thinking.
  */
 
 const FACE: string[] = [
-  "            .:=*#%%%%#*=:.            ",
-  "         :+%@@@@@@@@@@@@%+:           ",
-  "       :#@@@@@@@@@@@@@@@@@@#:         ",
-  "      =@@@@@%#*+====+*#%@@@@@=        ",
-  "     =@@@%+:            :+%@@@=       ",
-  "    .%@@#.    _..--.._    .#@@%.      ",
-  "    =@@%.   .' ~~~~~~ '.   .%@@=      ",
-  "    #@@+    ~ ______ ~      +@@#      ",
-  "    %@@:   .+#@@=-@@#+.     :@@%      ",
-  "    %@@:    (o)/  \\(o)      :@@%      ",
-  "    #@@+     _./ ;; \\._     +@@#      ",
-  "    =@@%    /   (__)   \\    %@@=      ",
-  "    .%@@-   \\  .____.  /   -@@%.      ",
-  "     -@@%:   '.______.'   :%@@-       ",
-  "      +@@@=    \\;;;;/    =@@@+        ",
-  "       =@@@#+.  \\;;/  .+#@@@=         ",
-  "        .*@@@@%#======#%@@@@*.        ",
-  "       .-=+#%@@@@@@@@@@%#+=-.         ",
-  "     .*%#+=--=+*####*+=--=+#%*.       ",
-  "    -@@@@@@@%%#+=..=+#%%@@@@@@@-      ",
-  "    *@@@@@@@@@@@@@@@@@@@@@@@@@@*      ",
+  "         .:-=++****++=-:.         ",
+  "       :=*#%@@@@@@@@@@%#*=:       ",
+  "     .+%@@@@@@@@@@@@@@@@@@%+.     ",
+  "    =@@@@@%#**++==++**#%@@@@@=    ",
+  "   =@@@#=:.            .:=#@@@=   ",
+  "  :@@@:      ______       :@@@:   ",
+  "  %@#     .-'      '-.      #@%   ",
+  " -@@:    .'  -==-    '.    :@@-   ",
+  " %@=     :  ( o  )    :     =@%   ",
+  " @@:     :   '--'  .  :     :@@   ",
+  " @@.     '.       /|  '     .@@   ",
+  " %@=      :.     '=|='     .=@%   ",
+  " =@@.      '.   (    )   .'  @@=  ",
+  "  %@:       '.   '__'  .'   :@%   ",
+  "  =@%.    .   '.      .'  .  %@=  ",
+  "   #@#.    '.  '.::.'   .'  #@#   ",
+  "   .%@%:    '::||||::'    :%@%.   ",
+  "     +@@#=.  ':::::::'  .=#@@+    ",
+  "      .=#@@@%*+=--=+*%@@@#=.      ",
+  "    .-+*#%@@@@@@@@@@@@@@%#*+-.    ",
+  "   =@@@@@@%##**++++**##%@@@@@@=   ",
+  "  #@@@@@@@@@@@@@@@@@@@@@@@@@@@@#  ",
+  " =@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@= ",
 ];
+
+const INK = "#1c3323"; // deep forest ink
+const GLOW_IDLE = "0 0 5px rgba(47,125,78,0.25)";
+const GLOW_THINK = "0 0 14px rgba(196,99,59,0.6)"; // terracotta glow
 
 export function MarcoFace({ thinking }: { thinking: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const faceRef = useRef<HTMLDivElement>(null);
   const shimmerRef = useRef<gsap.core.Tween | null>(null);
+  const [ready, setReady] = useState(false);
 
-  // three.js starfield background
+  // three.js drifting mote-field (green + sky) on the parchment surface
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -48,60 +57,56 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
     (async () => {
       const THREE = await import("three");
       if (disposed || !canvas.parentElement) return;
-
       const parent = canvas.parentElement;
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        alpha: true,
-        antialias: true,
-      });
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
       camera.position.z = 6;
 
-      const starCount = 600;
-      const positions = new Float32Array(starCount * 3);
-      const colors = new Float32Array(starCount * 3);
-      const cyan = new THREE.Color("#22D3EE");
-      const white = new THREE.Color("#9FB6CC");
-      for (let i = 0; i < starCount; i++) {
+      const count = 340;
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+      const green = new THREE.Color("#2f7d4e");
+      const sky = new THREE.Color("#3f82a8");
+      for (let i = 0; i < count; i++) {
         positions[i * 3] = (Math.random() - 0.5) * 16;
         positions[i * 3 + 1] = (Math.random() - 0.5) * 16;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 12;
-        const color = Math.random() < 0.25 ? cyan : white;
-        colors[i * 3] = color.r;
-        colors[i * 3 + 1] = color.g;
-        colors[i * 3 + 2] = color.b;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+        const c = Math.random() < 0.4 ? sky : green;
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
       }
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
       const material = new THREE.PointsMaterial({
-        size: 0.035,
+        size: 0.03,
         vertexColors: true,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.4,
         sizeAttenuation: true,
       });
-      const stars = new THREE.Points(geometry, material);
-      scene.add(stars);
+      const motes = new THREE.Points(geometry, material);
+      scene.add(motes);
 
-      // a faint dashed "route ring" orbiting the face
-      const ringGeometry = new THREE.TorusGeometry(3.2, 0.006, 8, 128);
-      const ringMaterial = new THREE.MeshBasicMaterial({
-        color: 0x22d3ee,
-        transparent: true,
-        opacity: 0.25,
-      });
-      const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(3.1, 0.005, 8, 128),
+        new THREE.MeshBasicMaterial({
+          color: 0x2f7d4e,
+          transparent: true,
+          opacity: 0.18,
+        }),
+      );
       ring.rotation.x = Math.PI / 2.4;
       scene.add(ring);
 
       const resize = () => {
-        const { clientWidth, clientHeight } = parent;
-        renderer.setSize(clientWidth, clientHeight, false);
+        const { clientWidth: w, clientHeight: h } = parent;
+        renderer.setSize(w, h, false);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        camera.aspect = clientWidth / clientHeight;
+        camera.aspect = w / h;
         camera.updateProjectionMatrix();
       };
       resize();
@@ -111,9 +116,9 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
       let frame = 0;
       const animate = () => {
         frame = requestAnimationFrame(animate);
-        stars.rotation.y += 0.0006;
-        stars.rotation.x += 0.0002;
-        ring.rotation.z += 0.0015;
+        motes.rotation.y += 0.0006;
+        motes.rotation.x += 0.0002;
+        ring.rotation.z += 0.0016;
         renderer.render(scene, camera);
       };
       animate();
@@ -123,8 +128,8 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
         observer.disconnect();
         geometry.dispose();
         material.dispose();
-        ringGeometry.dispose();
-        ringMaterial.dispose();
+        ring.geometry.dispose();
+        (ring.material as InstanceType<typeof THREE.Material>).dispose();
         renderer.dispose();
       };
     })();
@@ -135,19 +140,31 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
     };
   }, []);
 
-  // GSAP: entrance + idle float
+  // entrance + idle float
   useEffect(() => {
     const face = faceRef.current;
     if (!face) return;
     const lines = face.querySelectorAll("[data-face-line]");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(lines, { opacity: 1, y: 0 });
+      queueMicrotask(() => setReady(true));
+      return;
+    }
     const entrance = gsap.fromTo(
       lines,
       { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.035, ease: "power2.out" },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.5,
+        stagger: 0.03,
+        ease: "power2.out",
+        onComplete: () => setReady(true),
+      },
     );
     const float = gsap.to(face, {
       y: -6,
-      duration: 3.2,
+      duration: 3.4,
       yoyo: true,
       repeat: -1,
       ease: "sine.inOut",
@@ -158,17 +175,18 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
     };
   }, []);
 
-  // GSAP: thinking shimmer sweeps across the lines
+  // thinking shimmer
   useEffect(() => {
+    if (!ready) return;
     const face = faceRef.current;
     if (!face) return;
     const lines = face.querySelectorAll("[data-face-line]");
     shimmerRef.current?.kill();
     if (thinking) {
       shimmerRef.current = gsap.to(lines, {
-        opacity: 0.35,
-        color: "#7DEFFF",
-        textShadow: "0 0 14px rgba(34,211,238,0.9)",
+        opacity: 0.45,
+        color: "#c4633b",
+        textShadow: GLOW_THINK,
         duration: 0.35,
         stagger: { each: 0.05, yoyo: true, repeat: -1 },
         ease: "sine.inOut",
@@ -176,15 +194,15 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
     } else {
       shimmerRef.current = gsap.to(lines, {
         opacity: 1,
-        color: "#8FD9EA",
-        textShadow: "0 0 6px rgba(34,211,238,0.35)",
+        color: INK,
+        textShadow: GLOW_IDLE,
         duration: 0.5,
       });
     }
     return () => {
       shimmerRef.current?.kill();
     };
-  }, [thinking]);
+  }, [thinking, ready]);
 
   return (
     <div className="relative flex h-full min-h-72 items-center justify-center overflow-hidden">
@@ -192,7 +210,13 @@ export function MarcoFace({ thinking }: { thinking: boolean }) {
       <div
         ref={faceRef}
         className="relative select-none font-mono"
-        style={{ fontSize: "9px", lineHeight: "10px", color: "#8FD9EA" }}
+        style={{
+          fontSize: "9.5px",
+          lineHeight: "10px",
+          fontWeight: 700,
+          color: INK,
+          textShadow: GLOW_IDLE,
+        }}
         aria-label="ASCII portrait of Marco Polo"
         role="img"
       >

@@ -31,9 +31,9 @@ export const spendSeries = [
  * (and on white for the light theme). cyan / violet / amber.
  */
 export const chartColors = {
-  primary: "#0891B2", // cyan — main series / "ready"
-  processing: "#8B5CF6", // violet — in progress
-  attention: "#D97706", // amber — needs action
+  primary: "#3C7A2E", // leaf green — main series / "ready"
+  processing: "#1E6FB0", // blue — in progress
+  attention: "#C98A22", // ochre — needs action
 };
 
 /**

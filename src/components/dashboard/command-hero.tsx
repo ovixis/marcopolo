@@ -33,6 +33,12 @@ export function CommandHero() {
     const panel = panelRef.current;
     if (!panel) return;
     const items = panel.querySelectorAll("[data-hero-item]");
+    // Content is visible by default; only animate as an enhancement. If motion
+    // is reduced (or GSAP can't run), the hero never ends up hidden.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(items, { opacity: 1, y: 0 });
+      return;
+    }
     const tween = gsap.from(items, {
       opacity: 0,
       y: 18,
@@ -63,13 +69,13 @@ export function CommandHero() {
           : "Good evening";
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a1120]">
-      {/* aurora backdrop */}
+    <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-[#faf6ec] via-[#f3f0e2] to-[#edf1e5] shadow-sm">
+      {/* soft nature glows */}
       <div
-        className="aurora-layer pointer-events-none absolute -right-24 -top-32 h-[38rem] w-[38rem] rounded-full opacity-70 blur-3xl"
+        className="aurora-layer pointer-events-none absolute -right-24 -top-32 h-[38rem] w-[38rem] rounded-full opacity-60 blur-3xl"
         style={{
           background:
-            "radial-gradient(circle at 50% 50%, rgba(34,211,238,0.28), rgba(139,124,246,0.18) 45%, transparent 70%)",
+            "radial-gradient(circle at 50% 50%, rgba(63,130,168,0.22), rgba(47,125,78,0.16) 45%, transparent 70%)",
         }}
       />
       <div
@@ -77,7 +83,7 @@ export function CommandHero() {
         style={{
           animationDelay: "-9s",
           background:
-            "radial-gradient(circle at 50% 50%, rgba(245,180,81,0.16), transparent 68%)",
+            "radial-gradient(circle at 50% 50%, rgba(216,178,94,0.24), transparent 68%)",
         }}
       />
 
@@ -85,7 +91,7 @@ export function CommandHero() {
       <div className="pointer-events-none absolute inset-y-0 right-[-6%] w-[58%] min-w-[22rem]">
         <Globe />
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a1120] via-[#0a1120]/70 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#faf6ec] via-[#faf6ec]/75 to-transparent" />
 
       <div
         ref={panelRef}
@@ -93,7 +99,7 @@ export function CommandHero() {
       >
         <div
           data-hero-item
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-200"
+          className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
         >
           <Sparkles className="size-3.5" aria-hidden />
           {greeting} — {demoTrip.daysToDeparture} days to {demoTrip.title}
@@ -101,29 +107,29 @@ export function CommandHero() {
 
         <h1
           data-hero-item
-          className="font-serif text-4xl leading-tight tracking-tight text-white sm:text-5xl"
+          className="font-serif text-4xl leading-tight tracking-tight text-foreground sm:text-5xl"
         >
           Where shall we
           <br />
           wander next?
         </h1>
 
-        <p data-hero-item className="max-w-md text-sm text-slate-300/90">
+        <p data-hero-item className="max-w-md text-sm text-muted-foreground">
           Just ask. Marco searches flights, stays, and experiences in the
           background and charts the whole route — no forms, no tabs.
         </p>
 
         <form data-hero-item onSubmit={submit} className="max-w-xl">
-          <div className="flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 p-1.5 backdrop-blur-md focus-within:border-cyan-400/40 focus-within:ring-2 focus-within:ring-cyan-400/15">
+          <div className="flex items-center gap-2 rounded-2xl border border-border bg-card/80 p-1.5 shadow-sm backdrop-blur-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15">
             <input
               ref={inputRef}
-              className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-white placeholder:text-slate-400 outline-none"
+              className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none"
               placeholder="Ask Marco to plan a trip…"
               aria-label="Ask Marco"
             />
             <button
               type="submit"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-sky-500 px-4 py-2.5 text-sm font-semibold text-[#062230] transition-transform hover:scale-[1.02]"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#2f7d4e] to-[#3f82a8] px-4 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.02]"
             >
               Ask Marco
               <ArrowUpRight className="size-4" aria-hidden />
@@ -136,7 +142,7 @@ export function CommandHero() {
             <button
               key={chip}
               onClick={() => openMarco(router, chip)}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-cyan-400/30 hover:bg-cyan-400/5 hover:text-white"
+              className="rounded-full border border-border bg-card/70 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
             >
               {chip}
             </button>

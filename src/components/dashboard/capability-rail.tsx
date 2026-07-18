@@ -68,7 +68,7 @@ export function CapabilityRail() {
           <button
             key={cap.label}
             onClick={() => ask(cap.prompt)}
-            className="group flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2.5 text-left transition-colors hover:border-cyan-400/30 hover:bg-cyan-400/[0.04]"
+            className="group flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5 text-left transition-colors hover:border-primary/40 hover:bg-primary/5"
           >
             <span className="rounded-lg bg-primary/10 p-2 text-primary">
               <cap.icon className="size-4" aria-hidden />
@@ -86,7 +86,7 @@ export function CapabilityRail() {
             >
               <span
                 className={`size-1.5 rounded-full ${
-                  isLive ? "bg-emerald-400" : "bg-slate-500"
+                  isLive ? "bg-emerald-400" : "bg-muted-foreground/40"
                 }`}
               />
               {isLive ? env : "demo"}

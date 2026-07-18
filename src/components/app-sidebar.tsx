@@ -33,11 +33,11 @@ const NAV_ITEMS = [
 
 function StatusChip({ label, live, env }: { label: string; live: boolean; env: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/8 bg-white/[0.03] px-2 py-0.5">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2 py-0.5">
       <span
         className={cn(
           "size-1.5 rounded-full",
-          live ? "bg-emerald-400" : "bg-slate-500",
+          live ? "bg-primary" : "bg-muted-foreground/50",
         )}
       />
       {label} {live ? env : "demo"}
@@ -56,7 +56,7 @@ export function AppSidebar() {
   const chatActive = pathname === "/chat" || pathname.startsWith("/chat/");
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-white/8 bg-sidebar text-sidebar-foreground">
+    <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
       <Link href="/" className="flex items-center gap-2.5 px-5 py-5">
         <Image
           src="/logo.svg"
@@ -76,23 +76,23 @@ export function AppSidebar() {
           className={cn(
             "flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors",
             chatActive
-              ? "border-cyan-400/40 bg-cyan-400/10"
-              : "border-white/10 bg-gradient-to-r from-cyan-400/10 to-violet-400/10 hover:border-cyan-400/30",
+              ? "border-primary/40 bg-primary/10"
+              : "border-border bg-gradient-to-r from-[#2f7d4e]/10 to-[#3f82a8]/10 hover:border-primary/40",
           )}
         >
-          <span className="rounded-lg bg-gradient-to-br from-cyan-400 to-sky-500 p-1.5 text-[#062230]">
+          <span className="rounded-lg bg-gradient-to-br from-[#2f7d4e] to-[#3f82a8] p-1.5 text-white">
             <Sparkles className="size-4" aria-hidden />
           </span>
           <span className="min-w-0">
-            <span className="block text-sm font-semibold text-white">Ask Marco</span>
-            <span className="block truncate text-[11px] text-slate-400">
+            <span className="block text-sm font-semibold">Ask Marco</span>
+            <span className="block truncate text-[11px] text-muted-foreground">
               flights · stays · plans
             </span>
           </span>
         </Link>
       </div>
 
-      <div className="mx-5 my-3 border-t border-white/8" />
+      <div className="mx-5 my-3 border-t border-sidebar-border" />
 
       <nav className="flex flex-1 flex-col gap-1 px-3">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -107,8 +107,8 @@ export function AppSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-white/[0.06] text-white"
-                  : "text-muted-foreground hover:bg-white/[0.04] hover:text-foreground",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
               <Icon
@@ -121,7 +121,7 @@ export function AppSidebar() {
         })}
       </nav>
 
-      <div className="flex flex-col gap-2 border-t border-white/8 px-4 py-3 text-[11px] text-muted-foreground">
+      <div className="flex flex-col gap-2 border-t border-sidebar-border px-4 py-3 text-[11px] text-muted-foreground">
         {status ? (
           <>
             <div className="flex flex-wrap gap-1.5">
@@ -136,7 +136,7 @@ export function AppSidebar() {
                 env={status.hotelsEnvironment}
               />
             </div>
-            <span className="text-slate-500">v{status.version}</span>
+            <span className="opacity-70">v{status.version}</span>
           </>
         ) : (
           <span>starting…</span>

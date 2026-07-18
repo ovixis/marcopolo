@@ -39,10 +39,10 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-brand-cyan: var(--brand-cyan);
-  --color-brand-warm: var(--brand-warm);
-  --color-brand-aurora: var(--brand-aurora);
-  --color-brand-navy: var(--brand-navy);
+  --color-brand-green: var(--brand-green);
+  --color-brand-terracotta: var(--brand-terracotta);
+  --color-brand-sky: var(--brand-sky);
+  --color-brand-sand: var(--brand-sand);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -53,45 +53,45 @@
 }
 
 :root {
-  /* Brand constants — the "Voyager / digital dusk" palette. Constant across
-     themes; the app runs dark-first (see <html class="dark">). */
-  --brand-cyan: #22d3ee; /* electric horizon */
-  --brand-warm: #f5b451; /* amber sunrise */
-  --brand-aurora: #8b7cf6; /* violet aurora */
-  --brand-navy: #0a1120; /* abyssal base */
+  /* Brand constants — the "Explorer's Atlas" nature palette. The app runs
+     light-first: parchment, forest green, terracotta, sky, sand. */
+  --brand-green: #2f7d4e; /* forest / compass north */
+  --brand-terracotta: #c4633b; /* clay / sunset earth */
+  --brand-sky: #3f82a8; /* open sky / sea */
+  --brand-sand: #d8b25e; /* warm sand / sun */
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(0.955 0.014 92); /* warm parchment */
+  --foreground: oklch(0.27 0.02 145); /* deep ink-green */
+  --card: oklch(0.985 0.008 92); /* fresh paper */
+  --card-foreground: oklch(0.27 0.02 145);
+  --popover: oklch(0.99 0.006 92);
+  --popover-foreground: oklch(0.27 0.02 145);
+  --primary: oklch(0.52 0.11 150); /* forest green */
+  --primary-foreground: oklch(0.98 0.012 92);
+  --secondary: oklch(0.93 0.022 122); /* soft sage */
+  --secondary-foreground: oklch(0.32 0.03 148);
+  --muted: oklch(0.93 0.016 98);
+  --muted-foreground: oklch(0.47 0.026 128);
+  --accent: oklch(0.92 0.032 128); /* sage green */
+  --accent-foreground: oklch(0.3 0.03 148);
+  --destructive: oklch(0.55 0.16 33); /* clay red */
+  --border: oklch(0.87 0.016 108);
+  --input: oklch(0.89 0.016 108);
+  --ring: oklch(0.52 0.11 150);
+  --chart-1: oklch(0.55 0.13 142); /* leaf green  #3C7A2E */
+  --chart-2: oklch(0.52 0.16 255); /* blue        #1E6FB0 */
+  --chart-3: oklch(0.66 0.12 72); /* ochre       #C98A22 */
+  --chart-4: oklch(0.56 0.14 40); /* terracotta */
+  --chart-5: oklch(0.6 0.09 200); /* teal */
+  --radius: 0.7rem;
+  --sidebar: oklch(0.96 0.02 118); /* faint sage panel */
+  --sidebar-foreground: oklch(0.27 0.02 145);
+  --sidebar-primary: oklch(0.52 0.11 150);
+  --sidebar-primary-foreground: oklch(0.98 0.012 92);
+  --sidebar-accent: oklch(0.91 0.032 128);
+  --sidebar-accent-foreground: oklch(0.3 0.03 148);
+  --sidebar-border: oklch(0.86 0.02 112);
+  --sidebar-ring: oklch(0.52 0.11 150);
 }
 
 .dark {
@@ -161,7 +161,7 @@
     @apply font-sans;
   }
 }
-/* Ask Marco chat — markdown rendering on the dark navy surface */
+/* Ask Marco chat — markdown rendering */
 .chat-markdown > * + * {
   margin-top: 0.6rem;
 }
@@ -169,7 +169,7 @@
 .chat-markdown h2,
 .chat-markdown h3 {
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--foreground);
 }
 .chat-markdown h1 { font-size: 1.05rem; }
 .chat-markdown h2 { font-size: 1rem; }
@@ -183,14 +183,14 @@
 }
 .chat-markdown ul { list-style: disc; }
 .chat-markdown ol { list-style: decimal; }
-.chat-markdown strong { color: #e2e8f0; }
+.chat-markdown strong { color: var(--foreground); }
 .chat-markdown a {
-  color: #67e8f9;
+  color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 .chat-markdown code {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--muted);
   border-radius: 4px;
   padding: 0.1rem 0.35rem;
   font-size: 0.8em;
@@ -204,17 +204,17 @@
 }
 .chat-markdown th,
 .chat-markdown td {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border);
   padding: 0.4rem 0.6rem;
   text-align: left;
 }
 .chat-markdown th {
-  background: rgba(34, 211, 238, 0.08);
-  color: #a5f3fc;
+  background: var(--secondary);
+  color: var(--primary);
   font-weight: 600;
 }
 .chat-markdown blockquote {
-  border-left: 2px solid rgba(34, 211, 238, 0.4);
+  border-left: 2px solid var(--primary);
   padding-left: 0.75rem;
   color: #94a3b8;
 }

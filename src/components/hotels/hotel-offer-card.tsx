@@ -33,7 +33,7 @@ export function HotelOfferCard({
   return (
     <Card className="overflow-hidden py-0">
       <CardContent className="flex items-stretch gap-0 p-0">
-        <div className="relative h-36 w-44 shrink-0 bg-gradient-to-br from-[#0B2540] to-[#0E7490]">
+        <div className="relative h-36 w-44 shrink-0 bg-gradient-to-br from-[#2f7d4e] to-[#3f82a8]">
           {offer.photoUrl ? (
             /* Remote hotel photos come from arbitrary supplier CDNs;
                next/image adds nothing with unoptimized static export. */
