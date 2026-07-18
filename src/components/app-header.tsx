@@ -55,7 +55,9 @@ export function AppHeader() {
   return (
     <header className="flex h-16 shrink-0 items-center gap-6 border-b border-sidebar-border bg-sidebar px-5 text-sidebar-foreground lg:px-7">
       <Link href="/" className="flex shrink-0 items-center gap-2.5">
-        <Image src="/logo.svg" alt="" width={38} height={38} priority aria-hidden />
+        <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-b from-[#175058] to-[#0b2e34] shadow-sm ring-1 ring-black/5">
+          <Image src="/logo.svg" alt="" width={26} height={26} priority aria-hidden />
+        </span>
         <span className="font-serif text-2xl tracking-tight">Marco Polo</span>
       </Link>
 
