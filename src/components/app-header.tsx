@@ -50,15 +50,15 @@ export function AppHeader() {
   }, []);
 
   return (
-    <header className="glass sticky top-0 z-50 flex h-16 shrink-0 items-center gap-5 px-4 text-sidebar-foreground lg:px-6">
+    <header className="glass sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 px-4 lg:px-6">
       <Link href="/" className="flex shrink-0 items-center gap-2.5">
-        <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-b from-[#1a5d66] to-[#0d3a40] shadow-sm ring-1 ring-black/5">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-b from-[#1a4d52] to-[#0c2f33] shadow-sm ring-1 ring-black/5">
           <Image src="/logo.svg" alt="" width={26} height={26} priority aria-hidden />
         </span>
         <span className="font-serif text-xl tracking-tight sm:text-2xl">Marco Polo</span>
       </Link>
 
-      <nav className="flex flex-1 items-center gap-1 overflow-x-auto pb-0">
+      <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/"
@@ -75,10 +75,7 @@ export function AppHeader() {
                   : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
             >
-              <Icon
-                className={cn("size-[18px] transition-colors", active && "text-primary")}
-                aria-hidden
-              />
+              <Icon className={cn("size-[18px] transition-colors", active && "text-primary")} aria-hidden />
               <span className="hidden sm:inline">{label}</span>
             </Link>
           );

@@ -54,120 +54,115 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  --shadow-glass: 0 8px 32px -12px var(--shadow-color);
-  --shadow-soft: 0 2px 16px -6px var(--shadow-color);
 }
 
 :root {
-  /* Brand constants — the "Botanical Atlas" palette, refined. */
-  --brand-green: #55692f;
-  --brand-terracotta: #b0623c;
-  --brand-sky: #3f7e8c;
-  --brand-sand: #d6c58e;
-  --brand-sage: #9caf88;
-  --brand-walnut: #7b5f3a;
+  /* Premium expedition-journal palette */
+  --brand-green: #4a5d2f;
+  --brand-terracotta: #b45d33;
+  --brand-sky: #3a6d7a;
+  --brand-sand: #d4c38a;
+  --brand-sage: #8fa67b;
+  --brand-walnut: #5c4328;
 
-  --background: #f0ebe1;
-  --background-glass: rgba(245, 240, 229, 0.72);
-  --foreground: #27251c;
-  --card: rgba(252, 249, 242, 0.86);
-  --card-foreground: #27251c;
-  --popover: #f9f6ef;
-  --popover-foreground: #27251c;
-  --primary: #55692f;
-  --primary-foreground: #f9f6ef;
-  --secondary: #e3ead7;
-  --secondary-foreground: #33321f;
-  --muted: #e7e0d3;
-  --muted-foreground: #6d6656;
-  --accent: #dbe5cf;
-  --accent-foreground: #27251c;
-  --destructive: #9a3b22;
-  --border: rgba(86, 81, 68, 0.14);
-  --input: rgba(86, 81, 68, 0.12);
-  --ring: #55692f;
-  --chart-1: #3c7a2e;
-  --chart-2: #1e6fb0;
-  --chart-3: #c98a22;
-  --chart-4: #7b5f3a;
-  --chart-5: #7a8450;
-  --radius: 0.85rem;
-  --shadow-color: rgba(86, 81, 68, 0.12);
-  --sidebar: #e8e2d5;
-  --sidebar-foreground: #27251c;
-  --sidebar-primary: #55692f;
-  --sidebar-primary-foreground: #f9f6ef;
-  --sidebar-accent: #dce4ce;
-  --sidebar-accent-foreground: #27251c;
-  --sidebar-border: rgba(86, 81, 68, 0.12);
-  --sidebar-ring: #55692f;
+  --background: #f6f2ea;
+  --background-glass: rgba(252, 250, 245, 0.82);
+  --foreground: #1f1c16;
+  --card: rgba(255, 253, 248, 0.92);
+  --card-foreground: #1f1c16;
+  --popover: #fffdf8;
+  --popover-foreground: #1f1c16;
+  --primary: #b45d33;
+  --primary-foreground: #fffdf8;
+  --secondary: #ede8dd;
+  --secondary-foreground: #3d3629;
+  --muted: #e9e3d6;
+  --muted-foreground: #7a7162;
+  --accent: #e6e0d2;
+  --accent-foreground: #1f1c16;
+  --destructive: #a53a28;
+  --border: rgba(92, 67, 40, 0.12);
+  --input: rgba(92, 67, 40, 0.1);
+  --ring: #b45d33;
+  --chart-1: #4a5d2f;
+  --chart-2: #3a6d7a;
+  --chart-3: #b45d33;
+  --chart-4: #8fa67b;
+  --chart-5: #d4c38a;
+  --radius: 1rem;
+  --sidebar: #f0ebe1;
+  --sidebar-foreground: #1f1c16;
+  --sidebar-primary: #b45d33;
+  --sidebar-primary-foreground: #fffdf8;
+  --sidebar-accent: #e6e0d2;
+  --sidebar-accent-foreground: #1f1c16;
+  --sidebar-border: rgba(92, 67, 40, 0.1);
+  --sidebar-ring: #b45d33;
 }
 
 .dark {
-  --background: oklch(0.155 0.028 258);
-  --background-glass: oklch(0.17 0.03 258 / 0.72);
-  --foreground: oklch(0.955 0.008 240);
-  --card: oklch(0.205 0.03 258 / 0.86);
-  --card-foreground: oklch(0.955 0.008 240);
-  --popover: oklch(0.195 0.03 258);
-  --popover-foreground: oklch(0.955 0.008 240);
-  --primary: oklch(0.82 0.13 205);
-  --primary-foreground: oklch(0.17 0.04 255);
-  --secondary: oklch(0.27 0.03 258);
-  --secondary-foreground: oklch(0.955 0.008 240);
-  --muted: oklch(0.26 0.025 258);
-  --muted-foreground: oklch(0.72 0.02 250);
-  --accent: oklch(0.3 0.035 255);
-  --accent-foreground: oklch(0.955 0.008 240);
-  --destructive: oklch(0.65 0.2 25);
-  --border: oklch(0.85 0.03 240 / 12%);
-  --input: oklch(0.85 0.03 240 / 15%);
-  --ring: oklch(0.82 0.13 205);
-  --chart-1: oklch(0.68 0.12 210);
-  --chart-2: oklch(0.65 0.16 55);
-  --chart-3: oklch(0.62 0.2 292);
-  --chart-4: oklch(0.64 0.19 258);
-  --chart-5: oklch(0.72 0.14 175);
-  --shadow-color: oklch(0 0 0 / 0.35);
-  --sidebar: oklch(0.175 0.03 258);
-  --sidebar-foreground: oklch(0.9 0.012 240);
-  --sidebar-primary: oklch(0.82 0.13 205);
-  --sidebar-primary-foreground: oklch(0.17 0.04 255);
-  --sidebar-accent: oklch(0.27 0.032 255);
-  --sidebar-accent-foreground: oklch(0.955 0.008 240);
-  --sidebar-border: oklch(0.85 0.03 240 / 10%);
-  --sidebar-ring: oklch(0.82 0.13 205);
+  --background: oklch(0.16 0.025 80);
+  --background-glass: oklch(0.19 0.025 80 / 0.82);
+  --foreground: oklch(0.95 0.01 80);
+  --card: oklch(0.22 0.025 80 / 0.92);
+  --card-foreground: oklch(0.95 0.01 80);
+  --popover: oklch(0.2 0.025 80);
+  --popover-foreground: oklch(0.95 0.01 80);
+  --primary: oklch(0.7 0.14 45);
+  --primary-foreground: oklch(0.15 0.03 80);
+  --secondary: oklch(0.25 0.02 80);
+  --secondary-foreground: oklch(0.95 0.01 80);
+  --muted: oklch(0.28 0.02 80);
+  --muted-foreground: oklch(0.72 0.015 80);
+  --accent: oklch(0.3 0.025 80);
+  --accent-foreground: oklch(0.95 0.01 80);
+  --destructive: oklch(0.6 0.18 25);
+  --border: oklch(0.85 0.02 80 / 12%);
+  --input: oklch(0.85 0.02 80 / 15%);
+  --ring: oklch(0.7 0.14 45);
+  --chart-1: oklch(0.65 0.1 140);
+  --chart-2: oklch(0.62 0.12 200);
+  --chart-3: oklch(0.68 0.13 55);
+  --chart-4: oklch(0.7 0.1 140);
+  --chart-5: oklch(0.75 0.12 90);
+  --sidebar: oklch(0.18 0.02 80);
+  --sidebar-foreground: oklch(0.9 0.012 80);
+  --sidebar-primary: oklch(0.7 0.14 45);
+  --sidebar-primary-foreground: oklch(0.15 0.03 80);
+  --sidebar-accent: oklch(0.27 0.025 80);
+  --sidebar-accent-foreground: oklch(0.95 0.01 80);
+  --sidebar-border: oklch(0.85 0.02 80 / 10%);
+  --sidebar-ring: oklch(0.7 0.14 45);
 }
 
-/* Aurora drift for hero backdrops */
+/* Subtle paper grain overlay */
+.paper-grain {
+  position: relative;
+}
+.paper-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 9999;
+}
+
+/* Aurora + mesh gradient for hero */
 @keyframes aurora-drift {
-  0%,
-  100% {
-    transform: translate3d(-4%, -2%, 0) scale(1.05);
-    opacity: 0.9;
-  }
-  50% {
-    transform: translate3d(4%, 3%, 0) scale(1.15);
-    opacity: 0.6;
-  }
+  0%, 100% { transform: translate3d(-3%, -2%, 0) scale(1.05); opacity: 0.85; }
+  50% { transform: translate3d(3%, 2%, 0) scale(1.12); opacity: 0.55; }
 }
 .aurora-layer {
-  animation: aurora-drift 18s ease-in-out infinite;
+  animation: aurora-drift 20s ease-in-out infinite;
   will-change: transform, opacity;
 }
 
-/* Slow mesh gradient for the hero */
 @keyframes mesh-drift {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  33% {
-    transform: translate3d(2%, -2%, 0) scale(1.04);
-  }
-  66% {
-    transform: translate3d(-2%, 2%, 0) scale(1.02);
-  }
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(2%, -2%, 0) scale(1.03); }
+  66% { transform: translate3d(-2%, 2%, 0) scale(1.015); }
 }
 .mesh-gradient {
   position: relative;
@@ -182,106 +177,103 @@
     radial-gradient(circle at 80% 20%, var(--brand-sand) 0%, transparent 40%),
     radial-gradient(circle at 60% 80%, var(--brand-sky) 0%, transparent 45%),
     radial-gradient(circle at 30% 70%, var(--brand-terracotta) 0%, transparent 35%);
-  opacity: 0.18;
-  filter: blur(60px);
-  animation: mesh-drift 24s ease-in-out infinite;
+  opacity: 0.14;
+  filter: blur(70px);
+  animation: mesh-drift 26s ease-in-out infinite;
   pointer-events: none;
 }
-.dark .mesh-gradient::before {
-  opacity: 0.22;
-  filter: blur(80px);
-}
+.dark .mesh-gradient::before { opacity: 0.18; }
 
 /* Glass panels */
 .glass {
   background: var(--background-glass);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
   border: 1px solid var(--border);
 }
-.card-glass {
+.card-paper {
   background: var(--card);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    0 1px 2px rgba(92, 67, 40, 0.04),
+    0 8px 30px rgba(92, 67, 40, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.dark .card-paper {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 8px 30px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* Entrance — a gentle fade + rise, reused across chat bubbles, cards and lists. */
+/* Entrance animations */
 @keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .rise-in {
-  animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: rise-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: transform, opacity;
 }
 
-/* "Thinking" dots for the agent's working state. */
 @keyframes marco-blink {
-  0%,
-  80%,
-  100% {
-    opacity: 0.25;
-    transform: translateY(0);
-  }
-  40% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-2px); }
 }
 .marco-dot {
   animation: marco-blink 1.2s ease-in-out infinite both;
 }
-.marco-dot:nth-child(2) {
-  animation-delay: 0.16s;
+.marco-dot:nth-child(2) { animation-delay: 0.16s; }
+.marco-dot:nth-child(3) { animation-delay: 0.32s; }
+
+/* Float animation for globe */
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
-.marco-dot:nth-child(3) {
-  animation-delay: 0.32s;
+.gentle-float {
+  animation: gentle-float 6s ease-in-out infinite;
 }
 
+/* Route pulse for SVG fallback */
+@keyframes route-pulse {
+  0%, 100% { stroke-opacity: 0.35; }
+  50% { stroke-opacity: 0.9; }
+}
+.route-pulse {
+  animation: route-pulse 2.5s ease-in-out infinite;
+}
+
+/* Premium button press */
+.btn-press:active { transform: translateY(1px) scale(0.985); }
+
 @media (prefers-reduced-motion: reduce) {
-  .aurora-layer,
-  .mesh-gradient::before,
-  .rise-in,
-  .marco-dot {
+  .aurora-layer, .mesh-gradient::before, .rise-in, .marco-dot,
+  .gentle-float, .route-pulse {
     animation: none;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
+  html { @apply font-sans; }
+  ::selection { background: var(--brand-terracotta); color: var(--primary-foreground); }
 }
 
-/* Ask Marco chat — markdown rendering */
-.chat-markdown > * + * {
-  margin-top: 0.6rem;
-}
-.chat-markdown h1,
-.chat-markdown h2,
-.chat-markdown h3 {
-  font-weight: 600;
-  color: var(--foreground);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(92, 67, 40, 0.18); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(92, 67, 40, 0.28); }
+
+/* Chat markdown */
+.chat-markdown > * + * { margin-top: 0.6rem; }
+.chat-markdown h1, .chat-markdown h2, .chat-markdown h3 { font-weight: 600; color: var(--foreground); }
 .chat-markdown h1 { font-size: 1.05rem; }
 .chat-markdown h2 { font-size: 1rem; }
 .chat-markdown h3 { font-size: 0.95rem; }
-.chat-markdown ul,
-.chat-markdown ol {
+.chat-markdown ul, .chat-markdown ol {
   padding-left: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -308,8 +300,7 @@
   display: block;
   overflow-x: auto;
 }
-.chat-markdown th,
-.chat-markdown td {
+.chat-markdown th, .chat-markdown td {
   border: 1px solid var(--border);
   padding: 0.4rem 0.6rem;
   text-align: left;
