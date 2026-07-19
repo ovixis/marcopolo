@@ -101,7 +101,20 @@ export default function FlightsPage() {
       {loading && (
         <div className="mt-6 space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-card p-4"
+            >
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-6 w-20" />
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 flex-1" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -125,24 +138,39 @@ export default function FlightsPage() {
           </div>
 
           <div className="space-y-3">
-            {offers.map((offer) => (
-              <FlightOfferCard key={offer.id} offer={offer} />
+            {offers.map((offer, i) => (
+              <div
+                key={offer.id}
+                className="rise-in"
+                style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
+              >
+                <FlightOfferCard offer={offer} />
+              </div>
             ))}
             {offers.length === 0 && (
-              <p className="py-12 text-center text-sm text-muted-foreground">
-                No flights found for this route and date. Try different dates or
-                nearby airports.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-12 text-center">
+                <Plane className="size-6 text-muted-foreground" aria-hidden />
+                <p className="text-sm text-muted-foreground">
+                  No routes on this date — try nearby airports, or shift a day
+                  either way.
+                </p>
+              </div>
             )}
           </div>
         </>
       )}
 
       {!loading && !result && !error && (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          Search a route to see live offers
-          {" — "}try JFK → LHR to explore.
-        </p>
+        <div className="rise-in flex flex-col items-center gap-3 py-16 text-center">
+          <div className="grid size-14 place-items-center rounded-2xl bg-secondary text-primary">
+            <Plane className="size-7" aria-hidden />
+          </div>
+          <p className="font-serif text-xl text-foreground">Where to first?</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Search a route and I&apos;ll pull live offers — airlines, times and
+            prices. Try <span className="font-medium text-foreground">JFK → LHR</span> to explore.
+          </p>
+        </div>
       )}
     </div>
   );

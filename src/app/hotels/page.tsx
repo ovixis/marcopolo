@@ -104,7 +104,18 @@ export default function HotelsPage() {
       {loading && (
         <div className="mt-6 space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-36 w-full rounded-xl" />
+            <div
+              key={i}
+              className="flex gap-4 rounded-xl border border-border bg-card p-4"
+            >
+              <Skeleton className="size-24 shrink-0 rounded-lg" />
+              <div className="flex-1 space-y-2 py-1">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-3 w-1/4" />
+              </div>
+              <Skeleton className="h-6 w-20 self-start" />
+            </div>
           ))}
         </div>
       )}
@@ -128,23 +139,39 @@ export default function HotelsPage() {
           </div>
 
           <div className="space-y-3">
-            {offers.map((offer) => (
-              <HotelOfferCard key={offer.id} offer={offer} nights={nights} />
+            {offers.map((offer, i) => (
+              <div
+                key={offer.id}
+                className="rise-in"
+                style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
+              >
+                <HotelOfferCard offer={offer} nights={nights} />
+              </div>
             ))}
             {offers.length === 0 && (
-              <p className="py-12 text-center text-sm text-muted-foreground">
-                No availability for these dates. Try different dates or a
-                nearby city.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-12 text-center">
+                <Hotel className="size-6 text-muted-foreground" aria-hidden />
+                <p className="text-sm text-muted-foreground">
+                  No stays for these dates — try a nearby city or a shorter
+                  window.
+                </p>
+              </div>
             )}
           </div>
         </>
       )}
 
       {!loading && !result && !error && (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          Search a city to see stays — try Rome, IT to explore.
-        </p>
+        <div className="rise-in flex flex-col items-center gap-3 py-16 text-center">
+          <div className="grid size-14 place-items-center rounded-2xl bg-secondary text-primary">
+            <Hotel className="size-7" aria-hidden />
+          </div>
+          <p className="font-serif text-xl text-foreground">Where are you staying?</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Search a city and I&apos;ll find stays — rates, stars, review
+            scores. Try <span className="font-medium text-foreground">Rome, IT</span> to explore.
+          </p>
+        </div>
       )}
     </div>
   );

@@ -93,7 +93,7 @@ const inputClass =
   "w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
 
 const cardClass =
-  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors disabled:opacity-50";
+  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100";
 
 /** True when `config` is ready to run the agent. */
 function isConnected(config: AiConfig): boolean {
@@ -347,7 +347,7 @@ export function AskMarco() {
         ) : (
           <button
             onClick={toggleConnect}
-            className="flex shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:scale-[0.97]"
             aria-label="Connect your AI"
             aria-expanded={showConnect}
           >
@@ -359,7 +359,7 @@ export function AskMarco() {
 
       {/* collapsible connect panel */}
       {showConnect && (
-        <div className="flex flex-col gap-3 border-b border-border bg-secondary/40 p-3">
+        <div className="rise-in flex flex-col gap-3 border-b border-border bg-secondary/40 p-3">
           {/* mode switch */}
           <div className="grid grid-cols-2 gap-1 rounded-lg bg-secondary/60 p-1 text-sm">
             {CONNECT_TABS.map(({ id, label, Icon }) => (
@@ -630,18 +630,19 @@ export function AskMarco() {
                   setShowConnect(true);
                   openTab("your");
                 }}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90 active:scale-[0.98]"
               >
                 <PlugZap className="size-5" aria-hidden />
                 Connect your AI — no API key
               </button>
             )}
             <div className="mt-7 flex flex-col gap-3">
-              {SUGGESTIONS.map((s) => (
+              {SUGGESTIONS.map((s, i) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5"
+                  style={{ animationDelay: `${i * 70}ms` }}
+                  className="rise-in rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
                 >
                   {s}
                 </button>
@@ -655,7 +656,7 @@ export function AskMarco() {
             message.role === "user" ? (
               <div
                 key={index}
-                className="self-end rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-[15px] text-primary-foreground"
+                className="rise-in self-end rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-[15px] text-primary-foreground"
               >
                 {message.content}
               </div>
@@ -663,7 +664,7 @@ export function AskMarco() {
               <div
                 key={index}
                 className={cn(
-                  "self-start rounded-2xl rounded-bl-sm border px-5 py-3.5 text-[15px] leading-relaxed",
+                  "rise-in self-start rounded-2xl rounded-bl-sm border px-5 py-3.5 text-[15px] leading-relaxed",
                   message.error
                     ? "border-destructive/30 bg-destructive/10 text-destructive"
                     : "border-border bg-card",
@@ -692,10 +693,15 @@ export function AskMarco() {
           )}
 
           {sending && (
-            <div className="self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
+            <div className="rise-in self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
-                consulting the maps…
+                <span>consulting the maps</span>
+                <span className="flex items-center gap-1" aria-hidden>
+                  <span className="marco-dot size-1 rounded-full bg-primary" />
+                  <span className="marco-dot size-1 rounded-full bg-primary" />
+                  <span className="marco-dot size-1 rounded-full bg-primary" />
+                </span>
               </div>
               {activity.length > 0 && (
                 <ul className="mt-2 flex flex-col gap-1.5">
@@ -746,7 +752,7 @@ export function AskMarco() {
           <button
             onClick={() => send()}
             disabled={sending || input.trim().length === 0}
-            className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+            className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition hover:bg-primary/90 active:scale-95 disabled:opacity-40 disabled:active:scale-100"
             aria-label="Send"
           >
             <Send className="size-5" />
