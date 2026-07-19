@@ -1,7 +1,6 @@
 "use client";
 
 import { X } from "lucide-react";
-
 import { TripChecklist, type TripDetail } from "./trip-checklist";
 
 export type { TripDetail };
@@ -23,7 +22,7 @@ export function TripPanel({
 }: TripPanelProps) {
   return (
     <>
-      {/* backdrop on mobile */}
+      {/* mobile backdrop */}
       {open && (
         <div
           className="absolute inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
@@ -31,15 +30,17 @@ export function TripPanel({
           aria-hidden
         />
       )}
+
       <aside
         className={`
-          absolute right-0 top-0 z-50 h-full w-[340px] transform border-l border-border bg-card shadow-2xl
+          absolute right-0 top-0 z-50 h-full w-full transform border-l border-border bg-card shadow-2xl
           transition-transform duration-300 ease-out
+          lg:relative lg:w-[360px] lg:translate-x-0 lg:shadow-none
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
       >
         <div className="flex h-full flex-col">
-          <div className="flex h-14 items-center justify-between border-b border-border px-4">
+          <div className="flex h-14 items-center justify-between border-b border-border px-4 lg:hidden">
             <span className="font-medium">Current trip</span>
             <button
               onClick={onClose}

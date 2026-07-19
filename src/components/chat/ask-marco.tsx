@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import {
-  CircleCheck,
-  CircleX,
-  Loader2,
-  MapPin,
-  PanelRight,
-  Plus,
-  Settings2,
-} from "lucide-react";
+import { CircleCheck, CircleX, Loader2 } from "lucide-react";
 import gsap from "gsap";
 
 import { AiConnectModal } from "@/components/chat/ai-connect-modal";
@@ -18,7 +10,6 @@ import { ChatHero } from "@/components/chat/chat-hero";
 import { ChatMessage } from "@/components/chat/chat-message";
 import { useAppState } from "@/components/layout/app-shell";
 import { TripPanel, type TripDetail } from "@/components/trip/trip-panel";
-import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 import {
   aiBridgeStatus,
@@ -258,14 +249,6 @@ export function AskMarco() {
     if (cliAgents === null && !scanning) void scanAll();
   }
 
-  function startNewTrip() {
-    setMessages([]);
-    setInput("");
-    setActivity([]);
-    setDetails(INITIAL_DETAILS);
-    setTripPanelOpen(false);
-  }
-
   async function send(text?: string) {
     const question = (text ?? input).trim();
     if (!question || sending) return;
@@ -375,102 +358,16 @@ export function AskMarco() {
     }
   }
 
-  const statusLine = sending
-    ? "charting your route…"
-    : connected
-      ? aiStatusLabel
-      : "connect your AI to begin";
-
-  const hasDetails = details.some((d) => d.captured);
-
   return (
     <>
-      <div className="relative flex h-full flex-col">
-        {/* header */}
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={startNewTrip}
-              className="flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              aria-label="New trip"
-            >
-              <Plus className="size-4" />
-            </button>
-            <div>
-              <h1 className="text-sm font-medium">Ask Marco</h1>
-              <p className="text-xs text-muted-foreground">{statusLine}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTripPanelOpen((s) => !s)}
-              className={cn(
-                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition",
-                tripPanelOpen || hasDetails
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-            >
-              <MapPin className="size-3.5" />
-              Trip
-            </button>
-            <button
-              onClick={openConnect}
-              className={cn(
-                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition",
-                connected
-                  ? "bg-primary/10 text-primary"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90",
-              )}
-            >
-              <span
-                className={cn(
-                  "size-1.5 rounded-full",
-                  connected ? "bg-primary" : "bg-primary-foreground",
-                )}
-              />
-              {connected ? "AI connected" : "Connect AI"}
-            </button>
-            <button
-              onClick={openConnect}
-              className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              aria-label="AI settings"
-            >
-              <Settings2 className="size-4" />
-            </button>
-            <button
-              onClick={() => setTripPanelOpen((s) => !s)}
-              className={cn(
-                "rounded-lg p-2 transition lg:hidden",
-                tripPanelOpen
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
-              aria-label="Toggle trip panel"
-            >
-              <PanelRight className="size-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* main surface */}
-        <div className="relative flex min-h-0 flex-1">
-          <div
-            ref={messagesRef}
-            className="flex-1 overflow-y-auto"
-          >
+      <div className="flex h-full">
+        {/* chat column */}
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <div ref={messagesRef} className="flex-1 overflow-y-auto">
             {messages.length === 0 ? (
-              <ChatHero
-                input={input}
-                onInputChange={setInput}
-                onSend={() => send()}
-                onSuggestion={send}
-                connected={connected}
-                sending={sending}
-              />
+              <ChatHero onSuggestion={send} />
             ) : (
-              <div className="pb-6">
+              <div className="pb-4">
                 {messages.map((message, index) => (
                   <div key={index} data-message>
                     <ChatMessage message={message} />
@@ -542,17 +439,7 @@ export function AskMarco() {
             )}
           </div>
 
-          <TripPanel
-            open={tripPanelOpen}
-            onClose={() => setTripPanelOpen(false)}
-            details={details}
-            onGenerate={() => send("Build the trip plan from what we have so far.")}
-            canGenerate={details.some((d) => d.captured)}
-          />
-        </div>
-
-        {/* composer */}
-        {messages.length > 0 && (
+          {/* composer */}
           <div className="shrink-0 border-t border-border bg-background/90 p-4 backdrop-blur-md">
             <ChatComposer
               value={input}
@@ -561,12 +448,20 @@ export function AskMarco() {
               disabled={sending}
               placeholder={
                 connected
-                  ? "Ask Marco…"
+                  ? "Ask Marco Polo…"
                   : "Connect your AI to start planning"
               }
             />
           </div>
-        )}
+        </div>
+
+        <TripPanel
+          open={tripPanelOpen}
+          onClose={() => setTripPanelOpen(false)}
+          details={details}
+          onGenerate={() => send("Build the trip plan from what we have so far.")}
+          canGenerate={details.some((d) => d.captured)}
+        />
       </div>
 
       <AiConnectModal

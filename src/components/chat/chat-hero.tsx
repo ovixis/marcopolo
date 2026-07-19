@@ -2,16 +2,10 @@
 
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
-import { ChatComposer } from "./chat-composer";
 import { SuggestionPills } from "./suggestion-pills";
 
 interface ChatHeroProps {
-  input: string;
-  onInputChange: (value: string) => void;
-  onSend: () => void;
   onSuggestion: (text: string) => void;
-  connected: boolean;
-  sending: boolean;
 }
 
 const SUGGESTIONS = [
@@ -21,16 +15,9 @@ const SUGGESTIONS = [
   "Plan a last-minute escape",
 ];
 
-export function ChatHero({
-  input,
-  onInputChange,
-  onSend,
-  onSuggestion,
-  connected,
-  sending,
-}: ChatHeroProps) {
+export function ChatHero({ onSuggestion }: ChatHeroProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center px-6 pb-8">
+    <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
       <div className="mx-auto grid w-full max-w-5xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
         <div className="text-center lg:text-left">
           <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary lg:mb-8">
@@ -40,8 +27,8 @@ export function ChatHero({
             Where shall we go today?
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Your personal AI plans the trip, Marco keeps every detail in one
-            elegant place.
+            Your personal AI plans the trip. Marco Polo keeps every detail in
+            one elegant place.
           </p>
         </div>
 
@@ -59,21 +46,7 @@ export function ChatHero({
         </div>
       </div>
 
-      <div className="mt-10 w-full max-w-2xl">
-        <ChatComposer
-          value={input}
-          onChange={onInputChange}
-          onSend={onSend}
-          disabled={sending}
-          placeholder={
-            connected
-              ? "Ask Marco to plan your next trip…"
-              : "Connect your AI to start planning"
-          }
-        />
-      </div>
-
-      <div className="mt-6">
+      <div className="mt-8">
         <SuggestionPills suggestions={SUGGESTIONS} onSelect={onSuggestion} />
       </div>
     </div>
