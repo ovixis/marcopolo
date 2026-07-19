@@ -31,7 +31,7 @@ const ONE_CLICK_COMMANDS = [
   {
     id: "claude-code",
     name: "Claude Code",
-    description: "Use the Claude Code CLI you already have on this Mac.",
+    description: "Use the Claude Code CLI you already have on this Mac. Supports live travel tools.",
     command: "brew install claude && claude login",
   },
   {

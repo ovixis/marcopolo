@@ -32,6 +32,8 @@ struct AgentSpec {
     bin: &'static str,
     /// Fixed arguments before the prompt (the prompt is the final argument).
     args: &'static [&'static str],
+    /// Command to register Marco Polo's local MCP server with this agent.
+    mcp_add: &'static [&'static str],
 }
 
 // Flag verification (2026-07, against current CLI --help):
@@ -46,24 +48,35 @@ const AGENTS: &[AgentSpec] = &[
         label: "Claude Code",
         bin: "claude",
         args: &["-p"],
+        mcp_add: &[
+            "mcp",
+            "add",
+            "--transport",
+            "http",
+            "marco-polo",
+            "http://127.0.0.1:1254/mcp",
+        ],
     },
     AgentSpec {
         id: "kimi-code",
         label: "Kimi Code",
         bin: "kimi",
         args: &["-p"],
+        mcp_add: &[],
     },
     AgentSpec {
         id: "codex",
         label: "Codex",
         bin: "codex",
         args: &["exec", "--skip-git-repo-check", "--color", "never"],
+        mcp_add: &[],
     },
     AgentSpec {
         id: "gemini-cli",
         label: "Gemini CLI",
         bin: "gemini",
         args: &["-p"],
+        mcp_add: &[],
     },
 ];
 
@@ -144,6 +157,64 @@ pub async fn detect() -> Vec<CliAgent> {
     .unwrap_or_default()
 }
 
+/// Register Marco Polo's local MCP server with the agent if not already present.
+/// Best-effort: logs a warning but doesn't block the chat if registration fails.
+fn ensure_mcp_registered(agent: &AgentSpec) {
+    if agent.mcp_add.is_empty() {
+        return;
+    }
+    let Some(path) = resolve(agent.bin) else {
+        log::warn!(
+            "{} not found on PATH, skipping MCP registration",
+            agent.label
+        );
+        return;
+    };
+
+    match agent.id {
+        "claude-code" => {
+            // Check if marco-polo is already registered.
+            if let Ok(output) = Command::new(&path).args(["mcp", "list"]).output() {
+                let text = String::from_utf8_lossy(&output.stdout);
+                if text.contains("marco-polo") {
+                    return;
+                }
+            }
+            if let Err(e) = Command::new(&path).args(agent.mcp_add).output() {
+                log::warn!("couldn't register MCP with Claude Code: {e}");
+            }
+        }
+        "kimi-code" => {
+            // Kimi Code reads ~/.kimi/mcp.json. Write it if missing.
+            let home = dirs::home_dir().unwrap_or_default();
+            let mcp_path = home.join(".kimi").join("mcp.json");
+            if mcp_path.exists() {
+                if let Ok(content) = std::fs::read_to_string(&mcp_path) {
+                    if content.contains("marco-polo") {
+                        return;
+                    }
+                }
+            }
+            let config = serde_json::json!({
+                "mcpServers": {
+                    "marco-polo": {
+                        "url": "http://127.0.0.1:1254/mcp"
+                    }
+                }
+            });
+            if let Some(parent) = mcp_path.parent() {
+                let _ = std::fs::create_dir_all(parent);
+            }
+            if let Err(e) =
+                std::fs::write(&mcp_path, serde_json::to_string_pretty(&config).unwrap())
+            {
+                log::warn!("couldn't write Kimi MCP config: {e}");
+            }
+        }
+        _ => {}
+    }
+}
+
 pub async fn chat(agent_id: &str, messages: &[ChatMessage]) -> Result<ChatReply, String> {
     let prompt = messages
         .iter()
@@ -159,10 +230,21 @@ pub async fn chat(agent_id: &str, messages: &[ChatMessage]) -> Result<ChatReply,
     let label = agent.label;
     let pre_args: Vec<String> = agent.args.iter().map(|s| (*s).to_owned()).collect();
 
-    let text =
-        tauri::async_runtime::spawn_blocking(move || run_cli(bin, label, &pre_args, &prompt))
-            .await
-            .map_err(|e| e.to_string())??;
+    // Register the MCP server so the agent can call Marco Polo's travel tools.
+    ensure_mcp_registered(agent);
+
+    // Prepend a travel-tool instruction so the agent actually uses the MCP tools.
+    let travel_prompt = format!(
+        "You are Marco Polo, a travel-planning agent. Use the marco-polo MCP tools to search flights, hotels and locations. \
+         Always end with a budget summary table. Answer in the language the user writes in. \
+         User request: {prompt}"
+    );
+
+    let text = tauri::async_runtime::spawn_blocking(move || {
+        run_cli(bin, label, &pre_args, &travel_prompt)
+    })
+    .await
+    .map_err(|e| e.to_string())??;
 
     Ok(ChatReply {
         text,
