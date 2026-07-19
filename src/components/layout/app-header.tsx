@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Moon, Plus, Sun } from "lucide-react";
+import { Moon, Plus, Sun, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppState } from "./app-shell";
 
@@ -40,6 +40,14 @@ export function AppHeader({
       </Link>
 
       <div className="flex items-center gap-2 sm:gap-3">
+        <Link
+          href="/agents"
+          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-muted sm:px-4"
+        >
+          <Users className="size-4" />
+          <span className="hidden sm:inline">Agents</span>
+        </Link>
+
         <button
           onClick={onNewTrip}
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-muted sm:px-4"
