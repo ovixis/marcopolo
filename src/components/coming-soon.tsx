@@ -1,35 +1,57 @@
-import type { LucideIcon } from "lucide-react";
+"use client";
+
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+
+import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 
 interface ComingSoonProps {
-  icon: LucideIcon;
+  icon: React.ReactNode;
   title: string;
   description: string;
   /** Roadmap window, e.g. "Weeks 5-8". */
   phase: string;
   /** What this feature will include when it ships. */
   planned: string[];
-  /** Optional Marco-voice lead-in under the title (Fraunces empty-state style). */
+  /** Optional Marco-voice lead-in under the title. */
   leadIn?: string;
 }
 
 export function ComingSoon({
-  icon: Icon,
+  icon,
   title,
   description,
   phase,
   planned,
   leadIn,
 }: ComingSoonProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced) return;
+    const items = el.querySelectorAll("[data-animate]");
+    gsap.fromTo(
+      items,
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: "power2.out" },
+    );
+  }, [reduced]);
+
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center px-8 py-16 text-center">
-      <div className="rise-in flex flex-col items-center gap-3">
-        <div className="grid size-14 place-items-center rounded-2xl bg-secondary text-primary">
-          <Icon className="size-7" aria-hidden />
+    <div
+      ref={ref}
+      className="mx-auto flex max-w-2xl flex-col items-center px-6 py-16 text-center"
+    >
+      <div data-animate className="flex flex-col items-center gap-3">
+        <div className="grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+          {icon}
         </div>
-        <span className="rounded-full border border-border bg-card px-2.5 py-0.5 text-xs text-muted-foreground">
+        <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
           Roadmap · {phase}
         </span>
-        <h1 className="font-serif text-2xl text-foreground sm:text-3xl">
+        <h1 className="font-serif text-3xl text-foreground sm:text-4xl">
           {leadIn ?? title}
         </h1>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -38,18 +60,18 @@ export function ComingSoon({
       </div>
 
       <div
-        className="rise-in mt-10 w-full rounded-2xl border border-border bg-card p-6 text-left"
-        style={{ animationDelay: "80ms" }}
+        data-animate
+        className="mt-10 w-full rounded-3xl border border-border bg-card p-7 text-left shadow-sm"
       >
-        <p className="mb-3 text-sm font-medium text-foreground">
+        <p className="mb-4 text-sm font-medium text-foreground">
           Charted for this feature
         </p>
-        <ul className="space-y-2.5">
-          {planned.map((item, i) => (
+        <ul className="space-y-3">
+          {planned.map((item) => (
             <li
               key={item}
-              className="rise-in flex items-start gap-2.5 text-sm text-muted-foreground"
-              style={{ animationDelay: `${120 + i * 45}ms` }}
+              data-animate
+              className="flex items-start gap-3 text-sm text-muted-foreground"
             >
               <span
                 className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary/70"
@@ -59,7 +81,7 @@ export function ComingSoon({
             </li>
           ))}
         </ul>
-        <p className="mt-6 text-sm text-muted-foreground">
+        <p data-animate className="mt-6 text-sm text-muted-foreground">
           Want to help build it? Check{" "}
           <a
             href="https://github.com/ovixis/marcopolo/blob/main/CONTRIBUTING.md"

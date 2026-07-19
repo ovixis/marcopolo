@@ -5,7 +5,7 @@ import { ComingSoon } from "@/components/coming-soon";
 export default function ExperiencesPage() {
   return (
     <ComingSoon
-      icon={Ticket}
+      icon={<Ticket className="size-8" aria-hidden />}
       title="Experiences"
       leadIn="What shall we do once we arrive?"
       description="Tours, day trips, food crawls, and activities — pulled live via the Viator partner API."

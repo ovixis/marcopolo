@@ -5,7 +5,7 @@ import { ComingSoon } from "@/components/coming-soon";
 export default function JournalPage() {
   return (
     <ComingSoon
-      icon={BookOpen}
+      icon={<BookOpen className="size-8" aria-hidden />}
       title="AI Travel Journal"
       leadIn="Every journey deserves a chronicle."
       description="Photos and notes become a written trip story — scenes, meals, and places, drafted for you to edit."

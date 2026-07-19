@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -16,11 +16,14 @@ import {
   RefreshCw,
   Send,
   Settings2,
+  Sparkles,
   Wrench,
 } from "lucide-react";
+import gsap from "gsap";
 
 import { MarcoFace } from "@/components/chat/marco-face";
 import { cn } from "@/lib/utils";
+import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 import {
   aiBridgeOpenSettings,
   aiBridgeStatus,
@@ -92,20 +95,19 @@ const SUGGESTIONS = [
 ];
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
+  "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
 
 const cardClass =
-  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100";
+  "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition active:scale-[0.99] disabled:opacity-50 disabled:active:scale-100";
 
 /** True when `config` is ready to run the agent. */
 function isConnected(config: AiConfig): boolean {
   if (config.model.trim().length === 0) return false;
-  // CLI agent (model = agent id) and desktop bridge (model = app id) are keyless.
   if (config.provider === "cli" || config.provider === "bridge") return true;
   if (config.provider === "local" || config.provider === "custom") {
-    return config.baseUrl.trim().length > 0; // key optional / not needed
+    return config.baseUrl.trim().length > 0;
   }
-  return config.apiKey.trim().length > 0; // cloud providers
+  return config.apiKey.trim().length > 0;
 }
 
 /** "localhost:11434" from an endpoint, for a compact label. */
@@ -117,7 +119,6 @@ function hostOf(url: string): string {
   }
 }
 
-/** The single Ask Marco surface — a self-contained card for the dashboard. */
 export function AskMarco() {
   const [config, setConfig] = useState<AiConfig>({
     provider: "anthropic",
@@ -136,6 +137,9 @@ export function AskMarco() {
   const [bridge, setBridge] = useState<BridgeStatus | null>(null);
   const [scanning, setScanning] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const emptyStateRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     try {
@@ -149,6 +153,29 @@ export function AskMarco() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activity]);
+
+  useLayoutEffect(() => {
+    if (reduced || messages.length === 0) return;
+    const nodes = messagesRef.current?.querySelectorAll("[data-message]");
+    if (!nodes || nodes.length === 0) return;
+    gsap.fromTo(
+      nodes[nodes.length - 1],
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+    );
+  }, [messages, reduced]);
+
+  useLayoutEffect(() => {
+    if (reduced) return;
+    const el = emptyStateRef.current;
+    if (!el || messages.length > 0) return;
+    const children = el.querySelectorAll("[data-animate]");
+    gsap.fromTo(
+      children,
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" },
+    );
+  }, [messages.length, reduced]);
 
   function updateConfig(patch: Partial<AiConfig>) {
     setConfig((previous) => {
@@ -164,7 +191,6 @@ export function AskMarco() {
 
   const connected = isConnected(config);
 
-  /** Detect everything already available on this machine, in one pass. */
   async function scanAll() {
     setScanning(true);
     try {
@@ -266,15 +292,9 @@ export function AskMarco() {
             setMessages((m) => {
               const last = m[m.length - 1];
               if (last?.role === "assistant" && last.streaming) {
-                return [
-                  ...m.slice(0, -1),
-                  { ...last, content: last.content + event.text },
-                ];
+                return [...m.slice(0, -1), { ...last, content: last.content + event.text }];
               }
-              return [
-                ...m,
-                { role: "assistant", content: event.text, streaming: true },
-              ];
+              return [...m, { role: "assistant", content: event.text, streaming: true }];
             });
             return;
           }
@@ -309,14 +329,10 @@ export function AskMarco() {
             },
           ];
         }
-        return [
-          ...m,
-          { role: "assistant", content: reply.text, tools: reply.toolsUsed },
-        ];
+        return [...m, { role: "assistant", content: reply.text, tools: reply.toolsUsed }];
       });
     } catch (err) {
       setMessages((m) => {
-        // Drop a partial stream bubble on error so the error stands alone.
         const base =
           m[m.length - 1]?.role === "assistant" && m[m.length - 1]?.streaming
             ? m.slice(0, -1)
@@ -356,17 +372,17 @@ export function AskMarco() {
       : "connect an AI to begin";
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      {/* header — portrait + status + model toggle */}
-      <div className="flex items-center gap-4 border-b border-border p-4">
-        <MarcoFace thinking={sending} width={96} />
+    <div className="card-glass flex h-[min(820px,calc(100vh-12rem))] min-h-[480px] flex-col overflow-hidden rounded-3xl">
+      {/* header */}
+      <div className="flex items-center gap-4 border-b border-border/60 p-4">
+        <MarcoFace thinking={sending} width={88} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2.5">
             <span className="font-serif text-2xl">Ask Marco</span>
             <span
               className={cn(
                 "size-2.5 rounded-full",
-                connected ? "bg-emerald-500" : "bg-muted-foreground/40",
+                connected ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.55)]" : "bg-muted-foreground/40",
               )}
               aria-label={connected ? "connected" : "not connected"}
             />
@@ -376,7 +392,7 @@ export function AskMarco() {
         {connected ? (
           <button
             onClick={toggleConnect}
-            className="rounded-lg border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:text-foreground"
+            className="rounded-xl border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:text-foreground"
             aria-label="AI settings"
             aria-expanded={showConnect}
           >
@@ -385,7 +401,7 @@ export function AskMarco() {
         ) : (
           <button
             onClick={toggleConnect}
-            className="flex shrink-0 items-center gap-2 rounded-lg bg-primary px-3.5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 active:scale-[0.97]"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90 active:scale-[0.97]"
             aria-label="Connect your AI"
             aria-expanded={showConnect}
           >
@@ -395,17 +411,16 @@ export function AskMarco() {
         )}
       </div>
 
-      {/* collapsible connect panel */}
+      {/* connect panel */}
       {showConnect && (
-        <div className="rise-in flex flex-col gap-3 border-b border-border bg-secondary/40 p-3">
-          {/* mode switch */}
-          <div className="grid grid-cols-2 gap-1 rounded-lg bg-secondary/60 p-1 text-sm">
+        <div className="rise-in flex flex-col gap-3 border-b border-border/60 bg-secondary/40 p-3">
+          <div className="grid grid-cols-2 gap-1 rounded-xl bg-secondary/60 p-1 text-sm">
             {CONNECT_TABS.map(({ id, label, Icon }) => (
               <button
                 key={id}
                 onClick={() => openTab(id)}
                 className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 font-medium transition-colors",
+                  "flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 font-medium transition-colors",
                   connectTab === id
                     ? "bg-card text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground",
@@ -417,7 +432,6 @@ export function AskMarco() {
             ))}
           </div>
 
-          {/* Your AI — everything on this Mac, no key */}
           {connectTab === "your" && (
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
@@ -435,21 +449,19 @@ export function AskMarco() {
               </div>
 
               {scanning && cliAgents === null ? (
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-3 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
                   Looking for your AI…
                 </div>
               ) : (
                 <>
-                  {/* CLI agents — your subscription */}
                   {installedCli.length > 0 && (
                     <div className="flex flex-col gap-1.5">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Your subscription
                       </p>
                       {installedCli.map((agent) => {
-                        const active =
-                          config.provider === "cli" && config.model === agent.id;
+                        const active = config.provider === "cli" && config.model === agent.id;
                         return (
                           <button
                             key={agent.id}
@@ -476,14 +488,13 @@ export function AskMarco() {
                     </div>
                   )}
 
-                  {/* Local model servers — on device */}
                   {runningRuntimes.length > 0 && (
                     <div className="flex flex-col gap-1.5">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         On this device
                       </p>
                       {runningRuntimes.map((runtime) => (
-                        <div key={runtime.id} className="rounded-lg border border-border bg-card p-2.5">
+                        <div key={runtime.id} className="rounded-xl border border-border bg-card p-2.5">
                           <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                             <Cpu className="size-4 text-primary" aria-hidden />
                             {runtime.label}
@@ -526,7 +537,6 @@ export function AskMarco() {
                     </div>
                   )}
 
-                  {/* Desktop apps — the bridge */}
                   {bridgeOn && bridgeInstalled.length > 0 && (
                     <div className="flex flex-col gap-1.5">
                       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -535,15 +545,14 @@ export function AskMarco() {
                       {bridge && !bridge.accessibilityGranted && (
                         <button
                           onClick={() => void aiBridgeOpenSettings()}
-                          className="rounded-lg border border-primary/40 bg-primary/5 px-3 py-2 text-left text-xs text-foreground transition-colors hover:bg-primary/10"
+                          className="rounded-xl border border-primary/40 bg-primary/5 px-3 py-2 text-left text-xs text-foreground transition-colors hover:bg-primary/10"
                         >
                           <span className="font-medium">Grant Accessibility permission</span> —
                           opens System Settings, so Marco can type into the app.
                         </button>
                       )}
                       {bridgeInstalled.map((app) => {
-                        const active =
-                          config.provider === "bridge" && config.model === app.id;
+                        const active = config.provider === "bridge" && config.model === app.id;
                         return (
                           <button
                             key={app.id}
@@ -570,9 +579,8 @@ export function AskMarco() {
                     </div>
                   )}
 
-                  {/* Nothing found */}
                   {nothingDetected && (
-                    <div className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+                    <div className="rounded-xl border border-dashed border-border p-3 text-xs text-muted-foreground">
                       <p className="mb-1.5 font-medium text-foreground">
                         Nothing detected on this Mac yet.
                       </p>
@@ -599,7 +607,6 @@ export function AskMarco() {
             </div>
           )}
 
-          {/* API key — cloud providers */}
           {connectTab === "cloud" && (
             <div className="flex flex-col gap-2.5">
               <select
@@ -652,18 +659,25 @@ export function AskMarco() {
       )}
 
       {/* conversation */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div ref={messagesRef} className="flex-1 overflow-y-auto p-5">
         {messages.length === 0 && (
-          <div className="mx-auto max-w-xl pt-10 text-center">
-            <h2 className="font-serif text-4xl text-foreground">
+          <div
+            ref={emptyStateRef}
+            className="mx-auto max-w-xl pt-8 text-center"
+          >
+            <div data-animate className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Sparkles className="size-7" aria-hidden />
+            </div>
+            <h2 data-animate className="font-serif text-3xl text-foreground sm:text-4xl">
               Where shall we go?
             </h2>
-            <p className="mt-3 text-base text-muted-foreground">
+            <p data-animate className="mt-3 text-base text-muted-foreground">
               I aggregate live flights, hotels, and experiences, then chart the
               route and the budget. Ask me anything travel.
             </p>
             {!connected && (
               <button
+                data-animate
                 onClick={() => {
                   setShowConnect(true);
                   openTab("your");
@@ -677,10 +691,11 @@ export function AskMarco() {
             <div className="mt-7 flex flex-col gap-3">
               {SUGGESTIONS.map((s, i) => (
                 <button
+                  data-animate
                   key={s}
                   onClick={() => send(s)}
                   style={{ animationDelay: `${i * 70}ms` }}
-                  className="rise-in rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
+                  className="rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 active:scale-[0.99]"
                 >
                   {s}
                 </button>
@@ -694,15 +709,17 @@ export function AskMarco() {
             message.role === "user" ? (
               <div
                 key={index}
-                className="rise-in self-end rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-[15px] text-primary-foreground"
+                data-message
+                className="self-end rounded-2xl rounded-br-md bg-primary px-4 py-3 text-[15px] text-primary-foreground shadow-sm"
               >
                 {message.content}
               </div>
             ) : (
               <div
                 key={index}
+                data-message
                 className={cn(
-                  "rise-in self-start rounded-2xl rounded-bl-sm border px-5 py-3.5 text-[15px] leading-relaxed",
+                  "self-start rounded-2xl rounded-bl-md border px-5 py-3.5 text-[15px] leading-relaxed shadow-sm",
                   message.error
                     ? "border-destructive/30 bg-destructive/10 text-destructive"
                     : "border-border bg-card",
@@ -722,9 +739,7 @@ export function AskMarco() {
                   </div>
                 )}
                 <div className="chat-markdown">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                 </div>
               </div>
             ),
@@ -735,45 +750,45 @@ export function AskMarco() {
               messages[messages.length - 1]?.role === "assistant" &&
               messages[messages.length - 1]?.streaming
             ) && (
-            <div className="rise-in self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
-                <span>consulting the maps</span>
-                <span className="flex items-center gap-1" aria-hidden>
-                  <span className="marco-dot size-1 rounded-full bg-primary" />
-                  <span className="marco-dot size-1 rounded-full bg-primary" />
-                  <span className="marco-dot size-1 rounded-full bg-primary" />
-                </span>
-              </div>
-              {activity.length > 0 && (
-                <ul className="mt-2 flex flex-col gap-1.5">
-                  {activity.map((item, index) => (
-                    <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {item.done ? (
-                        item.ok ? (
-                          <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
+              <div data-message className="self-start rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
+                  <span>consulting the maps</span>
+                  <span className="flex items-center gap-1" aria-hidden>
+                    <span className="marco-dot size-1 rounded-full bg-primary" />
+                    <span className="marco-dot size-1 rounded-full bg-primary" />
+                    <span className="marco-dot size-1 rounded-full bg-primary" />
+                  </span>
+                </div>
+                {activity.length > 0 && (
+                  <ul className="mt-2 flex flex-col gap-1.5">
+                    {activity.map((item, index) => (
+                      <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {item.done ? (
+                          item.ok ? (
+                            <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
+                          ) : (
+                            <CircleX className="size-3.5 text-destructive" aria-hidden />
+                          )
                         ) : (
-                          <CircleX className="size-3.5 text-destructive" aria-hidden />
-                        )
-                      ) : (
-                        <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
-                      )}
-                      <span className="font-medium text-foreground">
-                        {TOOL_LABELS[item.name] ?? item.name}
-                      </span>
-                      {item.summary}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+                          <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
+                        )}
+                        <span className="font-medium text-foreground">
+                          {TOOL_LABELS[item.name] ?? item.name}
+                        </span>
+                        {item.summary}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           <div ref={bottomRef} />
         </div>
       </div>
 
       {/* composer */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border/60 p-4">
         <div className="mx-auto flex max-w-2xl items-end gap-2.5">
           <textarea
             className={`${inputClass} max-h-40 min-h-12 resize-none`}
@@ -794,7 +809,7 @@ export function AskMarco() {
           <button
             onClick={() => send()}
             disabled={sending || input.trim().length === 0}
-            className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition hover:bg-primary/90 active:scale-95 disabled:opacity-40 disabled:active:scale-100"
+            className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90 active:scale-95 disabled:opacity-40 disabled:active:scale-100"
             aria-label="Send"
           >
             <Send className="size-5" />

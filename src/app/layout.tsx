@@ -3,6 +3,7 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { AppHeader } from "@/components/app-header";
+import { PageTransition } from "@/components/animation/page-transition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
     >
       <body className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
         <AppHeader />
-        <main className="relative min-h-0 flex-1 overflow-y-auto">{children}</main>
+        <main className="relative min-h-0 flex-1 overflow-y-auto">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </body>
     </html>
   );

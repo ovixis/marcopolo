@@ -5,7 +5,7 @@ import { ComingSoon } from "@/components/coming-soon";
 export default function PhotosPage() {
   return (
     <ComingSoon
-      icon={Images}
+      icon={<Images className="size-8" aria-hidden />}
       title="Photo Gallery"
       leadIn="The album of the road."
       description="Your trip photos, stored in your own Supabase project — you own the storage."

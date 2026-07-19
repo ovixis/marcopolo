@@ -5,7 +5,7 @@ import { ComingSoon } from "@/components/coming-soon";
 export default function BudgetPage() {
   return (
     <ComingSoon
-      icon={Wallet}
+      icon={<Wallet className="size-8" aria-hidden />}
       title="Budget Tracker"
       leadIn="What's the toll for this voyage?"
       description="Real-time trip costs, by category and by day — so you know what's left before the next booking."

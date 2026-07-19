@@ -5,7 +5,7 @@ import { ComingSoon } from "@/components/coming-soon";
 export default function AgentsPage() {
   return (
     <ComingSoon
-      icon={MessageSquare}
+      icon={<MessageSquare className="size-8" aria-hidden />}
       title="Travel Agent Connection"
       leadIn="A human guide, when you want one."
       description="Sometimes the maps aren't enough. Message vetted travel agents without leaving the app."
