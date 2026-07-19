@@ -243,3 +243,32 @@ export async function aiBridgeOpenSettings(): Promise<void> {
   if (!isTauri()) return;
   await invoke("ai_bridge_open_settings");
 }
+
+// ---------------------------------------------------------------------------
+// Shell command runner (desktop only)
+// ---------------------------------------------------------------------------
+
+export type ShellEvent =
+  | { type: "stdout"; line: string }
+  | { type: "stderr"; line: string }
+  | { type: "done"; code: number }
+  | { type: "error"; message: string };
+
+export async function runShellCommand(
+  command: string,
+  onEvent: (event: ShellEvent) => void,
+): Promise<void> {
+  if (!isTauri()) {
+    onEvent({ type: "error", message: "Shell commands only run inside the Marco Polo desktop app." });
+    return;
+  }
+  const { Channel } = await import("@tauri-apps/api/core");
+  const channel = new Channel<ShellEvent>();
+  channel.onmessage = onEvent;
+  await invoke("run_shell_command", { command, onEvent: channel });
+}
+
+export async function shellWhich(program: string): Promise<boolean> {
+  if (!isTauri()) return false;
+  return invoke<boolean>("shell_which", { program });
+}

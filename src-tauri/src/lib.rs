@@ -7,6 +7,7 @@ mod duffel;
 mod error;
 mod liteapi;
 mod mcp;
+mod shell;
 mod tools;
 mod types;
 
@@ -154,7 +155,9 @@ pub fn run() {
             ai_cli_detect,
             ai_bridge_status,
             ai_bridge_open_settings,
-            backend_status
+            backend_status,
+            shell::run_shell_command,
+            shell::shell_which
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

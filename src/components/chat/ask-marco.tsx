@@ -4,21 +4,20 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
+  ArrowUp,
   CircleCheck,
   CircleX,
   Loader2,
-  PlugZap,
-  Send,
+  Plus,
   Settings2,
-  Sparkles,
   Wrench,
 } from "lucide-react";
 import gsap from "gsap";
 
-import { MarcoFace } from "@/components/chat/marco-face";
 import { AiConnectModal } from "@/components/chat/ai-connect-modal";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/components/animation/use-reduced-motion";
+import { useAppState } from "@/components/layout/app-shell";
 import {
   aiBridgeStatus,
   aiChat,
@@ -80,6 +79,14 @@ function isConnected(config: AiConfig): boolean {
 }
 
 export function AskMarco() {
+  const {
+    openTerminal,
+    showAiConnect,
+    openAiConnect,
+    closeAiConnect,
+    setAiConnected,
+  } = useAppState();
+
   const [config, setConfig] = useState<AiConfig>({
     provider: "anthropic",
     model: "claude-opus-4-8",
@@ -90,14 +97,12 @@ export function AskMarco() {
   const [activity, setActivity] = useState<Activity[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [showConnect, setShowConnect] = useState(false);
   const [cliAgents, setCliAgents] = useState<CliAgent[] | null>(null);
   const [runtimes, setRuntimes] = useState<LocalRuntime[] | null>(null);
   const [bridge, setBridge] = useState<BridgeStatus | null>(null);
   const [scanning, setScanning] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
-  const emptyStateRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
   useEffect(() => {
@@ -117,22 +122,10 @@ export function AskMarco() {
     if (!nodes || nodes.length === 0) return;
     gsap.fromTo(
       nodes[nodes.length - 1],
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
     );
   }, [messages, reduced]);
-
-  useLayoutEffect(() => {
-    if (reduced) return;
-    const el = emptyStateRef.current;
-    if (!el || messages.length > 0) return;
-    const children = el.querySelectorAll("[data-animate]");
-    gsap.fromTo(
-      children,
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" },
-    );
-  }, [messages.length, reduced]);
 
   function updateConfig(patch: Partial<AiConfig>) {
     setConfig((previous) => {
@@ -145,6 +138,19 @@ export function AskMarco() {
   }
 
   const connected = isConnected(config);
+
+  const aiStatusLabel =
+    config.provider === "local"
+      ? config.label ?? "Local"
+      : config.provider === "cli"
+        ? config.label ?? "CLI"
+        : config.provider === "bridge"
+          ? config.label ?? "Desktop app"
+          : config.model;
+
+  useEffect(() => {
+    setAiConnected(connected, connected ? aiStatusLabel : undefined);
+  }, [connected, aiStatusLabel, setAiConnected]);
 
   async function scanAll() {
     setScanning(true);
@@ -166,7 +172,7 @@ export function AskMarco() {
   }
 
   function openConnect() {
-    setShowConnect(true);
+    openAiConnect();
     if (cliAgents === null && !scanning) void scanAll();
   }
 
@@ -267,6 +273,12 @@ export function AskMarco() {
     }
   }
 
+  function startNewTrip() {
+    setMessages([]);
+    setInput("");
+    setActivity([]);
+  }
+
   const statusLine = sending
     ? "charting your route…"
     : connected
@@ -281,189 +293,177 @@ export function AskMarco() {
 
   return (
     <>
-      <div className="card-paper flex h-[min(780px,calc(100vh-13rem))] min-h-[460px] flex-col overflow-hidden rounded-3xl">
+      <div className="flex h-full flex-col">
         {/* header */}
-        <div className="flex items-center gap-4 border-b border-border/60 p-4">
-          <MarcoFace thinking={sending} width={80} />
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2.5">
-              <span className="font-serif text-2xl">Ask Marco</span>
-              <span
-                className={cn(
-                  "size-2.5 rounded-full",
-                  connected
-                    ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.55)]"
-                    : "bg-muted-foreground/40",
-                )}
-                aria-label={connected ? "connected" : "not connected"}
-              />
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={startNewTrip}
+              className="flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              aria-label="New trip"
+            >
+              <Plus className="size-4" />
+            </button>
+            <div>
+              <h1 className="text-sm font-medium">Ask Marco</h1>
+              <p className="text-xs text-muted-foreground">{statusLine}</p>
             </div>
-            <p className="truncate text-sm text-muted-foreground">{statusLine}</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={openConnect}
               className={cn(
-                "flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition btn-press",
+                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition",
                 connected
-                  ? "border border-border bg-card text-foreground hover:bg-muted"
-                  : "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+                  ? "bg-primary/10 text-primary"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90",
               )}
-              aria-label="Connect your AI"
             >
-              <PlugZap className="size-4" aria-hidden />
-              {connected ? "AI connected" : "Connect your AI"}
+              <span
+                className={cn(
+                  "size-1.5 rounded-full",
+                  connected ? "bg-primary" : "bg-primary-foreground",
+                )}
+              />
+              {connected ? "AI connected" : "Connect AI"}
             </button>
             <button
               onClick={openConnect}
-              className="rounded-xl border border-border bg-card p-2.5 text-muted-foreground transition hover:text-foreground btn-press"
+              className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
               aria-label="AI settings"
             >
-              <Settings2 className="size-5" />
+              <Settings2 className="size-4" />
             </button>
           </div>
         </div>
 
-        {/* conversation */}
-        <div ref={messagesRef} className="flex-1 overflow-y-auto p-5">
-          {messages.length === 0 && (
-            <div ref={emptyStateRef} className="mx-auto max-w-xl pt-8 text-center">
-              <div
-                data-animate
-                className="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm"
-              >
-                <Sparkles className="size-8" aria-hidden />
-              </div>
-              <h2
-                data-animate
-                className="font-serif text-3xl text-foreground sm:text-4xl"
-              >
-                Where shall we go?
-              </h2>
-              <p data-animate className="mt-3 text-base text-muted-foreground">
-                I aggregate live flights, hotels, and experiences, then chart the
-                route and the budget. Ask me anything travel.
+        {/* messages */}
+        <div ref={messagesRef} className="flex-1 overflow-y-auto">
+          {messages.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center px-6 pb-20 text-center">
+              <div className="mb-6 text-5xl">✦</div>
+              <h2 className="font-serif text-3xl font-medium">Where shall we go?</h2>
+              <p className="mt-3 max-w-md text-muted-foreground">
+                Ask Marco to plan flights, hotels, and experiences — then manage the itinerary and budget.
               </p>
-              {!connected && (
-                <button
-                  data-animate
-                  onClick={openConnect}
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90 btn-press"
-                >
-                  <PlugZap className="size-5" aria-hidden />
-                  Connect your AI — no API key
-                </button>
-              )}
-              <div className="mt-7 flex flex-col gap-3">
+              <div className="mt-8 flex w-full max-w-md flex-col gap-2">
                 {SUGGESTIONS.map((s) => (
                   <button
-                    data-animate
                     key={s}
                     onClick={() => send(s)}
-                    className="rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 btn-press"
+                    className="rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-secondary/50"
                   >
                     {s}
                   </button>
                 ))}
               </div>
             </div>
-          )}
-
-          <div className="mx-auto flex max-w-2xl flex-col gap-4">
-            {messages.map((message, index) =>
-              message.role === "user" ? (
-                <div
-                  key={index}
-                  data-message
-                  className="self-end rounded-2xl rounded-br-md bg-primary px-4 py-3 text-[15px] text-primary-foreground shadow-sm"
-                >
-                  {message.content}
-                </div>
-              ) : (
-                <div
-                  key={index}
-                  data-message
-                  className={cn(
-                    "self-start rounded-2xl rounded-bl-md border px-5 py-3.5 text-[15px] leading-relaxed shadow-sm",
-                    message.error
-                      ? "border-destructive/30 bg-destructive/10 text-destructive"
-                      : "border-border bg-card",
-                  )}
-                >
-                  {message.tools && message.tools.length > 0 && (
-                    <div className="mb-2 flex flex-wrap gap-1.5">
-                      {[...new Set(message.tools)].map((tool) => (
-                        <span
-                          key={tool}
-                          className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
-                        >
-                          <Wrench className="size-2.5" aria-hidden />
-                          {TOOL_LABELS[tool] ?? tool}
-                        </span>
-                      ))}
+          ) : (
+            <div className="pb-6">
+              {messages.map((message, index) =>
+                message.role === "user" ? (
+                  <div
+                    key={index}
+                    data-message
+                    className="flex justify-end border-b border-border/50 px-4 py-5 sm:px-6 lg:px-8"
+                  >
+                    <div className="max-w-2xl rounded-2xl rounded-br-md bg-secondary px-4 py-3 text-[15px] text-secondary-foreground">
+                      {message.content}
                     </div>
-                  )}
-                  <div className="chat-markdown">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                   </div>
-                </div>
-              ),
-            )}
-
-            {sending &&
-              !(
-                messages[messages.length - 1]?.role === "assistant" &&
-                messages[messages.length - 1]?.streaming
-              ) && (
-                <div
-                  data-message
-                  className="self-start rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 shadow-sm"
-                >
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
-                    <span>consulting the maps</span>
-                    <span className="flex items-center gap-1" aria-hidden>
-                      <span className="marco-dot size-1 rounded-full bg-primary" />
-                      <span className="marco-dot size-1 rounded-full bg-primary" />
-                      <span className="marco-dot size-1 rounded-full bg-primary" />
-                    </span>
+                ) : (
+                  <div
+                    key={index}
+                    data-message
+                    className={cn(
+                      "border-b border-border/50 px-4 py-5 sm:px-6 lg:px-8",
+                      message.error ? "bg-destructive/5" : "",
+                    )}
+                  >
+                    <div className="mx-auto flex max-w-2xl gap-4">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+                        M
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        {message.tools && message.tools.length > 0 && (
+                          <div className="mb-2 flex flex-wrap gap-1.5">
+                            {[...new Set(message.tools)].map((tool) => (
+                              <span
+                                key={tool}
+                                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
+                              >
+                                <Wrench className="size-2.5" aria-hidden />
+                                {TOOL_LABELS[tool] ?? tool}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div className={cn("chat-markdown text-[15px] leading-relaxed", message.error && "text-destructive")}>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  {activity.length > 0 && (
-                    <ul className="mt-2 flex flex-col gap-1.5">
-                      {activity.map((item, index) => (
-                        <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {item.done ? (
-                            item.ok ? (
-                              <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
-                            ) : (
-                              <CircleX className="size-3.5 text-destructive" aria-hidden />
-                            )
-                          ) : (
-                            <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
-                          )}
-                          <span className="font-medium text-foreground">
-                            {TOOL_LABELS[item.name] ?? item.name}
-                          </span>
-                          {item.summary}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                ),
               )}
-            <div ref={bottomRef} />
-          </div>
+
+              {sending &&
+                !(
+                  messages[messages.length - 1]?.role === "assistant" &&
+                  messages[messages.length - 1]?.streaming
+                ) && (
+                  <div data-message className="border-b border-border/50 px-4 py-5 sm:px-6 lg:px-8">
+                    <div className="mx-auto flex max-w-2xl gap-4">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+                        M
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
+                          <span>consulting the maps</span>
+                          <span className="flex items-center gap-1" aria-hidden>
+                            <span className="marco-dot size-1 rounded-full bg-primary" />
+                            <span className="marco-dot size-1 rounded-full bg-primary" />
+                            <span className="marco-dot size-1 rounded-full bg-primary" />
+                          </span>
+                        </div>
+                        {activity.length > 0 && (
+                          <ul className="mt-2 flex flex-col gap-1.5">
+                            {activity.map((item, index) => (
+                              <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                {item.done ? (
+                                  item.ok ? (
+                                    <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
+                                  ) : (
+                                    <CircleX className="size-3.5 text-destructive" aria-hidden />
+                                  )
+                                ) : (
+                                  <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
+                                )}
+                                <span className="font-medium text-foreground">
+                                  {TOOL_LABELS[item.name] ?? item.name}
+                                </span>
+                                {item.summary}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              <div ref={bottomRef} />
+            </div>
+          )}
         </div>
 
         {/* composer */}
-        <div className="border-t border-border/60 p-4">
-          <div className="mx-auto flex max-w-2xl items-end gap-2.5">
+        <div className="shrink-0 border-t border-border bg-background/90 p-4 backdrop-blur-md">
+          <div className="mx-auto flex max-w-2xl items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-lg">
             <textarea
-              className="w-full flex-1 rounded-xl border border-border bg-card px-3.5 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/20 max-h-40 min-h-12 resize-none"
+              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
               rows={1}
-              placeholder={
-                connected ? "Ask Marco… (Enter to send)" : "Connect an AI, then ask away…"
-              }
+              placeholder={connected ? "Ask Marco…" : "Connect an AI to start planning"}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -477,18 +477,21 @@ export function AskMarco() {
             <button
               onClick={() => send()}
               disabled={sending || input.trim().length === 0}
-              className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-40 btn-press"
+              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
               aria-label="Send"
             >
-              <Send className="size-5" />
+              <ArrowUp className="size-5" />
             </button>
           </div>
+          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+            Marco uses your local AI. No data leaves your device unless you use a cloud key.
+          </p>
         </div>
       </div>
 
       <AiConnectModal
-        open={showConnect}
-        onClose={() => setShowConnect(false)}
+        open={showAiConnect}
+        onClose={closeAiConnect}
         config={config}
         onUpdateConfig={updateConfig}
         cliAgents={cliAgents}
@@ -496,6 +499,10 @@ export function AskMarco() {
         bridge={bridge}
         scanning={scanning}
         onScan={scanAll}
+        onOpenTerminal={(cmd) => {
+          closeAiConnect();
+          openTerminal(cmd);
+        }}
       />
     </>
   );

@@ -5,7 +5,13 @@ import gsap from "gsap";
 
 import { useReducedMotion } from "./use-reduced-motion";
 
-export function PageTransition({ children }: { children: React.ReactNode }) {
+export function PageTransition({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
@@ -28,7 +34,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   }, [reduced]);
 
   return (
-    <div ref={ref} className="min-h-full">
+    <div ref={ref} className={className ?? "min-h-full"}>
       {children}
     </div>
   );
