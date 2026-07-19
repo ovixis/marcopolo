@@ -358,6 +358,10 @@ export function AskMarco() {
     }
   }
 
+  const capturedDetails = details.filter((d) => d.captured);
+  const whereTo = capturedDetails.find((d) => d.key === "whereTo")?.value;
+  const previewTitle = whereTo ? `${whereTo} trip` : undefined;
+
   return (
     <>
       <div className="flex h-full">
@@ -460,7 +464,9 @@ export function AskMarco() {
           onClose={() => setTripPanelOpen(false)}
           details={details}
           onGenerate={() => send("Build the trip plan from what we have so far.")}
-          canGenerate={details.some((d) => d.captured)}
+          canGenerate={capturedDetails.length > 0}
+          generating={sending}
+          previewTitle={previewTitle}
         />
       </div>
 

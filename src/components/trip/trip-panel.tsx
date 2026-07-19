@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { TripChecklist, type TripDetail } from "./trip-checklist";
+import { TripGenerationProgress, TripPreview } from "./trip-preview";
 
 export type { TripDetail };
 
@@ -11,6 +12,8 @@ interface TripPanelProps {
   details: TripDetail[];
   onGenerate?: () => void;
   canGenerate?: boolean;
+  generating?: boolean;
+  previewTitle?: string;
 }
 
 export function TripPanel({
@@ -19,7 +22,15 @@ export function TripPanel({
   details,
   onGenerate,
   canGenerate,
+  generating,
+  previewTitle,
 }: TripPanelProps) {
+  const captured = details.filter((d) => d.captured);
+  const whereTo = captured.find((d) => d.key === "whereTo")?.value;
+  const whereFrom = captured.find((d) => d.key === "whereFrom")?.value;
+  const who = captured.find((d) => d.key === "who")?.value;
+  const when = captured.find((d) => d.key === "when")?.value;
+
   return (
     <>
       {/* mobile backdrop */}
@@ -35,7 +46,7 @@ export function TripPanel({
         className={`
           absolute right-0 top-0 z-50 h-full w-full transform border-l border-border bg-card shadow-2xl
           transition-transform duration-300 ease-out
-          lg:relative lg:w-[360px] lg:translate-x-0 lg:shadow-none
+          lg:relative lg:w-[380px] lg:translate-x-0 lg:shadow-none
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
       >
@@ -51,11 +62,23 @@ export function TripPanel({
             </button>
           </div>
           <div className="flex-1 overflow-hidden">
-            <TripChecklist
-              details={details}
-              onGenerate={onGenerate}
-              canGenerate={canGenerate}
-            />
+            {generating ? (
+              <TripGenerationProgress />
+            ) : captured.length > 0 ? (
+              <TripPreview
+                title={previewTitle ?? whereTo ?? "Your next adventure"}
+                from={whereFrom ?? "Home"}
+                to={whereTo ?? "Destination"}
+                travellers={who}
+                dates={when}
+              />
+            ) : (
+              <TripChecklist
+                details={details}
+                onGenerate={onGenerate}
+                canGenerate={canGenerate}
+              />
+            )}
           </div>
         </div>
       </aside>

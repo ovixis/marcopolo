@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Shield, Zap, Wallet } from "lucide-react";
 import { SuggestionPills } from "./suggestion-pills";
 
 interface ChatHeroProps {
@@ -18,35 +17,42 @@ const SUGGESTIONS = [
 export function ChatHero({ onSuggestion }: ChatHeroProps) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 pb-4">
-      <div className="mx-auto grid w-full max-w-5xl items-center gap-12 lg:grid-cols-[1fr_0.9fr]">
-        <div className="text-center lg:text-left">
-          <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary lg:mb-8">
-            <Sparkles className="size-7" />
+      <div className="relative mx-auto w-full max-w-2xl text-center">
+        {/* glow */}
+        <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+
+        <div className="relative">
+          <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-lg shadow-primary/10">
+            <Sparkles className="size-8" />
           </div>
-          <h1 className="font-serif text-4xl leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+
+          <h1 className="font-serif text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl">
             Where shall we go today?
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Your personal AI plans the trip. Marco Polo keeps every detail in
-            one elegant place.
-          </p>
-        </div>
 
-        <div className="relative mx-auto w-full max-w-sm lg:max-w-md">
-          <div className="relative aspect-square">
-            <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent blur-2xl" />
-            <Image
-              src="/marco-portrait.png"
-              alt="Marco Polo"
-              fill
-              className="object-contain drop-shadow-2xl"
-              priority
-            />
+          <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
+            Marco Polo is your open-source travel command center. Connect your
+            own AI and plan trips without new subscriptions or API keys.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5">
+              <Shield className="size-4 text-primary" />
+              Your AI, your data
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5">
+              <Zap className="size-4 text-primary" />
+              One-click connect
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5">
+              <Wallet className="size-4 text-primary" />
+              No extra subscriptions
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="relative mt-10">
         <SuggestionPills suggestions={SUGGESTIONS} onSelect={onSuggestion} />
       </div>
     </div>
