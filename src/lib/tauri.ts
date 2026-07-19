@@ -15,8 +15,10 @@ import type {
   LocationSuggestion,
 } from "./types";
 import {
+  webFallbackCliAgents,
   webFallbackFlights,
   webFallbackHotels,
+  webFallbackLocalRuntimes,
   webFallbackLocations,
 } from "./web-fallback";
 
@@ -102,7 +104,15 @@ export async function backendStatus(): Promise<BackendStatus> {
 // Ask Marco chat (desktop-only: the agent loop runs in Rust)
 // ---------------------------------------------------------------------------
 
-export type AiProvider = "anthropic" | "openai" | "grok" | "kimi" | "custom";
+export type AiProvider =
+  | "anthropic"
+  | "openai"
+  | "grok"
+  | "kimi"
+  | "custom"
+  | "local"
+  | "cli"
+  | "bridge";
 
 export interface AiChatMessage {
   role: "user" | "assistant";
@@ -141,4 +151,93 @@ export async function aiChat(
   const channel = new Channel<AiChatEvent>();
   channel.onmessage = onEvent;
   return invoke<AiChatReply>("ai_chat", { request, onEvent: channel });
+}
+
+// ---------------------------------------------------------------------------
+// No-API-key connectors: local model servers + (scaffold) desktop-app bridge.
+// Mirrors `LocalRuntime` / `BridgeStatus` in src-tauri/src/ai_local.rs &
+// ai_bridge.rs.
+// ---------------------------------------------------------------------------
+
+/** A local model server discovered on this machine (needs no API key). */
+export interface LocalRuntime {
+  id: string;
+  label: string;
+  /** OpenAI-compatible base, e.g. http://localhost:11434/v1 */
+  baseUrl: string;
+  running: boolean;
+  models: string[];
+  setupHint: string;
+}
+
+/** Probe the machine for local model servers (Ollama, LM Studio, Jan, …). */
+export async function aiLocalDetect(): Promise<LocalRuntime[]> {
+  if (!isTauri()) {
+    return webFallbackLocalRuntimes();
+  }
+  return invoke<LocalRuntime[]>("ai_local_detect");
+}
+
+/** An AI CLI you're signed into (Claude Code, Codex, Gemini) — no API key. */
+export interface CliAgent {
+  id: string;
+  label: string;
+  bin: string;
+  installed: boolean;
+  /** Absolute path resolved via the login shell (empty when not found). */
+  path: string;
+}
+
+/** Detect installed AI CLIs the user can run on their existing subscription. */
+export async function aiCliDetect(): Promise<CliAgent[]> {
+  if (!isTauri()) {
+    return webFallbackCliAgents();
+  }
+  return invoke<CliAgent[]>("ai_cli_detect");
+}
+
+/** A desktop AI app the bridge can drive (Claude Desktop, ChatGPT). */
+export interface DesktopBridgeApp {
+  id: string;
+  label: string;
+  /** A bridge backend exists for this app on the current OS. */
+  supported: boolean;
+  installed: boolean;
+  running: boolean;
+}
+
+export interface BridgeStatus {
+  /** The bridge can run on this OS at all (macOS today). */
+  enabled: boolean;
+  /** "macos" | "windows" | "linux" | … */
+  os: string;
+  /** macOS Accessibility permission — required to type into another app. */
+  accessibilityGranted: boolean;
+  note: string;
+  apps: DesktopBridgeApp[];
+}
+
+const BRIDGE_PREVIEW: BridgeStatus = {
+  enabled: false,
+  os: "browser",
+  accessibilityGranted: false,
+  note: "The desktop-app bridge runs inside the Marco Polo desktop app (macOS). Open the app to use it.",
+  apps: [
+    { id: "claude-desktop", label: "Claude Desktop", supported: false, installed: false, running: false },
+    { id: "chatgpt-desktop", label: "ChatGPT", supported: false, installed: false, running: false },
+  ],
+};
+
+/** Availability of the desktop-app bridge (installed apps, Accessibility). */
+export async function aiBridgeStatus(): Promise<BridgeStatus> {
+  if (!isTauri()) {
+    return BRIDGE_PREVIEW;
+  }
+  return invoke<BridgeStatus>("ai_bridge_status");
+}
+
+/** Open the macOS Accessibility settings pane to grant permission. */
+export async function aiBridgeOpenSettings(): Promise<void> {
+  if (!isTauri()) return;
+  await invoke("ai_bridge_open_settings");
 }

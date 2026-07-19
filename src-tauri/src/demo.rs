@@ -2,6 +2,12 @@
 //! Results are derived from a hash of the route, so the same search always
 //! returns the same offers.
 
+// This module is organised in self-contained sections (flights / hotels /
+// experiences), with each section's tests co-located after it. That trips the
+// newer `items_after_test_module` lint; keep the section layout rather than
+// hoisting every test to the end.
+#![allow(clippy::items_after_test_module)]
+
 use crate::types::{
     FlightOffer, FlightPoint, FlightSearchQuery, FlightSearchResult, Itinerary, LocationSuggestion,
     Segment,

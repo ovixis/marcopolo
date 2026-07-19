@@ -17,13 +17,21 @@ const SYSTEM_PROMPT: &str = "You are Marco Polo, the travel-planning agent insid
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatRequest {
-    /// "anthropic" | "openai" | "grok" | "kimi" | "custom"
+    /// "anthropic" | "openai" | "grok" | "kimi" | "custom" | "local" | "bridge"
     pub provider: String,
     pub model: String,
+    /// Empty for keyless connectors ("local", and "custom" pointed at a local
+    /// server). Required for the cloud providers.
     pub api_key: String,
-    /// Base URL for "custom" (OpenAI-compatible) providers.
+    /// Base URL for "custom" and "local" (OpenAI-compatible) providers.
     pub base_url: Option<String>,
     pub messages: Vec<ChatMessage>,
+}
+
+/// Cloud providers that require a user-supplied API key. Everything else
+/// ("local", "custom", "bridge") is keyless.
+fn needs_api_key(provider: &str) -> bool {
+    matches!(provider, "anthropic" | "openai" | "grok" | "kimi")
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -73,8 +81,19 @@ pub async fn chat(
     request: ChatRequest,
     channel: Channel<ChatEvent>,
 ) -> Result<ChatReply, String> {
-    if request.api_key.trim().is_empty() {
+    if needs_api_key(&request.provider) && request.api_key.trim().is_empty() {
         return Err("No API key set. Connect a model first.".to_owned());
+    }
+    // The desktop-app bridge drives an installed AI app instead of an API; it
+    // has its own (non-HTTP) path. `request.model` carries the app id.
+    if request.provider == "bridge" {
+        return crate::ai_bridge::chat(&request.model, &request.messages).await;
+    }
+    // The CLI-agent connector shells out to an installed AI CLI (Claude Code,
+    // Codex, Gemini) on the user's subscription. `request.model` carries the
+    // agent id.
+    if request.provider == "cli" {
+        return crate::ai_cli::chat(&request.model, &request.messages).await;
     }
     let http = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(180))
@@ -83,7 +102,7 @@ pub async fn chat(
 
     match request.provider.as_str() {
         "anthropic" => anthropic_loop(context, &http, request, channel).await,
-        "openai" | "grok" | "kimi" | "custom" => {
+        "openai" | "grok" | "kimi" | "custom" | "local" => {
             openai_loop(context, &http, request, channel).await
         }
         other => Err(format!("unknown provider: {other}")),
@@ -95,11 +114,11 @@ fn openai_base_url(request: &ChatRequest) -> Result<String, String> {
         "openai" => "https://api.openai.com/v1".to_owned(),
         "grok" => "https://api.x.ai/v1".to_owned(),
         "kimi" => "https://api.moonshot.ai/v1".to_owned(),
-        "custom" => request
+        "custom" | "local" => request
             .base_url
             .clone()
             .filter(|u| !u.trim().is_empty())
-            .ok_or("custom provider needs a base URL")?,
+            .ok_or("this provider needs a base URL")?,
         other => return Err(format!("not an OpenAI-compatible provider: {other}")),
     };
     Ok(url.trim_end_matches('/').to_owned())
@@ -282,14 +301,20 @@ async fn openai_loop(
     let mut tools_used = Vec::new();
 
     for _ in 0..=MAX_TOOL_ROUNDS {
-        let response = http
+        let mut builder = http
             .post(format!("{base_url}/chat/completions"))
-            .bearer_auth(request.api_key.trim())
             .json(&json!({
                 "model": request.model,
                 "tools": openai_tools(),
                 "messages": messages,
-            }))
+            }));
+        // Local servers (Ollama, LM Studio, …) ignore auth; only send a bearer
+        // token when the user actually supplied one.
+        let key = request.api_key.trim();
+        if !key.is_empty() {
+            builder = builder.bearer_auth(key);
+        }
+        let response = builder
             .send()
             .await
             .map_err(|e| format!("network error: {e}"))?;
@@ -397,6 +422,20 @@ mod tests {
             openai_base_url(&req("custom", Some("http://localhost:11434/v1/"))).unwrap(),
             "http://localhost:11434/v1"
         );
+        assert_eq!(
+            openai_base_url(&req("local", Some("http://localhost:1234/v1"))).unwrap(),
+            "http://localhost:1234/v1"
+        );
         assert!(openai_base_url(&req("custom", None)).is_err());
+        assert!(openai_base_url(&req("local", None)).is_err());
+    }
+
+    #[test]
+    fn only_cloud_providers_require_a_key() {
+        assert!(needs_api_key("anthropic"));
+        assert!(needs_api_key("openai"));
+        assert!(!needs_api_key("local"));
+        assert!(!needs_api_key("custom"));
+        assert!(!needs_api_key("bridge"));
     }
 }
