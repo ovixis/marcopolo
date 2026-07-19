@@ -59,19 +59,22 @@ function InnerGlobe() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-    dirLight.position.set(10, 10, 20);
+    const dirLight = new THREE.DirectionalLight(0x19c59f, 1.1);
+    dirLight.position.set(12, 10, 18);
     scene.add(dirLight);
+    const accentLight = new THREE.PointLight(0xf5d78e, 0.8, 80);
+    accentLight.position.set(-12, -6, 14);
+    scene.add(accentLight);
 
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
     // Wireframe globe
-    const globeGeometry = new THREE.IcosahedronGeometry(RADIUS, 3);
+    const globeGeometry = new THREE.IcosahedronGeometry(RADIUS, 4);
     const globeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x8fa67b,
+      color: 0x19c59f,
       wireframe: true,
       transparent: true,
       opacity: 0.22,
@@ -80,19 +83,52 @@ function InnerGlobe() {
     globeGroup.add(globe);
 
     // Inner soft glow
-    const atmosphereGeometry = new THREE.IcosahedronGeometry(RADIUS * 0.96, 4);
+    const atmosphereGeometry = new THREE.IcosahedronGeometry(RADIUS * 0.96, 5);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
-      color: 0x8fa67b,
+      color: 0x19c59f,
       transparent: true,
-      opacity: 0.08,
+      opacity: 0.06,
     });
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     globeGroup.add(atmosphere);
 
+    // Outer halo
+    const haloGeometry = new THREE.IcosahedronGeometry(RADIUS * 1.18, 4);
+    const haloMaterial = new THREE.MeshBasicMaterial({
+      color: 0x19c59f,
+      transparent: true,
+      opacity: 0.03,
+      side: THREE.BackSide,
+    });
+    const halo = new THREE.Mesh(haloGeometry, haloMaterial);
+    globeGroup.add(halo);
+
+    // Floating particles around the globe
+    const particleCount = 120;
+    const particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      const r = RADIUS * 1.4 + Math.random() * 6;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+    }
+    particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      color: 0xf5d78e,
+      size: 0.12,
+      transparent: true,
+      opacity: 0.45,
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    globeGroup.add(particles);
+
     // City markers
     const markerGeometry = new THREE.SphereGeometry(0.16, 12, 12);
-    const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xb45d33 });
-    const activeMarkerMaterial = new THREE.MeshBasicMaterial({ color: 0x3a6d7a });
+    const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xf5d78e });
+    const activeMarkerMaterial = new THREE.MeshBasicMaterial({ color: 0x19c59f });
 
     globeCities.forEach(([lat, lng]) => {
       const pos = latLngToVector3(lat, lng, RADIUS + 0.05);
@@ -161,6 +197,8 @@ function InnerGlobe() {
       globeGroup.rotation.y += autoRotateSpeed;
       globeGroup.rotation.x += (targetRotationX - globeGroup.rotation.x) * 0.05;
       globeGroup.rotation.y += (targetRotationY - globeGroup.rotation.y) * 0.05;
+      particles.rotation.y -= autoRotateSpeed * 0.6;
+      halo.rotation.y += autoRotateSpeed * 0.3;
 
       routeObjects.forEach((route) => {
         if (route.active) {
@@ -195,6 +233,8 @@ function InnerGlobe() {
       renderer.dispose();
       globeGeometry.dispose();
       atmosphereGeometry.dispose();
+      haloGeometry.dispose();
+      particleGeo.dispose();
       markerGeometry.dispose();
       routeObjects.forEach((r) => r.mesh.geometry.dispose());
     };

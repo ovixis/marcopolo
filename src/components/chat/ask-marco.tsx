@@ -176,7 +176,20 @@ export function AskMarco() {
   const [tripPanelOpen, setTripPanelOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+
+  useEffect(() => {
+    if (reduced) return;
+    if (!tripPanelOpen) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    gsap.fromTo(
+      panel,
+      { x: 40, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.45, ease: "power3.out" },
+    );
+  }, [tripPanelOpen, reduced]);
 
   useEffect(() => {
     try {
@@ -224,6 +237,15 @@ export function AskMarco() {
   useEffect(() => {
     setAiConnected(connected, connected ? aiStatusLabel : undefined);
   }, [connected, aiStatusLabel, setAiConnected]);
+
+  useEffect(() => {
+    const hasDetails = details.some((d) => d.captured);
+    if (hasDetails || sending) {
+      setTripPanelOpen(true);
+    }
+  }, [details, sending]);
+
+
 
   async function scanAll() {
     setScanning(true);
@@ -359,8 +381,6 @@ export function AskMarco() {
   }
 
   const capturedDetails = details.filter((d) => d.captured);
-  const whereTo = capturedDetails.find((d) => d.key === "whereTo")?.value;
-  const previewTitle = whereTo ? `${whereTo} trip` : undefined;
 
   return (
     <>
@@ -459,15 +479,16 @@ export function AskMarco() {
           </div>
         </div>
 
-        <TripPanel
-          open={tripPanelOpen}
-          onClose={() => setTripPanelOpen(false)}
-          details={details}
-          onGenerate={() => send("Build the trip plan from what we have so far.")}
-          canGenerate={capturedDetails.length > 0}
-          generating={sending}
-          previewTitle={previewTitle}
-        />
+        <div ref={panelRef} className="h-full">
+          <TripPanel
+            open={tripPanelOpen}
+            onClose={() => setTripPanelOpen(false)}
+            details={details}
+            onGenerate={() => send("Build the trip plan from what we have so far.")}
+            canGenerate={capturedDetails.length > 0}
+            generating={sending}
+          />
+        </div>
       </div>
 
       <AiConnectModal

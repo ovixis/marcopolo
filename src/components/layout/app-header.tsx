@@ -19,8 +19,8 @@ export function AppHeader({
 }: AppHeaderProps) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
-      <Link href="/" className="flex items-center gap-2.5">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+      <Link href="/" className="group flex items-center gap-2.5">
+        <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20 transition group-hover:shadow-primary/30">
           <Compass className="size-5" aria-hidden />
         </span>
         <span className="font-serif text-xl font-medium tracking-tight">
@@ -31,7 +31,7 @@ export function AppHeader({
       <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={onNewTrip}
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted sm:px-4"
+          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-muted sm:px-4"
         >
           <Plus className="size-4" />
           <span className="hidden sm:inline">New trip</span>
@@ -42,7 +42,7 @@ export function AppHeader({
           className={cn(
             "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition sm:px-4",
             connected
-              ? "bg-primary/10 text-primary"
+              ? "border border-primary/20 bg-primary/10 text-primary hover:bg-primary/15"
               : "bg-primary text-primary-foreground hover:bg-primary/90",
           )}
         >
@@ -55,7 +55,7 @@ export function AppHeader({
           {connected ? aiLabel ?? "AI connected" : "Connect AI"}
         </button>
 
-        <div className="flex size-9 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-secondary-foreground">
+        <div className="flex size-9 items-center justify-center rounded-full border border-border bg-secondary text-sm font-semibold text-secondary-foreground">
           OB
         </div>
       </div>

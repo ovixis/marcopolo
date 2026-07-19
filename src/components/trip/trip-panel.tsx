@@ -2,7 +2,8 @@
 
 import { X } from "lucide-react";
 import { TripChecklist, type TripDetail } from "./trip-checklist";
-import { TripGenerationProgress, TripPreview } from "./trip-preview";
+import { TripGenerationProgress } from "./trip-preview";
+import { TripItinerary } from "./trip-itinerary";
 
 export type { TripDetail };
 
@@ -13,7 +14,6 @@ interface TripPanelProps {
   onGenerate?: () => void;
   canGenerate?: boolean;
   generating?: boolean;
-  previewTitle?: string;
 }
 
 export function TripPanel({
@@ -23,7 +23,6 @@ export function TripPanel({
   onGenerate,
   canGenerate,
   generating,
-  previewTitle,
 }: TripPanelProps) {
   const captured = details.filter((d) => d.captured);
   const whereTo = captured.find((d) => d.key === "whereTo")?.value;
@@ -65,8 +64,8 @@ export function TripPanel({
             {generating ? (
               <TripGenerationProgress />
             ) : captured.length > 0 ? (
-              <TripPreview
-                title={previewTitle ?? whereTo ?? "Your next adventure"}
+              <TripItinerary
+                title={whereTo ? `${whereTo} trip` : undefined}
                 from={whereFrom ?? "Home"}
                 to={whereTo ?? "Destination"}
                 travellers={who}
