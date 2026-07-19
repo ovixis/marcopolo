@@ -47,7 +47,7 @@ export function useAppState() {
   return ctx;
 }
 
-const THEME_KEY = "marcopolo.theme";
+const THEME_KEY = "marcopolo.theme.v2";
 const TRIPS_KEY = "marcopolo.trips";
 
 function makeId() {
@@ -169,8 +169,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           connected={aiConnected}
           aiLabel={aiLabel}
           onOpenConnect={openAiConnect}
-          darkMode={darkMode}
-          onToggleTheme={toggleTheme}
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <main className="relative min-h-0 flex-1 overflow-hidden">

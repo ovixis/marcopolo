@@ -1,23 +1,25 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import {
-  ArrowUp,
   CircleCheck,
   CircleX,
   Loader2,
+  MapPin,
+  PanelRight,
   Plus,
   Settings2,
-  Wrench,
 } from "lucide-react";
 import gsap from "gsap";
 
 import { AiConnectModal } from "@/components/chat/ai-connect-modal";
+import { ChatComposer } from "@/components/chat/chat-composer";
+import { ChatHero } from "@/components/chat/chat-hero";
+import { ChatMessage } from "@/components/chat/chat-message";
+import { useAppState } from "@/components/layout/app-shell";
+import { TripPanel, type TripDetail } from "@/components/trip/trip-panel";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/components/animation/use-reduced-motion";
-import { useAppState } from "@/components/layout/app-shell";
 import {
   aiBridgeStatus,
   aiChat,
@@ -56,17 +58,12 @@ interface Activity {
   ok: boolean;
 }
 
-const TOOL_LABELS: Record<string, string> = {
-  search_flights: "Flights",
-  search_hotels: "Hotels",
-  search_experiences: "Experiences",
-  search_locations: "Places",
-};
-
-const SUGGESTIONS = [
-  "Plan 4 days in Kyoto & Osaka: flights from NYC, a central hotel, food experiences, budget for 2.",
-  "Cheapest nonstop JFK → LHR on August 17?",
-  "Weekend in Paris under €800 for two — the full plan.",
+const INITIAL_DETAILS: TripDetail[] = [
+  { key: "whereTo", label: "Where to", captured: false },
+  { key: "whereFrom", label: "Where from", captured: false },
+  { key: "who", label: "Who's coming", captured: false },
+  { key: "when", label: "When you'd go", captured: false },
+  { key: "what", label: "What you're after", captured: false },
 ];
 
 function isConnected(config: AiConfig): boolean {
@@ -76,6 +73,89 @@ function isConnected(config: AiConfig): boolean {
     return config.baseUrl.trim().length > 0;
   }
   return config.apiKey.trim().length > 0;
+}
+
+function extractDetails(text: string, details: TripDetail[]): TripDetail[] {
+  const lowered = text.toLowerCase();
+  const next = details.map((d) => ({ ...d }));
+
+  // Very lightweight entity extraction for demo UX.
+  const cities = [
+    "paris",
+    "tokyo",
+    "new york",
+    "london",
+    "rome",
+    "barcelona",
+    "kyoto",
+    "osaka",
+    "dubai",
+    "bali",
+    "maldives",
+    "amsterdam",
+    "sydney",
+    "lisbon",
+    "prague",
+  ];
+
+  for (const city of cities) {
+    if (lowered.includes(city)) {
+      if (!next[0].captured) {
+        next[0].value = city.charAt(0).toUpperCase() + city.slice(1);
+        next[0].captured = true;
+      }
+      break;
+    }
+  }
+
+  if (/\b(from|leaving|departing out of|flying out of)\b/.test(lowered)) {
+    const match = lowered.match(
+      /(?:from|leaving|departing out of|flying out of)\s+([a-z\s]+?)(?:\s+(?:to|on|for|with|and|next|this)\b|$)/,
+    );
+    if (match && match[1]) {
+      const value = match[1].trim();
+      if (value.length > 2) {
+        next[1].value = value.charAt(0).toUpperCase() + value.slice(1);
+        next[1].captured = true;
+      }
+    }
+  }
+
+  if (/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|monday|tuesday|wednesday|thursday|friday|saturday|sunday|august|september|october|november|december)\b/.test(lowered)) {
+    const match = lowered.match(
+      /(?:\b(?:on|for|the)\s+)?((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:th|st|nd|rd)?(?:\s*,?\s*\d{4})?)/i,
+    );
+    if (match && match[1]) {
+      next[3].value = match[1].trim();
+      next[3].captured = true;
+    }
+  }
+
+  if (/\b(couple|family|kids|friends|solo|alone|group of)\b/.test(lowered)) {
+    const match = lowered.match(
+      /\b(couple|family(?:\s+with\s+kids)?|friends|solo|alone|group of \d+)\b/i,
+    );
+    if (match && match[1]) {
+      next[2].value = match[1].trim();
+      next[2].captured = true;
+    }
+  }
+
+  if (
+    /\b(beach|mountain|city|culture|food|relax|adventure|romantic|budget|luxury|hiking|museum|nightlife|shopping)\b/.test(
+      lowered,
+    )
+  ) {
+    const match = lowered.match(
+      /\b(beach|mountain|city(?!\s+from)|culture|food|relax|adventure|romantic|budget|luxury|hiking|museum|nightlife|shopping)\b/i,
+    );
+    if (match && match[1]) {
+      next[4].value = match[1].trim();
+      next[4].captured = true;
+    }
+  }
+
+  return next;
 }
 
 export function AskMarco() {
@@ -101,6 +181,8 @@ export function AskMarco() {
   const [runtimes, setRuntimes] = useState<LocalRuntime[] | null>(null);
   const [bridge, setBridge] = useState<BridgeStatus | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [details, setDetails] = useState<TripDetail[]>(INITIAL_DETAILS);
+  const [tripPanelOpen, setTripPanelOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -122,8 +204,8 @@ export function AskMarco() {
     if (!nodes || nodes.length === 0) return;
     gsap.fromTo(
       nodes[nodes.length - 1],
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
     );
   }, [messages, reduced]);
 
@@ -176,9 +258,20 @@ export function AskMarco() {
     if (cliAgents === null && !scanning) void scanAll();
   }
 
+  function startNewTrip() {
+    setMessages([]);
+    setInput("");
+    setActivity([]);
+    setDetails(INITIAL_DETAILS);
+    setTripPanelOpen(false);
+  }
+
   async function send(text?: string) {
     const question = (text ?? input).trim();
     if (!question || sending) return;
+
+    setDetails((prev) => extractDetails(question, prev));
+
     if (!connected) {
       openConnect();
       setMessages((m) => [
@@ -187,7 +280,7 @@ export function AskMarco() {
         {
           role: "assistant",
           content:
-            "Connect an AI first — pick one already on this Mac (your subscription or a local model, no API key), then I'm ready to chart your route.",
+            "Connect your AI first — pick one already on this Mac (your subscription or a local model, no API key), then I'm ready to chart your route.",
           error: true,
         },
       ]);
@@ -221,9 +314,15 @@ export function AskMarco() {
             setMessages((m) => {
               const last = m[m.length - 1];
               if (last?.role === "assistant" && last.streaming) {
-                return [...m.slice(0, -1), { ...last, content: last.content + event.text }];
+                return [
+                  ...m.slice(0, -1),
+                  { ...last, content: last.content + event.text },
+                ];
               }
-              return [...m, { role: "assistant", content: event.text, streaming: true }];
+              return [
+                ...m,
+                { role: "assistant", content: event.text, streaming: true },
+              ];
             });
             return;
           }
@@ -254,7 +353,10 @@ export function AskMarco() {
             { role: "assistant", content: reply.text || last.content, tools: reply.toolsUsed },
           ];
         }
-        return [...m, { role: "assistant", content: reply.text, tools: reply.toolsUsed }];
+        return [
+          ...m,
+          { role: "assistant", content: reply.text, tools: reply.toolsUsed },
+        ];
       });
     } catch (err) {
       setMessages((m) => {
@@ -273,27 +375,17 @@ export function AskMarco() {
     }
   }
 
-  function startNewTrip() {
-    setMessages([]);
-    setInput("");
-    setActivity([]);
-  }
-
   const statusLine = sending
     ? "charting your route…"
     : connected
-      ? config.provider === "local"
-        ? `${config.label ?? "Local"} · ${config.model}`
-        : config.provider === "cli"
-          ? `${config.label ?? "CLI"} · your subscription`
-          : config.provider === "bridge"
-            ? `${config.label ?? "Desktop app"} · bridge`
-            : config.model
-      : "connect an AI to begin";
+      ? aiStatusLabel
+      : "connect your AI to begin";
+
+  const hasDetails = details.some((d) => d.captured);
 
   return (
     <>
-      <div className="flex h-full flex-col">
+      <div className="relative flex h-full flex-col">
         {/* header */}
         <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
           <div className="flex items-center gap-3">
@@ -309,7 +401,20 @@ export function AskMarco() {
               <p className="text-xs text-muted-foreground">{statusLine}</p>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTripPanelOpen((s) => !s)}
+              className={cn(
+                "flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition",
+                tripPanelOpen || hasDetails
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+            >
+              <MapPin className="size-3.5" />
+              Trip
+            </button>
             <button
               onClick={openConnect}
               className={cn(
@@ -334,159 +439,134 @@ export function AskMarco() {
             >
               <Settings2 className="size-4" />
             </button>
+            <button
+              onClick={() => setTripPanelOpen((s) => !s)}
+              className={cn(
+                "rounded-lg p-2 transition lg:hidden",
+                tripPanelOpen
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              )}
+              aria-label="Toggle trip panel"
+            >
+              <PanelRight className="size-4" />
+            </button>
           </div>
         </div>
 
-        {/* messages */}
-        <div ref={messagesRef} className="flex-1 overflow-y-auto">
-          {messages.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center px-6 pb-20 text-center">
-              <div className="mb-6 text-5xl">✦</div>
-              <h2 className="font-serif text-3xl font-medium">Where shall we go?</h2>
-              <p className="mt-3 max-w-md text-muted-foreground">
-                Ask Marco to plan flights, hotels, and experiences — then manage the itinerary and budget.
-              </p>
-              <div className="mt-8 flex w-full max-w-md flex-col gap-2">
-                {SUGGESTIONS.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => send(s)}
-                    className="rounded-xl border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-secondary/50"
-                  >
-                    {s}
-                  </button>
+        {/* main surface */}
+        <div className="relative flex min-h-0 flex-1">
+          <div
+            ref={messagesRef}
+            className="flex-1 overflow-y-auto"
+          >
+            {messages.length === 0 ? (
+              <ChatHero
+                input={input}
+                onInputChange={setInput}
+                onSend={() => send()}
+                onSuggestion={send}
+                connected={connected}
+                sending={sending}
+              />
+            ) : (
+              <div className="pb-6">
+                {messages.map((message, index) => (
+                  <div key={index} data-message>
+                    <ChatMessage message={message} />
+                  </div>
                 ))}
-              </div>
-            </div>
-          ) : (
-            <div className="pb-6">
-              {messages.map((message, index) =>
-                message.role === "user" ? (
-                  <div
-                    key={index}
-                    data-message
-                    className="flex justify-end border-b border-border/50 px-4 py-5 sm:px-6 lg:px-8"
-                  >
-                    <div className="max-w-2xl rounded-2xl rounded-br-md bg-secondary px-4 py-3 text-[15px] text-secondary-foreground">
-                      {message.content}
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    key={index}
-                    data-message
-                    className={cn(
-                      "border-b border-border/50 px-4 py-5 sm:px-6 lg:px-8",
-                      message.error ? "bg-destructive/5" : "",
-                    )}
-                  >
-                    <div className="mx-auto flex max-w-2xl gap-4">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
-                        M
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        {message.tools && message.tools.length > 0 && (
-                          <div className="mb-2 flex flex-wrap gap-1.5">
-                            {[...new Set(message.tools)].map((tool) => (
-                              <span
-                                key={tool}
-                                className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
-                              >
-                                <Wrench className="size-2.5" aria-hidden />
-                                {TOOL_LABELS[tool] ?? tool}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        <div className={cn("chat-markdown text-[15px] leading-relaxed", message.error && "text-destructive")}>
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ),
-              )}
 
-              {sending &&
-                !(
-                  messages[messages.length - 1]?.role === "assistant" &&
-                  messages[messages.length - 1]?.streaming
-                ) && (
-                  <div data-message className="border-b border-border/50 px-4 py-5 sm:px-6 lg:px-8">
-                    <div className="mx-auto flex max-w-2xl gap-4">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
-                        M
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
-                          <span>consulting the maps</span>
-                          <span className="flex items-center gap-1" aria-hidden>
-                            <span className="marco-dot size-1 rounded-full bg-primary" />
-                            <span className="marco-dot size-1 rounded-full bg-primary" />
-                            <span className="marco-dot size-1 rounded-full bg-primary" />
-                          </span>
+                {sending &&
+                  !(
+                    messages[messages.length - 1]?.role === "assistant" &&
+                    messages[messages.length - 1]?.streaming
+                  ) && (
+                    <div data-message className="px-4 py-5 sm:px-6 lg:px-8">
+                      <div className="mx-auto flex max-w-2xl gap-4">
+                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                          M
                         </div>
-                        {activity.length > 0 && (
-                          <ul className="mt-2 flex flex-col gap-1.5">
-                            {activity.map((item, index) => (
-                              <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                {item.done ? (
-                                  item.ok ? (
-                                    <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2
+                              className="size-4 animate-spin text-primary"
+                              aria-hidden
+                            />
+                            <span>consulting the maps</span>
+                            <span className="flex items-center gap-1" aria-hidden>
+                              <span className="marco-dot size-1 rounded-full bg-primary" />
+                              <span className="marco-dot size-1 rounded-full bg-primary" />
+                              <span className="marco-dot size-1 rounded-full bg-primary" />
+                            </span>
+                          </div>
+                          {activity.length > 0 && (
+                            <ul className="mt-2 flex flex-col gap-1.5">
+                              {activity.map((item, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center gap-2 text-xs text-muted-foreground"
+                                >
+                                  {item.done ? (
+                                    item.ok ? (
+                                      <CircleCheck
+                                        className="size-3.5 text-emerald-500"
+                                        aria-hidden
+                                      />
+                                    ) : (
+                                      <CircleX
+                                        className="size-3.5 text-destructive"
+                                        aria-hidden
+                                      />
+                                    )
                                   ) : (
-                                    <CircleX className="size-3.5 text-destructive" aria-hidden />
-                                  )
-                                ) : (
-                                  <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
-                                )}
-                                <span className="font-medium text-foreground">
-                                  {TOOL_LABELS[item.name] ?? item.name}
-                                </span>
-                                {item.summary}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                                    <Loader2
+                                      className="size-3.5 animate-spin text-primary"
+                                      aria-hidden
+                                    />
+                                  )}
+                                  <span className="font-medium text-foreground">
+                                    {item.name}
+                                  </span>
+                                  {item.summary}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              <div ref={bottomRef} />
-            </div>
-          )}
+                  )}
+                <div ref={bottomRef} />
+              </div>
+            )}
+          </div>
+
+          <TripPanel
+            open={tripPanelOpen}
+            onClose={() => setTripPanelOpen(false)}
+            details={details}
+            onGenerate={() => send("Build the trip plan from what we have so far.")}
+            canGenerate={details.some((d) => d.captured)}
+          />
         </div>
 
         {/* composer */}
-        <div className="shrink-0 border-t border-border bg-background/90 p-4 backdrop-blur-md">
-          <div className="mx-auto flex max-w-2xl items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-lg">
-            <textarea
-              className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent px-3 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
-              rows={1}
-              placeholder={connected ? "Ask Marco…" : "Connect an AI to start planning"}
+        {messages.length > 0 && (
+          <div className="shrink-0 border-t border-border bg-background/90 p-4 backdrop-blur-md">
+            <ChatComposer
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  send();
-                }
-              }}
-              aria-label="Message"
+              onChange={setInput}
+              onSend={() => send()}
+              disabled={sending}
+              placeholder={
+                connected
+                  ? "Ask Marco…"
+                  : "Connect your AI to start planning"
+              }
             />
-            <button
-              onClick={() => send()}
-              disabled={sending || input.trim().length === 0}
-              className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
-              aria-label="Send"
-            >
-              <ArrowUp className="size-5" />
-            </button>
           </div>
-          <p className="mt-2 text-center text-[11px] text-muted-foreground">
-            Marco uses your local AI. No data leaves your device unless you use a cloud key.
-          </p>
-        </div>
+        )}
       </div>
 
       <AiConnectModal
