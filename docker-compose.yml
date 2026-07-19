@@ -1,0 +1,7 @@
+services:
+  marcopolo:
+    build: .
+    container_name: marcopolo
+    ports:
+      - "3000:80"
+    restart: unless-stopped
