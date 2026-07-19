@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  ArrowLeft,
   Check,
   Cpu,
   Loader2,
@@ -9,6 +10,7 @@ import {
   RefreshCw,
   Terminal,
 } from "lucide-react";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import type {
@@ -101,31 +103,12 @@ export function AgentsSettings() {
     } catch {}
   }
 
-  const installedCli = (cliAgents ?? []).filter((a) => a.installed);
   const runningRuntimes = (runtimes ?? []).filter((r) => r.running);
   const bridgeInstalled = (bridge?.apps ?? []).filter((a) => a.installed);
   const bridgeOn = bridge?.enabled ?? false;
 
   const items: AgentItem[] = [
-    ...installedCli.map((agent) => ({
-      id: agent.id,
-      label: agent.label,
-      description:
-        agent.id === "claude-code"
-          ? "Runs on your subscription. Live travel tools via MCP."
-          : "Runs on your subscription. Chat only — no live tools.",
-      kind: "cli" as const,
-      installed: true,
-      active: config.provider === "cli" && config.model === agent.id,
-      onSelect: () =>
-        selectAgent({
-          provider: "cli",
-          model: agent.id,
-          label: agent.label,
-          apiKey: "",
-          baseUrl: "",
-        }),
-    })),
+    // CLI agents are for coding, not travel search — hide them from the UI.
     ...runningRuntimes.flatMap((runtime) =>
       runtime.models.map((model) => ({
         id: `${runtime.id}-${model}`,
@@ -151,7 +134,7 @@ export function AgentsSettings() {
       ? bridgeInstalled.map((app) => ({
           id: app.id,
           label: app.label,
-          description: "Desktop app bridge. Chat only — no live tools.",
+          description: "Desktop app bridge. Live travel tools via magic trick.",
           kind: "bridge" as const,
           installed: true,
           active: config.provider === "bridge" && config.model === app.id,
@@ -172,6 +155,13 @@ export function AgentsSettings() {
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <div className="border-b border-border px-6 py-5">
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Back to chat
+        </Link>
         <h1 className="font-serif text-3xl font-medium">Agents</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Choose the AI that powers Marco Polo. Your data stays on this device.
@@ -210,7 +200,7 @@ export function AgentsSettings() {
             <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
               <p className="text-sm font-medium text-primary">Recommended for live travel search</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Claude Code, a local model (Ollama), or your own API key. These can call Marco Polo&apos;s
+                A local model (Ollama), a desktop app bridge, or your own API key. These can call Marco Polo&apos;s
                 flight and hotel tools directly.
               </p>
             </div>

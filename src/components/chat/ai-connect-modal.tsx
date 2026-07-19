@@ -29,12 +29,6 @@ const CLOUD_PROVIDERS: { id: AiProvider; label: string; defaultModel: string }[]
 
 const ONE_CLICK_COMMANDS = [
   {
-    id: "claude-code",
-    name: "Claude Code",
-    description: "Use the Claude Code CLI you already have on this Mac. Supports live travel tools.",
-    command: "brew install claude && claude login",
-  },
-  {
     id: "ollama",
     name: "Ollama (local)",
     description: "Run a local model. No cloud account needed.",
@@ -96,13 +90,14 @@ export function AiConnectModal({
 
   if (!open) return null;
 
-  const installedCli = (cliAgents ?? []).filter((a) => a.installed);
+  // CLI agents are for coding, not travel search — hide them from the connect UI.
+  void cliAgents;
+
   const runningRuntimes = (runtimes ?? []).filter((r) => r.running);
   const bridgeInstalled = (bridge?.apps ?? []).filter((a) => a.installed);
   const bridgeOn = bridge?.enabled ?? false;
 
   const detected =
-    installedCli[0] ??
     runningRuntimes[0] ??
     (bridgeOn && bridgeInstalled.length > 0 ? bridgeInstalled[0] : undefined);
 
@@ -151,33 +146,6 @@ export function AiConnectModal({
                   <p className="text-sm text-muted-foreground">
                     Found an AI on this Mac. Click below to connect.
                   </p>
-                  {installedCli.map((agent) => {
-                    const active = config.provider === "cli" && config.model === agent.id;
-                    return (
-                      <button
-                        key={agent.id}
-                        onClick={() =>
-                          onUpdateConfig({
-                            provider: "cli",
-                            model: agent.id,
-                            label: agent.label,
-                            apiKey: "",
-                            baseUrl: "",
-                          })
-                        }
-                        className={cn(
-                          "flex w-full items-center justify-between rounded-xl border p-4 text-left transition",
-                          active
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border bg-secondary/50 hover:border-primary/40",
-                        )}
-                      >
-                        <span className="font-medium">{agent.label}</span>
-                        {active && <Check className="size-4" />}
-                      </button>
-                    );
-                  })}
-
                   {runningRuntimes.map((runtime) => (
                     <button
                       key={runtime.id}

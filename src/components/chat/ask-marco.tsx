@@ -157,6 +157,7 @@ export function AskMarco() {
     openAiConnect,
     closeAiConnect,
     setAiConnected,
+    activeTripId,
   } = useAppState();
 
   const [config, setConfig] = useState<AiConfig>({
@@ -179,6 +180,14 @@ export function AskMarco() {
   const messagesRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+
+  // Reset chat when the user starts a new trip.
+  useEffect(() => {
+    setMessages([]);
+    setDetails(INITIAL_DETAILS);
+    setTripPanelOpen(false);
+    setInput("");
+  }, [activeTripId]);
 
   useEffect(() => {
     if (reduced) return;
