@@ -63,7 +63,7 @@ export function ChatHero({ onSuggestion }: ChatHeroProps) {
     >
       <div className="relative z-10 mx-auto w-full max-w-3xl text-center">
         <div className="hero-title mb-8 flex justify-center">
-          <MarcoFace size={5.6} />
+          <MarcoFace size={5} />
         </div>
 
         <h1 className="hero-title font-serif text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">

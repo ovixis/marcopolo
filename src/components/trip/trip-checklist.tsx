@@ -131,7 +131,11 @@ export function TripChecklist({
                       </p>
                     ) : (
                       <p className="mt-1.5 text-xs text-muted-foreground">
-                        Marco will ask when the time is right.
+                        {item.key === "whereTo" && "Destination, e.g. Paris, Tokyo, New York"}
+                        {item.key === "whereFrom" && "Departure city, e.g. London, Rome"}
+                        {item.key === "who" && "Solo, couple, family, friends"}
+                        {item.key === "when" && "Dates or month, e.g. Aug 25–27"}
+                        {item.key === "what" && "Food, museums, beach, adventure…"}
                       </p>
                     )}
                   </div>

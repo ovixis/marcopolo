@@ -208,6 +208,18 @@ export function AskMarco() {
     } catch {}
   }, []);
 
+  // Reload config when the window regains focus (e.g. after changing agent in Agents page).
+  useEffect(() => {
+    function onFocus() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setConfig(JSON.parse(saved));
+      } catch {}
+    }
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activity]);

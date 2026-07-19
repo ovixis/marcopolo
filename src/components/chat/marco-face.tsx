@@ -64,7 +64,7 @@ export function MarcoFace({
   return (
     <div
       ref={plateRef}
-      className="relative overflow-hidden rounded-lg"
+      className="relative rounded-lg"
       style={{ background: "#221a11", padding: "10px 12px" }}
       role="img"
       aria-label="ASCII portrait of Marco Polo"
@@ -88,6 +88,8 @@ export function MarcoFace({
           fontWeight: 700,
           color: "#e8d6a6",
           letterSpacing: "0.5px",
+          height: "auto",
+          maxHeight: "none",
         }}
       >
         {MARCO_ASCII.map((line, i) => (

@@ -279,10 +279,10 @@ pub async fn chat(
         if !macos::is_installed(app.mac_app_name) {
             return Err(format!("{} isn't installed on this Mac.", app.label));
         }
-        if !macos::accessibility_trusted() {
+        if !macos::accessibility_trusted_with_prompt() {
             return Err(
-                "Marco Polo needs the Accessibility permission (System Settings → \
-Privacy & Security → Accessibility) to type into your AI app. Grant it, then try again."
+                "Marco Polo needs the Accessibility permission to type into your AI app. \
+                 Grant it in the prompt that just appeared, then try again."
                     .to_owned(),
             );
         }
@@ -356,6 +356,25 @@ mod macos {
     pub fn accessibility_trusted() -> bool {
         // Safety: a plain C predicate with no arguments and no pointers.
         unsafe { AXIsProcessTrusted() != 0 }
+    }
+
+    /// Prompt the user to grant Accessibility permission if not already granted.
+    /// Returns true when trusted.
+    pub fn accessibility_trusted_with_prompt() -> bool {
+        use core_foundation::base::TCFType;
+        use core_foundation::boolean::CFBoolean;
+        use core_foundation::dictionary::CFDictionary;
+        use core_foundation::string::CFString;
+
+        #[link(name = "ApplicationServices", kind = "framework")]
+        extern "C" {
+            fn AXIsProcessTrustedWithOptions(options: *const std::ffi::c_void) -> u8;
+        }
+
+        let key = CFString::new("AXTrustedCheckOptionPrompt");
+        let value = CFBoolean::true_value();
+        let options = CFDictionary::from_CFType_pairs(&[(key, value)]);
+        unsafe { AXIsProcessTrustedWithOptions(options.as_CFTypeRef() as *const _) != 0 }
     }
 
     fn run_osascript(script: &str) -> Result<String, String> {
