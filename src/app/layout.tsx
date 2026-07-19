@@ -37,7 +37,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
-      <body className="h-full overflow-hidden bg-background text-foreground">
+      <body className="dark h-full overflow-hidden bg-background text-foreground">
         <AppShell>{children}</AppShell>
       </body>
     </html>
