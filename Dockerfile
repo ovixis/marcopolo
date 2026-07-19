@@ -7,7 +7,7 @@ RUN npm install -g pnpm
 
 # Copy dependency manifests and install
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source and build the static export
 COPY . .
