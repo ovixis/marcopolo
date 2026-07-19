@@ -110,7 +110,10 @@ export function AgentsSettings() {
     ...installedCli.map((agent) => ({
       id: agent.id,
       label: agent.label,
-      description: "Runs on your existing subscription. No API key.",
+      description:
+        agent.id === "claude-code"
+          ? "Runs on your subscription. Live travel tools via MCP."
+          : "Runs on your subscription. Chat only — no live tools.",
       kind: "cli" as const,
       installed: true,
       active: config.provider === "cli" && config.model === agent.id,
@@ -127,7 +130,7 @@ export function AgentsSettings() {
       runtime.models.map((model) => ({
         id: `${runtime.id}-${model}`,
         label: `${runtime.label} · ${model}`,
-        description: `Local model at ${runtime.baseUrl}`,
+        description: `Local model at ${runtime.baseUrl}. Live travel tools.`,
         kind: "local" as const,
         installed: true,
         active:
@@ -148,7 +151,7 @@ export function AgentsSettings() {
       ? bridgeInstalled.map((app) => ({
           id: app.id,
           label: app.label,
-          description: "Desktop app bridge. Types and reads the reply.",
+          description: "Desktop app bridge. Chat only — no live tools.",
           kind: "bridge" as const,
           installed: true,
           active: config.provider === "bridge" && config.model === app.id,
@@ -203,40 +206,49 @@ export function AgentsSettings() {
             <p className="text-sm text-muted-foreground">Looking for your AI…</p>
           </div>
         ) : items.length > 0 ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {items.map((item) => (
-              <button
-                key={item.id}
-                onClick={item.onSelect}
-                className={cn(
-                  "flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition",
-                  item.active
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-card hover:border-primary/40",
-                )}
-              >
-                <div className="flex w-full items-center gap-2">
-                  {item.kind === "cli" && (
-                    <Terminal className={cn("size-5", item.active ? "text-primary" : "text-muted-foreground")} />
+          <>
+            <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <p className="text-sm font-medium text-primary">Recommended for live travel search</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Claude Code, a local model (Ollama), or your own API key. These can call Marco Polo&apos;s
+                flight and hotel tools directly.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {items.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={item.onSelect}
+                  className={cn(
+                    "flex flex-col items-start gap-2 rounded-xl border p-4 text-left transition",
+                    item.active
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-card hover:border-primary/40",
                   )}
-                  {item.kind === "local" && (
-                    <Cpu className={cn("size-5", item.active ? "text-primary" : "text-muted-foreground")} />
-                  )}
-                  {item.kind === "bridge" && (
-                    <MonitorSmartphone className={cn("size-5", item.active ? "text-primary" : "text-muted-foreground")} />
-                  )}
-                  <span className="font-medium">{item.label}</span>
-                  {item.active && <Check className="ml-auto size-4" />}
-                </div>
-                <span className="text-xs text-muted-foreground">{item.description}</span>
-              </button>
-            ))}
-          </div>
+                >
+                  <div className="flex w-full items-center gap-2">
+                    {item.kind === "cli" && (
+                      <Terminal className={cn("size-5", item.active ? "text-primary" : "text-muted-foreground")} />
+                    )}
+                    {item.kind === "local" && (
+                      <Cpu className={cn("size-5", item.active ? "text-primary" : "text-muted-foreground")} />
+                    )}
+                    {item.kind === "bridge" && (
+                      <MonitorSmartphone className={cn("size-5", item.active ? "text-primary" : "text-muted-foreground")} />
+                    )}
+                    <span className="font-medium">{item.label}</span>
+                    {item.active && <Check className="ml-auto size-4" />}
+                  </div>
+                  <span className="text-xs text-muted-foreground">{item.description}</span>
+                </button>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-6 text-center">
             <p className="text-sm font-medium">No AI detected yet</p>
             <p className="mt-2 text-xs text-muted-foreground">
-              Install Claude Code, Kimi Code, Ollama or another local runtime, then click Rescan.
+              Install Claude Code, Ollama or another local runtime, then click Rescan.
             </p>
           </div>
         )}
