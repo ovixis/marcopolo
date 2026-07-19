@@ -182,6 +182,27 @@ async fn prefetch_travel_data(context: &ToolContext, prompt: &str) -> String {
         }
     }
 
+    // Map city names to IATA codes for the flight search.
+    fn iata(city: &str) -> &str {
+        match city {
+            "paris" => "PAR",
+            "london" => "LON",
+            "rome" => "ROM",
+            "barcelona" => "BCN",
+            "tokyo" => "TYO",
+            "new york" => "NYC",
+            "kyoto" => "UKB",
+            "osaka" => "OSA",
+            "dubai" => "DXB",
+            "bali" => "DPS",
+            "amsterdam" => "AMS",
+            "lisbon" => "LIS",
+            "prague" => "PRG",
+            "sydney" => "SYD",
+            _ => city,
+        }
+    }
+
     // Default date: next month, 2 adults, 2 nights.
     let departure = "2026-08-25";
     let return_date = "2026-08-27";
@@ -190,8 +211,8 @@ async fn prefetch_travel_data(context: &ToolContext, prompt: &str) -> String {
         let flights = context
             .flights
             .search_flights(&FlightSearchQuery {
-                origin: origin.clone(),
-                destination: destination.clone(),
+                origin: iata(&origin).to_owned(),
+                destination: iata(&destination).to_owned(),
                 departure_date: departure.to_owned(),
                 return_date: Some(return_date.to_owned()),
                 adults: 2,
@@ -538,5 +559,36 @@ mod tests {
         assert_eq!(status.os, std::env::consts::OS);
         assert!(status.apps.iter().any(|a| a.id == "claude-desktop"));
         assert!(status.apps.iter().any(|a| a.id == "kimi-desktop"));
+    }
+}
+
+#[cfg(test)]
+mod prefetch_tests {
+    use super::*;
+    use crate::duffel::DuffelClient;
+    use crate::liteapi::LiteApiClient;
+    use std::sync::Arc;
+
+    #[tokio::test]
+    async fn prefetch_extracts_cities_and_fetches_data() {
+        let context = ToolContext {
+            flights: Arc::new(DuffelClient::unconfigured()),
+            hotels: Arc::new(LiteApiClient::unconfigured()),
+        };
+        let data = prefetch_travel_data(&context, "Weekend in Paris from London").await;
+        println!("PREFETCH DATA: {data}");
+        assert!(!data.is_empty());
+        assert!(data.contains("FLIGHTS"));
+        assert!(data.contains("HOTELS"));
+    }
+
+    #[tokio::test]
+    async fn prefetch_ignores_non_travel_prompt() {
+        let context = ToolContext {
+            flights: Arc::new(DuffelClient::unconfigured()),
+            hotels: Arc::new(LiteApiClient::unconfigured()),
+        };
+        let data = prefetch_travel_data(&context, "Hello, how are you?").await;
+        assert!(data.is_empty());
     }
 }
