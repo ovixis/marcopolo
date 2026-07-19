@@ -97,7 +97,7 @@ pub async fn chat(
     // The desktop-app bridge drives an installed AI app instead of an API; it
     // has its own (non-HTTP) path. `request.model` carries the app id.
     if request.provider == "bridge" {
-        return crate::ai_bridge::chat(&request.model, &request.messages).await;
+        return crate::ai_bridge::chat(context, &request.model, &request.messages).await;
     }
     // The CLI-agent connector shells out to an installed AI CLI (Claude Code,
     // Codex, Gemini) on the user's subscription. `request.model` carries the

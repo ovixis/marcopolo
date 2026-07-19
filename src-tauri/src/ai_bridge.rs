@@ -19,6 +19,8 @@
 use serde::Serialize;
 
 use crate::ai::{ChatMessage, ChatReply};
+use crate::tools::ToolContext;
+use crate::types::{FlightSearchQuery, HotelSearchQuery};
 
 /// A desktop AI app we know how to bridge to.
 struct AppSpec {
@@ -145,8 +147,104 @@ bridged answers don't run live flight/hotel search."
     }
 }
 
+/// Extract likely travel parameters from the user prompt and pre-fetch live
+/// flight/hotel data so the desktop app can format a real answer.
+async fn prefetch_travel_data(context: &ToolContext, prompt: &str) -> String {
+    let lower = prompt.to_lowercase();
+
+    // Very lightweight entity extraction: find city pairs and dates.
+    let cities = [
+        "paris",
+        "london",
+        "rome",
+        "barcelona",
+        "tokyo",
+        "new york",
+        "kyoto",
+        "osaka",
+        "dubai",
+        "bali",
+        "amsterdam",
+        "lisbon",
+        "prague",
+        "sydney",
+    ];
+
+    let mut from: Option<String> = None;
+    let mut to: Option<String> = None;
+    for city in cities {
+        if lower.contains(city) {
+            if lower.contains("from") && lower.find(city).unwrap() > lower.find("from").unwrap() {
+                from = Some(city.to_owned());
+            } else if to.is_none() {
+                to = Some(city.to_owned());
+            }
+        }
+    }
+
+    // Default date: next month, 2 adults, 2 nights.
+    let departure = "2026-08-25";
+    let return_date = "2026-08-27";
+
+    if let (Some(origin), Some(destination)) = (from, to) {
+        let flights = context
+            .flights
+            .search_flights(&FlightSearchQuery {
+                origin: origin.clone(),
+                destination: destination.clone(),
+                departure_date: departure.to_owned(),
+                return_date: Some(return_date.to_owned()),
+                adults: 2,
+                children: 0,
+                infants: 0,
+                travel_class: Some("ECONOMY".to_owned()),
+                non_stop: false,
+                currency: Some("EUR".to_owned()),
+            })
+            .await;
+
+        let hotels = context
+            .hotels
+            .search_hotels(&HotelSearchQuery {
+                city: destination.clone(),
+                country_code: "FR".to_owned(), // default; refine later from query
+                check_in: departure.to_owned(),
+                check_out: return_date.to_owned(),
+                adults: 2,
+                children: 0,
+                rooms: 1,
+                currency: Some("EUR".to_owned()),
+            })
+            .await;
+
+        let mut out = String::new();
+        out.push_str("LIVE TRAVEL DATA (use these real prices and names in your answer):\n\n");
+
+        if let Ok(result) = flights {
+            out.push_str("FLIGHTS:\n");
+            out.push_str(&serde_json::to_string_pretty(&result).unwrap_or_default());
+            out.push_str("\n\n");
+        }
+        if let Ok(result) = hotels {
+            out.push_str("HOTELS:\n");
+            out.push_str(&serde_json::to_string_pretty(&result).unwrap_or_default());
+            out.push_str("\n\n");
+        }
+
+        if !out.is_empty() {
+            return out;
+        }
+    }
+
+    String::new()
+}
+
 /// Send the latest user turn to the chosen desktop app and read the reply.
-pub async fn chat(app_id: &str, messages: &[ChatMessage]) -> Result<ChatReply, String> {
+pub async fn chat(
+    context: &ToolContext,
+    app_id: &str,
+    messages: &[ChatMessage],
+) -> Result<ChatReply, String> {
     let prompt = last_user_message(messages)
         .ok_or("Nothing to send.")?
         .to_owned();
@@ -167,11 +265,26 @@ Privacy & Security → Accessibility) to type into your AI app. Grant it, then t
                     .to_owned(),
             );
         }
+
+        // Pre-fetch travel data if this looks like a trip request.
+        let travel_data = prefetch_travel_data(context, &prompt).await;
+        let enriched_prompt = if travel_data.is_empty() {
+            prompt
+        } else {
+            format!(
+                "You are Marco Polo, a travel-planning agent. Use the live data below to build a day-by-day itinerary with a budget table. \
+                 Answer in the language the user writes in.\n\n\
+                 {travel_data}\
+                 User request: {prompt}"
+            )
+        };
+
         let name = app.mac_app_name.to_owned();
-        let text =
-            tauri::async_runtime::spawn_blocking(move || macos::send_and_read(&name, &prompt))
-                .await
-                .map_err(|e| e.to_string())??;
+        let text = tauri::async_runtime::spawn_blocking(move || {
+            macos::send_and_read(&name, &enriched_prompt)
+        })
+        .await
+        .map_err(|e| e.to_string())??;
         Ok(ChatReply {
             text,
             tools_used: Vec::new(),
