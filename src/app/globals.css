@@ -164,12 +164,7 @@
   box-shadow: 0 0 40px rgba(245, 215, 142, 0.1);
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #a7f3d0 60%, #f5d78e 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+
 
 /* Animations */
 @keyframes rise-in {
