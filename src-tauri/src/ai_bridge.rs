@@ -324,8 +324,11 @@ pub async fn chat(
 pub fn open_accessibility_settings() -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {
+        // On macOS Ventura+ the Privacy > Accessibility deep link lands in the
+        // main Accessibility pane, so we open Privacy & Security and let the
+        // user click "Accessibility" in the list.
         std::process::Command::new("open")
-            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy")
             .status()
             .map_err(|e| e.to_string())?;
         Ok(())

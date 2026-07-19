@@ -16,12 +16,10 @@ import { cn } from "@/lib/utils";
 import type {
   AiProvider,
   BridgeStatus,
-  CliAgent,
   LocalRuntime,
 } from "@/lib/tauri";
 import {
   aiBridgeStatus,
-  aiCliDetect,
   aiLocalDetect,
   type BridgeStatus as TauriBridgeStatus,
 } from "@/lib/tauri";
@@ -67,7 +65,6 @@ export function AgentsSettings() {
       baseUrl: "",
     };
   });
-  const [cliAgents, setCliAgents] = useState<CliAgent[] | null>(null);
   const [runtimes, setRuntimes] = useState<LocalRuntime[] | null>(null);
   const [bridge, setBridge] = useState<BridgeStatus | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -79,16 +76,13 @@ export function AgentsSettings() {
   async function scanAll() {
     setScanning(true);
     try {
-      const [cli, local, br] = await Promise.all([
-        aiCliDetect(),
+      const [local, br] = await Promise.all([
         aiLocalDetect(),
         aiBridgeStatus(),
       ]);
-      setCliAgents(cli);
       setRuntimes(local);
       setBridge(br as TauriBridgeStatus);
     } catch {
-      setCliAgents((c) => c ?? []);
       setRuntimes((r) => r ?? []);
     } finally {
       setScanning(false);
