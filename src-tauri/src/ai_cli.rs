@@ -48,6 +48,12 @@ const AGENTS: &[AgentSpec] = &[
         args: &["-p"],
     },
     AgentSpec {
+        id: "kimi-code",
+        label: "Kimi Code",
+        bin: "kimi",
+        args: &["-p"],
+    },
+    AgentSpec {
         id: "codex",
         label: "Codex",
         bin: "codex",
@@ -246,7 +252,7 @@ mod tests {
     #[test]
     fn agents_have_stable_ids() {
         let ids: Vec<&str> = AGENTS.iter().map(|a| a.id).collect();
-        assert_eq!(ids, vec!["claude-code", "codex", "gemini-cli"]);
+        assert_eq!(ids, vec!["claude-code", "kimi-code", "codex", "gemini-cli"]);
     }
 
     #[test]

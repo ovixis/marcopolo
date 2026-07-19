@@ -41,6 +41,11 @@ const APPS: &[AppSpec] = &[
         label: "ChatGPT",
         mac_app_name: "ChatGPT",
     },
+    AppSpec {
+        id: "kimi-desktop",
+        label: "Kimi",
+        mac_app_name: "Kimi",
+    },
 ];
 
 /// A bridge target as reported to the UI. Mirrors `DesktopBridgeApp` in
@@ -416,8 +421,9 @@ mod tests {
     #[tokio::test]
     async fn status_lists_the_known_apps() {
         let status = status().await;
-        assert_eq!(status.apps.len(), 2);
+        assert_eq!(status.apps.len(), 3);
         assert_eq!(status.os, std::env::consts::OS);
         assert!(status.apps.iter().any(|a| a.id == "claude-desktop"));
+        assert!(status.apps.iter().any(|a| a.id == "kimi-desktop"));
     }
 }
