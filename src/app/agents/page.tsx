@@ -7,7 +7,8 @@ export default function AgentsPage() {
     <ComingSoon
       icon={MessageSquare}
       title="Travel Agent Connection"
-      description="Sometimes you want a human expert. Message vetted travel agents without leaving the app."
+      leadIn="A human guide, when you want one."
+      description="Sometimes the maps aren't enough. Message vetted travel agents without leaving the app."
       phase="Weeks 13-14"
       planned={[
         "Browse agent profiles by region and specialty",

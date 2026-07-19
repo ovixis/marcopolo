@@ -7,6 +7,7 @@ export default function PhotosPage() {
     <ComingSoon
       icon={Images}
       title="Photo Gallery"
+      leadIn="The album of the road."
       description="Your trip photos, stored in your own Supabase project — you own the storage."
       phase="Weeks 11-12"
       planned={[

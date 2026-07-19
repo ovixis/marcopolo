@@ -34,6 +34,12 @@ struct AgentSpec {
     args: &'static [&'static str],
 }
 
+// Flag verification (2026-07, against current CLI --help):
+// - claude: `-p` / `--print` → non-interactive output; prompt is a positional.
+// - codex:  `exec` (alias `e`) → non-interactive; prompt is a positional after
+//   `exec`. `--skip-git-repo-check` lets us run from the desktop app cwd;
+//   `--color never` keeps stdout clean for the chat UI.
+// - gemini: `-p` / `--prompt <string>` → headless non-interactive mode.
 const AGENTS: &[AgentSpec] = &[
     AgentSpec {
         id: "claude-code",
@@ -45,7 +51,7 @@ const AGENTS: &[AgentSpec] = &[
         id: "codex",
         label: "Codex",
         bin: "codex",
-        args: &["exec"],
+        args: &["exec", "--skip-git-repo-check", "--color", "never"],
     },
     AgentSpec {
         id: "gemini-cli",

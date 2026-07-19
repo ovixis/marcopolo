@@ -129,7 +129,9 @@ export interface AiChatRequest {
 
 export type AiChatEvent =
   | { type: "toolStart"; name: string; summary: string }
-  | { type: "toolEnd"; name: string; ok: boolean };
+  | { type: "toolEnd"; name: string; ok: boolean }
+  /** Incremental assistant text from a streaming cloud provider. */
+  | { type: "textDelta"; text: string };
 
 export interface AiChatReply {
   text: string;

@@ -7,7 +7,8 @@ export default function BudgetPage() {
     <ComingSoon
       icon={Wallet}
       title="Budget Tracker"
-      description="Real-time trip costs, by category and by day."
+      leadIn="What's the toll for this voyage?"
+      description="Real-time trip costs, by category and by day — so you know what's left before the next booking."
       phase="Weeks 9-10"
       planned={[
         "Set a total budget per trip and watch remaining balance live",

@@ -7,7 +7,8 @@ export default function ExperiencesPage() {
     <ComingSoon
       icon={Ticket}
       title="Experiences"
-      description="Tours, day trips, food crawls, and activities via the Viator partner API."
+      leadIn="What shall we do once we arrive?"
+      description="Tours, day trips, food crawls, and activities — pulled live via the Viator partner API."
       phase="Weeks 5-8"
       planned={[
         "Search by destination and date with category filters",

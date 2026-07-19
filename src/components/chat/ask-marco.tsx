@@ -67,6 +67,8 @@ interface UiMessage {
   content: string;
   tools?: string[];
   error?: boolean;
+  /** True while cloud providers are streaming token-by-token. */
+  streaming?: boolean;
 }
 
 interface Activity {
@@ -260,12 +262,28 @@ export function AskMarco() {
           messages: history,
         },
         (event) => {
+          if (event.type === "textDelta") {
+            setMessages((m) => {
+              const last = m[m.length - 1];
+              if (last?.role === "assistant" && last.streaming) {
+                return [
+                  ...m.slice(0, -1),
+                  { ...last, content: last.content + event.text },
+                ];
+              }
+              return [
+                ...m,
+                { role: "assistant", content: event.text, streaming: true },
+              ];
+            });
+            return;
+          }
           if (event.type === "toolStart") {
             setActivity((a) => [
               ...a,
               { name: event.name, summary: event.summary, done: false, ok: true },
             ]);
-          } else {
+          } else if (event.type === "toolEnd") {
             setActivity((a) => {
               const next = [...a];
               for (let i = next.length - 1; i >= 0; i--) {
@@ -279,15 +297,35 @@ export function AskMarco() {
           }
         },
       );
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: reply.text, tools: reply.toolsUsed },
-      ]);
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        if (last?.role === "assistant" && last.streaming) {
+          return [
+            ...m.slice(0, -1),
+            {
+              role: "assistant",
+              content: reply.text || last.content,
+              tools: reply.toolsUsed,
+            },
+          ];
+        }
+        return [
+          ...m,
+          { role: "assistant", content: reply.text, tools: reply.toolsUsed },
+        ];
+      });
     } catch (err) {
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: toBackendError(err).message, error: true },
-      ]);
+      setMessages((m) => {
+        // Drop a partial stream bubble on error so the error stands alone.
+        const base =
+          m[m.length - 1]?.role === "assistant" && m[m.length - 1]?.streaming
+            ? m.slice(0, -1)
+            : m;
+        return [
+          ...base,
+          { role: "assistant", content: toBackendError(err).message, error: true },
+        ];
+      });
     } finally {
       setSending(false);
       setActivity([]);
@@ -692,7 +730,11 @@ export function AskMarco() {
             ),
           )}
 
-          {sending && (
+          {sending &&
+            !(
+              messages[messages.length - 1]?.role === "assistant" &&
+              messages[messages.length - 1]?.streaming
+            ) && (
             <div className="rise-in self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
