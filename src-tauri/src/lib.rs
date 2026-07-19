@@ -144,6 +144,7 @@ pub fn run() {
             // Background MCP server: lets external AI clients (Claude,
             // ChatGPT, Grok, Kimi, …) use Marco Polo's travel search.
             tauri::async_runtime::spawn(mcp::serve(mcp_state));
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

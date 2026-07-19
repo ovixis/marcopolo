@@ -26,6 +26,8 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 tokio = { version = "1", features = ["sync", "process", "io-util", "rt"] }
 dotenvy = "0.15"
 axum = "0.8"
+dirs = "5"
+fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["sync", "rt", "macros"] }

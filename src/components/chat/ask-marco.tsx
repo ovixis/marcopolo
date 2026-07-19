@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CircleCheck, CircleX, Loader2 } from "lucide-react";
 import gsap from "gsap";
@@ -239,6 +240,12 @@ export function AskMarco() {
   }, [connected, aiStatusLabel, setAiConnected]);
 
   useEffect(() => {
+    if (showAiConnect && cliAgents === null && !scanning) {
+      void scanAll();
+    }
+  }, [showAiConnect, cliAgents, scanning]);
+
+  useEffect(() => {
     const hasDetails = details.some((d) => d.captured);
     if (hasDetails || sending) {
       setTripPanelOpen(true);
@@ -267,8 +274,11 @@ export function AskMarco() {
   }
 
   function openConnect() {
-    openAiConnect();
-    if (cliAgents === null && !scanning) void scanAll();
+    if (cliAgents === null && !scanning) {
+      void scanAll().then(() => openAiConnect());
+    } else {
+      openAiConnect();
+    }
   }
 
   async function send(text?: string) {
@@ -405,8 +415,14 @@ export function AskMarco() {
                   ) && (
                     <div data-message className="px-4 py-5 sm:px-6 lg:px-8">
                       <div className="mx-auto flex max-w-2xl gap-4">
-                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                          M
+                        <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
+                          <Image
+                            src="/logo.svg"
+                            alt=""
+                            width={32}
+                            height={32}
+                            className="size-full object-contain"
+                          />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Compass, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AppHeaderProps {
@@ -20,8 +21,15 @@ export function AppHeader({
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
       <Link href="/" className="group flex items-center gap-2.5">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20 transition group-hover:shadow-primary/30">
-          <Compass className="size-5" aria-hidden />
+        <span className="flex size-9 items-center justify-center overflow-hidden rounded-xl bg-primary/10 ring-1 ring-primary/20 shadow-sm shadow-primary/10 transition group-hover:shadow-primary/20">
+          <Image
+            src="/logo.svg"
+            alt="Marco Polo logo"
+            width={36}
+            height={36}
+            priority
+            className="size-full object-contain"
+          />
         </span>
         <span className="font-serif text-xl font-medium tracking-tight">
           Marco Polo

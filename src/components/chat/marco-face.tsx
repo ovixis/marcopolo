@@ -1,107 +1,100 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import gsap from "gsap";
 
-import { useReducedMotion } from "@/components/animation/use-reduced-motion";
+import { MARCO_ASCII } from "./marco-ascii";
 
 /**
- * Marco Polo portrait plate. A crisp Floyd–Steinberg-dithered duotone rendered
- * from a public-domain ~1600 portrait. GSAP handles the entrance and a layered
- * "thinking" animation: breathing opacity, a subtle scale pulse, and a ripple
- * ring that expands behind the frame.
+ * Marco Polo as an ASCII portrait plate — luminance-ramped from a public-domain
+ * ~1600 portrait (see marco-ascii.ts for the source + license), rendered
+ * light-on-dark like a sepia daguerreotype in an explorer's journal. GSAP fades
+ * it in and pulses it while Marco is "thinking".
  */
 export function MarcoFace({
   thinking = false,
-  width = 120,
+  size = 4.6,
 }: {
   thinking?: boolean;
-  /** rendered width in px (image is portrait, height follows) */
-  width?: number;
+  /** monospace font-size in px — controls the plate's overall scale */
+  size?: number;
 }) {
-  const frameRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
+  const plateRef = useRef<HTMLDivElement>(null);
+  const artRef = useRef<HTMLDivElement>(null);
+  const pulseRef = useRef<gsap.core.Tween | null>(null);
 
   useEffect(() => {
-    const frame = frameRef.current;
-    if (!frame) return;
-    if (reduced) {
-      gsap.set(frame, { opacity: 1, scale: 1 });
+    const plate = plateRef.current;
+    if (!plate) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.set(plate, { opacity: 1, scale: 1 });
       return;
     }
-    const tween = gsap.from(frame, {
+    const tween = gsap.from(plate, {
       opacity: 0,
-      scale: 0.92,
+      scale: 0.94,
       duration: 0.7,
       ease: "power3.out",
     });
     return () => {
       tween.kill();
     };
-  }, [reduced]);
+  }, []);
 
   useEffect(() => {
-    const img = imgRef.current;
-    const ring = ringRef.current;
-    if (!img) return;
-
-    const ctx = gsap.context(() => {
-      if (thinking && !reduced) {
-        gsap.to(img, {
-          opacity: 0.72,
-          scale: 1.03,
-          duration: 1.2,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
-        });
-        if (ring) {
-          gsap.fromTo(
-            ring,
-            { scale: 0.8, opacity: 0.45 },
-            {
-              scale: 1.5,
-              opacity: 0,
-              duration: 1.6,
-              repeat: -1,
-              ease: "power1.out",
-            },
-          );
-        }
-      } else {
-        gsap.to(img, { opacity: 1, scale: 1, duration: 0.4, ease: "power2.out" });
-        if (ring) gsap.set(ring, { scale: 0.8, opacity: 0 });
-      }
-    });
-
+    const art = artRef.current;
+    if (!art) return;
+    pulseRef.current?.kill();
+    if (thinking && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      pulseRef.current = gsap.to(art, {
+        opacity: 0.55,
+        duration: 0.7,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+    } else {
+      pulseRef.current = gsap.to(art, { opacity: 1, duration: 0.4 });
+    }
     return () => {
-      ctx.revert();
+      pulseRef.current?.kill();
     };
-  }, [thinking, reduced]);
+  }, [thinking]);
 
   return (
     <div
-      ref={frameRef}
-      className="relative shrink-0 overflow-hidden rounded-xl border border-[#c9bfa8] bg-[#efe6d3] p-1 shadow-sm"
-      style={{ width }}
+      ref={plateRef}
+      className="relative overflow-hidden rounded-lg"
+      style={{ background: "#221a11", padding: "10px 12px" }}
+      role="img"
+      aria-label="ASCII portrait of Marco Polo"
     >
+      {/* warm vignette */}
       <div
-        ref={ringRef}
-        className="pointer-events-none absolute inset-0 rounded-xl bg-primary/20"
-        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          boxShadow: "inset 0 0 26px rgba(0,0,0,0.55)",
+          background:
+            "radial-gradient(ellipse at 50% 38%, rgba(232,214,166,0.06), transparent 70%)",
+        }}
       />
-      <div ref={imgRef} className="relative overflow-hidden rounded-lg">
-        <Image
-          src="/marco-portrait.png"
-          alt="Portrait of Marco Polo"
-          width={240}
-          height={324}
-          className="h-auto w-full select-none"
-          priority
-        />
+      <div
+        ref={artRef}
+        className="relative select-none"
+        style={{
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          fontSize: `${size}px`,
+          lineHeight: `${size}px`,
+          fontWeight: 700,
+          color: "#e8d6a6",
+          letterSpacing: "0.5px",
+        }}
+      >
+        {MARCO_ASCII.map((line, i) => (
+          <pre key={i} className="m-0 whitespace-pre">
+            {line || " "}
+          </pre>
+        ))}
       </div>
     </div>
   );

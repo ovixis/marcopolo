@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Sparkles, Shield, Zap, Wallet } from "lucide-react";
+import { Shield, Zap, Wallet } from "lucide-react";
 import gsap from "gsap";
 
 import { SuggestionPills } from "./suggestion-pills";
+import { MarcoFace } from "./marco-face";
 import { GlobeScene } from "@/components/scenes/globe-scene";
 import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 
@@ -72,12 +73,12 @@ export function ChatHero({ onSuggestion }: ChatHeroProps) {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-2xl text-center">
-        <div className="hero-title mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-lg shadow-primary/10">
-          <Sparkles className="size-8" />
+        <div className="hero-title mb-6 flex justify-center">
+          <MarcoFace size={5.4} />
         </div>
 
         <h1 className="hero-title font-serif text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl">
-          Where shall we go <span className="text-gradient">today?</span>
+          Where shall we go <span className="text-primary">today?</span>
         </h1>
 
         <p className="hero-subtitle mx-auto mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">

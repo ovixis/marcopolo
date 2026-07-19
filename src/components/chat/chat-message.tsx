@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Wrench } from "lucide-react";
@@ -43,8 +44,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
       )}
     >
       <div className="mx-auto flex max-w-2xl gap-4">
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-          M
+        <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
+          <Image
+            src="/logo.svg"
+            alt=""
+            width={32}
+            height={32}
+            className="size-full object-contain"
+          />
         </div>
         <div className="min-w-0 flex-1">
           {message.tools && message.tools.length > 0 && (

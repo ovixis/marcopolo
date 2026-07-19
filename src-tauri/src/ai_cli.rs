@@ -95,11 +95,27 @@ fn resolve(bin: &str) -> Option<String> {
         .arg(format!("command -v {bin}"))
         .output()
         .ok()?;
-    if !output.status.success() {
-        return None;
+    if output.status.success() {
+        let path = String::from_utf8_lossy(&output.stdout).trim().to_owned();
+        if !path.is_empty() {
+            return Some(path);
+        }
     }
-    let path = String::from_utf8_lossy(&output.stdout).trim().to_owned();
-    (!path.is_empty()).then_some(path)
+
+    // GUI apps (especially Tauri bundles) may see a stripped PATH. Fall back
+    // to the usual macOS user-install locations.
+    let home = dirs::home_dir()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_default();
+    let candidates = [
+        format!("{home}/.local/bin/{bin}"),
+        format!("{home}/bin/{bin}"),
+        format!("/usr/local/bin/{bin}"),
+        format!("/opt/homebrew/bin/{bin}"),
+    ];
+    candidates
+        .into_iter()
+        .find(|candidate| std::path::Path::new(candidate).exists())
 }
 
 pub async fn detect() -> Vec<CliAgent> {
