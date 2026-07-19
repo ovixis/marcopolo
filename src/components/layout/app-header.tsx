@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Moon, Plus, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAppState } from "./app-shell";
 
 interface AppHeaderProps {
   connected: boolean;
@@ -18,6 +19,8 @@ export function AppHeader({
   onOpenConnect,
   onNewTrip,
 }: AppHeaderProps) {
+  const { theme, toggleTheme } = useAppState();
+
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
       <Link href="/" className="group flex items-center gap-2.5">
@@ -61,6 +64,14 @@ export function AppHeader({
             )}
           />
           {connected ? aiLabel ?? "AI connected" : "Connect AI"}
+        </button>
+
+        <button
+          onClick={toggleTheme}
+          className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
         </button>
 
         <div className="flex size-9 items-center justify-center rounded-full border border-border bg-secondary text-sm font-semibold text-secondary-foreground">

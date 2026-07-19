@@ -413,14 +413,14 @@ export function AskMarco() {
                     messages[messages.length - 1]?.role === "assistant" &&
                     messages[messages.length - 1]?.streaming
                   ) && (
-                    <div data-message className="px-4 py-5 sm:px-6 lg:px-8">
-                      <div className="mx-auto flex max-w-2xl gap-4">
-                        <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
+                    <div data-message className="px-6 py-6 sm:px-8">
+                      <div className="mx-auto flex max-w-3xl gap-5">
+                        <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
                           <Image
                             src="/logo.svg"
                             alt=""
-                            width={32}
-                            height={32}
+                            width={36}
+                            height={36}
                             className="size-full object-contain"
                           />
                         </div>
@@ -438,27 +438,27 @@ export function AskMarco() {
                             </span>
                           </div>
                           {activity.length > 0 && (
-                            <ul className="mt-2 flex flex-col gap-1.5">
+                            <ul className="mt-3 flex flex-col gap-2">
                               {activity.map((item, index) => (
                                 <li
                                   key={index}
-                                  className="flex items-center gap-2 text-xs text-muted-foreground"
+                                  className="flex items-center gap-2 text-sm text-muted-foreground"
                                 >
                                   {item.done ? (
                                     item.ok ? (
                                       <CircleCheck
-                                        className="size-3.5 text-emerald-500"
+                                        className="size-4 text-emerald-500"
                                         aria-hidden
                                       />
                                     ) : (
                                       <CircleX
-                                        className="size-3.5 text-destructive"
+                                        className="size-4 text-destructive"
                                         aria-hidden
                                       />
                                     )
                                   ) : (
                                     <Loader2
-                                      className="size-3.5 animate-spin text-primary"
+                                      className="size-4 animate-spin text-primary"
                                       aria-hidden
                                     />
                                   )}

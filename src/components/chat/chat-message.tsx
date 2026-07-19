@@ -28,8 +28,8 @@ interface ChatMessageProps {
 export function ChatMessage({ message }: ChatMessageProps) {
   if (message.role === "user") {
     return (
-      <div className="flex justify-end px-4 py-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl rounded-2xl rounded-br-md bg-secondary px-5 py-3 text-[15px] text-secondary-foreground shadow-sm">
+      <div className="flex justify-end px-6 py-5 sm:px-8">
+        <div className="max-w-2xl rounded-2xl rounded-br-md bg-secondary px-6 py-4 text-base text-secondary-foreground shadow-sm">
           {message.content}
         </div>
       </div>
@@ -39,17 +39,17 @@ export function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        "px-4 py-5 sm:px-6 lg:px-8",
+        "px-6 py-6 sm:px-8",
         message.error ? "bg-destructive/5" : "",
       )}
     >
-      <div className="mx-auto flex max-w-2xl gap-4">
-        <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
+      <div className="mx-auto flex max-w-3xl gap-5">
+        <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
           <Image
             src="/logo.svg"
             alt=""
-            width={32}
-            height={32}
+            width={36}
+            height={36}
             className="size-full object-contain"
           />
         </div>
@@ -69,7 +69,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
           )}
           <div
             className={cn(
-              "chat-markdown text-[15px] leading-relaxed",
+              "chat-markdown text-base leading-relaxed",
               message.error && "text-destructive",
             )}
           >

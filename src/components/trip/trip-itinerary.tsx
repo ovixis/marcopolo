@@ -60,8 +60,8 @@ export function TripItinerary({
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".itinerary-section",
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, ease: "power3.out" },
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power3.out" },
       );
     }, panelRef);
     return () => ctx.revert();
@@ -70,21 +70,21 @@ export function TripItinerary({
   return (
     <div ref={panelRef} className="flex h-full flex-col overflow-y-auto">
       {/* header */}
-      <div className="itinerary-section border-b border-border px-5 py-4">
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+      <div className="itinerary-section border-b border-border px-6 py-5">
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
           {dates ?? "Aug 25–27"} · {travellers ?? "2 travellers"}
         </p>
-        <h2 className="mt-1 font-serif text-3xl font-medium leading-tight">
+        <h2 className="mt-2 font-serif text-3xl font-medium leading-tight sm:text-4xl">
           {title}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-muted-foreground">
           {from} → {to}
         </p>
       </div>
 
       {/* metrics */}
-      <div className="itinerary-section border-b border-border px-5 py-3">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+      <div className="itinerary-section border-b border-border px-6 py-4">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <Calendar className="size-4 text-primary" />
             <span className="font-medium text-foreground">2</span> days
@@ -109,7 +109,7 @@ export function TripItinerary({
       </div>
 
       {/* route map */}
-      <div className="itinerary-section border-b border-border px-5 py-4">
+      <div className="itinerary-section border-b border-border px-6 py-5">
         <div className="relative aspect-[16/9] overflow-hidden rounded-xl border border-border bg-card/50">
           <svg
             className="absolute inset-0 size-full"
@@ -127,8 +127,8 @@ export function TripItinerary({
                 />
               </pattern>
               <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#19c59f" />
-                <stop offset="100%" stopColor="#f5d78e" />
+                <stop offset="0%" stopColor="var(--primary)" />
+                <stop offset="100%" stopColor="var(--accent)" />
               </linearGradient>
             </defs>
             <rect width="400" height="220" fill="url(#it-grid)" />
@@ -145,46 +145,46 @@ export function TripItinerary({
               strokeDasharray="8 6"
               className="route-dash"
             />
-            <circle cx="110" cy="75" r="6" fill="#19c59f" />
-            <circle cx="290" cy="145" r="8" fill="#f5d78e" />
+            <circle cx="110" cy="75" r="6" fill="var(--primary)" />
+            <circle cx="290" cy="145" r="8" fill="var(--accent)" />
           </svg>
-          <div className="absolute left-3 top-3 rounded-md bg-card/90 px-2 py-1 text-xs font-medium">
+          <div className="absolute left-3 top-3 rounded-md bg-card/90 px-2.5 py-1 text-xs font-medium">
             {from}
           </div>
-          <div className="absolute bottom-3 right-3 rounded-md bg-card/90 px-2 py-1 text-xs font-medium">
+          <div className="absolute bottom-3 right-3 rounded-md bg-card/90 px-2.5 py-1 text-xs font-medium">
             {to}
           </div>
         </div>
       </div>
 
       {/* daily timeline */}
-      <div className="itinerary-section border-b border-border px-5 py-4">
-        <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      <div className="itinerary-section border-b border-border px-6 py-5">
+        <h3 className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Itinerary
         </h3>
-        <div className="relative space-y-6 pl-6">
-          <div className="absolute left-[9px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/50 via-border to-transparent" />
+        <div className="relative space-y-8 pl-7">
+          <div className="absolute left-[10px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/50 via-border to-transparent" />
           {DAYS.map((day) => (
             <div key={day.day} className="relative">
-              <div className="absolute -left-6 top-0.5 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+              <div className="absolute -left-7 top-0.5 flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                 {day.day}
               </div>
               <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                 Day {day.day}
               </p>
-              <h4 className="font-medium">{day.title}</h4>
-              <div className="mt-2 space-y-2">
+              <h4 className="mt-1 text-lg font-medium">{day.title}</h4>
+              <div className="mt-3 space-y-3">
                 {day.items.map((item, idx) => (
                   <div
                     key={idx}
-                    className="flex items-start gap-2 rounded-lg border border-border bg-card/40 p-2.5"
+                    className="flex items-start gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm transition hover:shadow-md"
                   >
-                    <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary">
-                      <item.icon className="size-3.5 text-primary" />
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                      <item.icon className="size-4 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs font-medium text-muted-foreground">{item.label}</p>
-                      <p className="text-sm">{item.text}</p>
+                      <p className="mt-0.5 text-sm leading-relaxed">{item.text}</p>
                     </div>
                   </div>
                 ))}
@@ -195,54 +195,54 @@ export function TripItinerary({
       </div>
 
       {/* transport card */}
-      <div className="itinerary-section border-b border-border px-5 py-4">
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      <div className="itinerary-section border-b border-border px-6 py-5">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Transport
             </span>
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="size-3" />
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="size-3.5" />
               2h 15m
             </span>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-center">
-              <p className="text-lg font-medium">{from}</p>
-              <p className="text-xs text-muted-foreground">Aug 25</p>
+              <p className="text-xl font-medium">{from}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Aug 25</p>
             </div>
-            <div className="flex flex-1 flex-col items-center px-4">
+            <div className="flex flex-1 flex-col items-center px-6">
               <div className="relative h-px w-full bg-border">
-                <div className="absolute left-0 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-primary" />
-                <div className="absolute right-0 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-accent" />
+                <div className="absolute left-0 top-1/2 size-2 -translate-y-1/2 rounded-full bg-primary" />
+                <div className="absolute right-0 top-1/2 size-2 -translate-y-1/2 rounded-full bg-accent" />
               </div>
-              <Bus className="mt-2 size-4 text-muted-foreground" />
+              <Bus className="mt-3 size-4 text-muted-foreground" />
             </div>
             <div className="text-center">
-              <p className="text-lg font-medium">{to}</p>
-              <p className="text-xs text-muted-foreground">Aug 25</p>
+              <p className="text-xl font-medium">{to}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Aug 25</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* price + actions */}
-      <div className="itinerary-section mt-auto px-5 py-4">
-        <div className="mb-4 flex items-end justify-between">
+      <div className="itinerary-section mt-auto px-6 py-5">
+        <div className="mb-5 flex items-end justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Estimated total</p>
-            <p className="text-3xl font-medium text-primary">€444</p>
+            <p className="mt-1 font-mono text-3xl font-medium text-primary">€444</p>
           </div>
           <p className="text-xs text-muted-foreground">
             {travellers ?? "2 travellers"} · {dates ?? "Aug 25–27"}
           </p>
         </div>
-        <div className="flex gap-2">
-          <button className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium transition hover:bg-muted">
+        <div className="flex gap-3">
+          <button className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium transition hover:bg-muted">
             <Download className="size-4" />
             Download
           </button>
-          <button className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90">
+          <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90">
             <Wallet className="size-4" />
             Book
           </button>

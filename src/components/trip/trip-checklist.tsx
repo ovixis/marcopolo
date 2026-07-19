@@ -43,9 +43,9 @@ export function TripChecklist({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-border p-5">
-        <div className="mb-3 flex items-center gap-3">
-          <div className="relative grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+      <div className="border-b border-border p-6">
+        <div className="flex items-center gap-4">
+          <div className="relative grid size-14 place-items-center rounded-full bg-primary/10 text-primary">
             <span className="text-sm font-bold">{progress}%</span>
             <svg
               className="absolute inset-0 size-full -rotate-90"
@@ -70,39 +70,39 @@ export function TripChecklist({
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Trip checklist
             </h3>
-            <p className="text-lg font-medium">
+            <p className="mt-1 text-xl font-medium">
               {captured === total
                 ? "Ready to plan"
                 : "Your trip is taking shape"}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               {captured} of {total} captured
             </p>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto p-5">
+        <div className="space-y-4">
           {details.map((item) => {
             const Icon = ICONS[item.key];
             return (
               <div
                 key={item.key}
                 className={cn(
-                  "rounded-xl border p-3 transition",
+                  "rounded-xl border p-4 transition",
                   item.captured
                     ? "border-primary/30 bg-primary/5"
                     : "border-border bg-card",
                 )}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-4">
                   <div
                     className={cn(
-                      "flex size-8 shrink-0 items-center justify-center rounded-full",
+                      "flex size-9 shrink-0 items-center justify-center rounded-full",
                       item.captured
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground",
@@ -126,11 +126,11 @@ export function TripChecklist({
                       {item.label}
                     </p>
                     {item.captured && item.value ? (
-                      <p className="mt-1 text-sm font-medium text-foreground">
+                      <p className="mt-1.5 text-sm font-medium text-foreground">
                         {item.value}
                       </p>
                     ) : (
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-1.5 text-xs text-muted-foreground">
                         Marco will ask when the time is right.
                       </p>
                     )}
@@ -143,15 +143,15 @@ export function TripChecklist({
       </div>
 
       {canGenerate && (
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border p-5">
           <button
             onClick={onGenerate}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
           >
             <Wallet className="size-4" />
             Generate my trip
           </button>
-          <p className="mt-2 text-center text-[11px] text-muted-foreground">
+          <p className="mt-3 text-center text-xs text-muted-foreground">
             Marco fills anything missing and starts planning.
           </p>
         </div>

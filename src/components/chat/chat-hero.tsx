@@ -6,7 +6,6 @@ import gsap from "gsap";
 
 import { SuggestionPills } from "./suggestion-pills";
 import { MarcoFace } from "./marco-face";
-import { GlobeScene } from "@/components/scenes/globe-scene";
 import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 
 interface ChatHeroProps {
@@ -34,29 +33,24 @@ export function ChatHero({ onSuggestion }: ChatHeroProps) {
     if (reduced) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
-        ".hero-globe",
-        { opacity: 0, scale: 0.92 },
-        { opacity: 1, scale: 1, duration: 1, ease: "power3.out" },
-      );
-      gsap.fromTo(
         ".hero-title",
         { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", delay: 0.15 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", delay: 0.1 },
       );
       gsap.fromTo(
         ".hero-subtitle",
         { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.3 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.25 },
       );
       gsap.fromTo(
         ".hero-badge",
         { opacity: 0, y: 12, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.08, ease: "back.out(1.4)", delay: 0.45 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.4, stagger: 0.06, ease: "back.out(1.4)", delay: 0.4 },
       );
       gsap.fromTo(
         ".hero-pills",
         { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", delay: 0.75 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out", delay: 0.6 },
       );
     }, containerRef);
     return () => ctx.revert();
@@ -65,32 +59,27 @@ export function ChatHero({ onSuggestion }: ChatHeroProps) {
   return (
     <div
       ref={containerRef}
-      className="relative flex h-full flex-col items-center justify-center px-6 pb-4"
+      className="relative flex h-full flex-col items-center justify-center px-6 pb-8"
     >
-      {/* globe backdrop */}
-      <div className="hero-globe pointer-events-none absolute inset-0 opacity-60">
-        <GlobeScene />
-      </div>
-
-      <div className="relative z-10 mx-auto w-full max-w-2xl text-center">
-        <div className="hero-title mb-6 flex justify-center">
-          <MarcoFace size={5.4} />
+      <div className="relative z-10 mx-auto w-full max-w-3xl text-center">
+        <div className="hero-title mb-8 flex justify-center">
+          <MarcoFace size={5.6} />
         </div>
 
-        <h1 className="hero-title font-serif text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl">
+        <h1 className="hero-title font-serif text-5xl leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl">
           Where shall we go <span className="text-primary">today?</span>
         </h1>
 
-        <p className="hero-subtitle mx-auto mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
+        <p className="hero-subtitle mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
           Marco Polo is your open-source travel command center. Connect your
           own AI and plan trips without new subscriptions or API keys.
         </p>
 
-        <div className="hero-subtitle mt-8 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+        <div className="hero-subtitle mt-10 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
           {BADGES.map((badge) => (
             <span
               key={badge.label}
-              className="hero-badge inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3.5 py-1.5 backdrop-blur-sm"
+              className="hero-badge inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2"
             >
               <badge.icon className="size-4 text-primary" />
               {badge.label}
@@ -99,7 +88,7 @@ export function ChatHero({ onSuggestion }: ChatHeroProps) {
         </div>
       </div>
 
-      <div className="hero-pills relative z-10 mt-10">
+      <div className="hero-pills relative z-10 mt-12">
         <SuggestionPills suggestions={SUGGESTIONS} onSelect={onSuggestion} />
       </div>
     </div>

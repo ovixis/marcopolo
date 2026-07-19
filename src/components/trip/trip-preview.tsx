@@ -38,9 +38,9 @@ export function TripGenerationProgress() {
   }, []);
 
   return (
-    <div className="space-y-3 p-5">
-      <p className="text-sm font-medium">Marco is building your trip…</p>
-      <div className="space-y-2">
+    <div className="space-y-4 p-6">
+      <p className="text-base font-medium">Marco is building your trip…</p>
+      <div className="space-y-3">
         {STEPS.map((s, index) => {
           const done = index <= step;
           const active = index === step;
@@ -48,7 +48,7 @@ export function TripGenerationProgress() {
             <div
               key={s.id}
               className={cn(
-                "flex items-center gap-2 text-sm transition",
+                "flex items-center gap-3 text-sm transition",
                 done ? "text-foreground" : "text-muted-foreground",
               )}
             >

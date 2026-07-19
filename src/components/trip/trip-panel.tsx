@@ -45,7 +45,7 @@ export function TripPanel({
         className={`
           absolute right-0 top-0 z-50 h-full w-full transform border-l border-border bg-card shadow-2xl
           transition-transform duration-300 ease-out
-          lg:relative lg:w-[380px] lg:translate-x-0 lg:shadow-none
+          lg:relative lg:w-[420px] lg:translate-x-0 lg:shadow-none
           ${open ? "translate-x-0" : "translate-x-full"}
         `}
       >

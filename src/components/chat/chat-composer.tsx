@@ -19,17 +19,17 @@ export function ChatComposer({
   placeholder,
 }: ChatComposerProps) {
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      <div className="flex items-end gap-2 rounded-2xl border border-border bg-card p-2 shadow-lg transition focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20">
+    <div className="mx-auto w-full max-w-3xl">
+      <div className="flex items-end gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20">
         <button
           type="button"
-          className="flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="flex size-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
           aria-label="Attach"
         >
           <Paperclip className="size-5" />
         </button>
         <textarea
-          className="max-h-40 min-h-[52px] flex-1 resize-none bg-transparent px-2 py-3 text-[15px] text-foreground placeholder:text-muted-foreground outline-none"
+          className="max-h-40 min-h-[56px] flex-1 resize-none bg-transparent px-2 py-3 text-base text-foreground placeholder:text-muted-foreground outline-none"
           rows={1}
           placeholder={placeholder ?? "Ask Marco…"}
           value={value}
@@ -44,7 +44,7 @@ export function ChatComposer({
         />
         <button
           type="button"
-          className="flex size-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="flex size-10 shrink-0 items-center justify-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground"
           aria-label="Voice"
         >
           <Mic className="size-5" />
@@ -54,14 +54,14 @@ export function ChatComposer({
           onClick={onSend}
           disabled={disabled || value.trim().length === 0}
           className={cn(
-            "flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40",
+            "flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40",
           )}
           aria-label="Send"
         >
           <ArrowUp className="size-5" />
         </button>
       </div>
-      <p className="mt-2 text-center text-[11px] text-muted-foreground">
+      <p className="mt-3 text-center text-xs text-muted-foreground">
         Marco uses your local AI. No data leaves your device unless you use a cloud key.
       </p>
     </div>

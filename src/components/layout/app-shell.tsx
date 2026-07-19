@@ -33,6 +33,8 @@ interface AppState {
   terminalCommand?: string;
   openTerminal: (command?: string) => void;
   closeTerminal: () => void;
+  theme: "dark" | "light";
+  toggleTheme: () => void;
 }
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -72,12 +74,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [showAiConnect, setShowAiConnect] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [terminalCommand, setTerminalCommand] = useState<string | undefined>();
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "light" || saved === "dark") return saved;
+    return window.matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark";
+  });
+
+  function applyTheme(t: "dark" | "light") {
+    if (t === "light") {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+  }
 
   useEffect(() => {
-    try {
-      localStorage.setItem(THEME_KEY, "dark");
-    } catch {}
-    document.documentElement.classList.remove("light");
+    applyTheme(theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((current) => {
+      const next = current === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch {}
+      return next;
+    });
   }, []);
 
   useEffect(() => {
@@ -136,6 +161,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         terminalCommand,
         openTerminal,
         closeTerminal,
+        theme,
+        toggleTheme,
       }}
     >
       <div className="flex h-screen w-screen flex-col overflow-hidden bg-background text-foreground">
