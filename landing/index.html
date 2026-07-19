@@ -3,141 +3,139 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Marco Polo — the open-source travel companion</title>
-<meta name="description" content="Open-source travel aggregator: flights, hotels, experiences, and trip planning in one desktop app. Bring your own AI — even with no API key." />
+<title>Marco Polo — open-source travel companion</title>
+<meta name="description" content="Open-source travel aggregator: flights, hotels, experiences, and trip planning in one desktop app. Bring your own AI — no API key needed." />
 <link rel="icon" href="logo.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bg:#eae2d6; --ink:#2c2a20; --paper:#f5f0e5; --paper-2:#efe8da;
-    --primary:#55692f; --primary-ink:#f5f0e5; --primary-strong:#455624;
-    --sage:#dce3ce; --accent:#d9e1cb; --muted:#6a6353;
-    --border:rgba(44,42,32,.14); --border-2:rgba(44,42,32,.08);
-    --silver:#c1c7cf;
+    --bg:#0a0a0a; --ink:#f2f2f2; --muted:#9aa0a6;
+    --card:#111111; --card-2:#1a1a1a;
+    --primary:#19c59f; --primary-ink:#000000;
+    --accent:#f5d78e;
+    --border:rgba(255,255,255,.08); --border-2:rgba(255,255,255,.05);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
     margin:0; background:var(--bg); color:var(--ink);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased;
+    font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
     background-image:
-      radial-gradient(60rem 40rem at 82% -8%, rgba(85,105,47,.10), transparent 60%),
-      radial-gradient(50rem 40rem at -5% 8%, rgba(180,192,150,.18), transparent 55%);
+      radial-gradient(60rem 40rem at 82% -8%, rgba(25,197,159,.06), transparent 60%),
+      radial-gradient(50rem 40rem at -5% 8%, rgba(245,215,142,.04), transparent 55%);
     background-attachment:fixed;
   }
   .serif{font-family:"Fraunces",Georgia,"Times New Roman",serif; font-optical-sizing:auto;}
-  .wrap{max-width:1120px; margin:0 auto; padding:0 24px}
+  .wrap{max-width:1200px; margin:0 auto; padding:0 32px}
   a{color:inherit; text-decoration:none}
   h1,h2,h3{margin:0; letter-spacing:-.01em}
   p{margin:0}
 
   /* nav */
-  header{position:sticky; top:0; z-index:20; backdrop-filter:saturate(1.2) blur(8px);
-    background:rgba(234,226,214,.72); border-bottom:1px solid var(--border-2)}
-  nav{display:flex; align-items:center; gap:20px; height:66px}
-  .brand{display:flex; align-items:center; gap:11px; font-weight:600}
-  .brand img{width:32px; height:32px}
-  .brand .serif{font-size:21px}
-  .nav-links{display:flex; gap:26px; margin-left:12px; color:var(--muted); font-size:15px}
+  header{position:sticky; top:0; z-index:20; backdrop-filter:saturate(1.2) blur(12px);
+    background:rgba(10,10,10,.72); border-bottom:1px solid var(--border-2)}
+  nav{display:flex; align-items:center; gap:24px; height:72px}
+  .brand{display:flex; align-items:center; gap:12px; font-weight:600}
+  .brand img{width:34px; height:34px}
+  .brand .serif{font-size:22px}
+  .nav-links{display:flex; gap:28px; margin-left:16px; color:var(--muted); font-size:15px}
   .nav-links a:hover{color:var(--ink)}
-  .nav-cta{margin-left:auto; display:flex; gap:10px; align-items:center}
+  .nav-cta{margin-left:auto; display:flex; gap:12px; align-items:center}
   @media(max-width:760px){ .nav-links{display:none} }
 
-  .btn{display:inline-flex; align-items:center; gap:9px; border-radius:11px;
-    padding:12px 20px; font-weight:600; font-size:15px; cursor:pointer; border:1px solid transparent;
+  .btn{display:inline-flex; align-items:center; gap:10px; border-radius:12px;
+    padding:12px 22px; font-weight:600; font-size:15px; cursor:pointer; border:1px solid transparent;
     transition:transform .12s ease, background .2s ease, box-shadow .2s ease}
   .btn:active{transform:translateY(1px)}
   .btn-primary{background:var(--primary); color:var(--primary-ink);
-    box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 8px 22px -12px rgba(69,86,36,.7)}
-  .btn-primary:hover{background:var(--primary-strong)}
-  .btn-ghost{background:var(--paper); color:var(--ink); border-color:var(--border)}
-  .btn-ghost:hover{background:var(--paper-2)}
-  .btn svg{width:17px;height:17px}
+    box-shadow:0 1px 0 rgba(255,255,255,.2) inset, 0 8px 24px -12px rgba(25,197,159,.4)}
+  .btn-primary:hover{background:#17b08e}
+  .btn-ghost{background:var(--card); color:var(--ink); border-color:var(--border)}
+  .btn-ghost:hover{background:var(--card-2)}
+  .btn svg{width:18px;height:18px}
 
   /* hero */
-  .hero{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; padding:72px 0 40px}
-  @media(max-width:900px){ .hero{grid-template-columns:1fr; gap:36px; padding:48px 0 20px; text-align:center} }
+  .hero{display:grid; grid-template-columns:1.05fr .95fr; gap:64px; align-items:center; padding:88px 0 56px}
+  @media(max-width:960px){ .hero{grid-template-columns:1fr; gap:40px; padding:56px 0 32px; text-align:center} }
   .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600;
-    text-transform:uppercase; letter-spacing:.08em; color:var(--primary);
-    background:var(--sage); border:1px solid var(--border-2); padding:6px 12px; border-radius:999px}
-  .hero h1{font-size:clamp(38px,6vw,62px); font-weight:500; line-height:1.03; margin:20px 0 0}
+    text-transform:uppercase; letter-spacing:.1em; color:var(--primary);
+    background:rgba(25,197,159,.1); border:1px solid rgba(25,197,159,.2); padding:8px 14px; border-radius:999px}
+  .hero h1{font-size:clamp(40px,6.5vw,68px); font-weight:500; line-height:1.02; margin:24px 0 0}
   .hero h1 em{font-style:italic; color:var(--primary)}
-  .hero .lead{font-size:19px; color:var(--muted); margin-top:20px; max-width:34ch}
-  @media(max-width:900px){ .hero .lead{margin-inline:auto} }
-  .hero-cta{display:flex; gap:12px; margin-top:30px; flex-wrap:wrap}
-  @media(max-width:900px){ .hero-cta{justify-content:center} }
-  .subnote{margin-top:14px; font-size:13.5px; color:var(--muted)}
+  .hero .lead{font-size:20px; color:var(--muted); margin-top:24px; max-width:36ch; line-height:1.6}
+  @media(max-width:960px){ .hero .lead{margin-inline:auto} }
+  .hero-cta{display:flex; gap:14px; margin-top:36px; flex-wrap:wrap}
+  @media(max-width:960px){ .hero-cta{justify-content:center} }
+  .subnote{margin-top:18px; font-size:14px; color:var(--muted)}
 
   /* hero visual */
   .stage{position:relative; display:flex; justify-content:center}
-  .compass{position:absolute; inset:auto; width:118%; max-width:560px; opacity:.14;
-    filter:drop-shadow(0 30px 40px rgba(44,42,32,.15)); z-index:0; animation:spin 90s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .card{position:relative; z-index:1; width:100%; max-width:420px; background:var(--paper);
-    border:1px solid var(--border); border-radius:20px; padding:20px;
-    box-shadow:0 40px 80px -40px rgba(44,42,32,.45), 0 2px 0 rgba(255,255,255,.5) inset}
-  .card-head{display:flex; align-items:center; gap:13px; padding-bottom:14px; border-bottom:1px solid var(--border-2)}
-  .card-head img{width:56px; height:56px; border-radius:12px; image-rendering:pixelated;
-    border:1px solid var(--border); background:var(--paper-2)}
-  .card-head .t{font-family:"Fraunces",serif; font-size:20px}
-  .card-head .dot{width:9px;height:9px;border-radius:50%;background:#4a8a52;box-shadow:0 0 0 3px rgba(74,138,82,.18)}
-  .card-head .s{font-size:13px;color:var(--muted)}
-  .bubble{margin-top:14px; font-size:14.5px; border-radius:14px; padding:11px 14px; line-height:1.5}
-  .bubble.me{background:var(--primary); color:var(--primary-ink); margin-left:auto; max-width:78%; border-bottom-right-radius:5px}
-  .bubble.marco{background:var(--sage); border:1px solid var(--border-2); max-width:88%; border-bottom-left-radius:5px}
-  .chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
-  .chip{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--primary);
-    border:1px solid rgba(85,105,47,.3); background:rgba(85,105,47,.08); padding:3px 8px; border-radius:999px}
+  .app-shot{position:relative; width:100%; max-width:560px; border-radius:20px; overflow:hidden;
+    border:1px solid var(--border); box-shadow:0 48px 96px -48px rgba(0,0,0,.8), 0 0 0 1px rgba(255,255,255,.05) inset}
+  .app-shot img{width:100%; height:auto; display:block}
 
   /* sections */
-  section{padding:64px 0}
-  .sec-head{max-width:640px; margin:0 auto 44px; text-align:center}
-  .sec-head .k{font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.09em; color:var(--primary)}
-  .sec-head h2{font-size:clamp(28px,4.4vw,40px); font-weight:500; margin-top:12px; line-height:1.1}
-  .sec-head p{color:var(--muted); margin-top:14px; font-size:18px}
+  section{padding:80px 0}
+  .sec-head{max-width:680px; margin:0 auto 56px; text-align:center}
+  .sec-head .k{font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--primary)}
+  .sec-head h2{font-size:clamp(30px,4.8vw,44px); font-weight:500; margin-top:16px; line-height:1.08}
+  .sec-head p{color:var(--muted); margin-top:18px; font-size:18px; line-height:1.6}
 
-  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
-  @media(max-width:900px){ .grid{grid-template-columns:1fr} }
-  .feature{background:var(--paper); border:1px solid var(--border); border-radius:16px; padding:24px;
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+  @media(max-width:960px){ .grid{grid-template-columns:1fr} }
+  .feature{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px;
     transition:transform .15s ease, box-shadow .2s ease}
-  .feature:hover{transform:translateY(-3px); box-shadow:0 24px 44px -30px rgba(44,42,32,.5)}
-  .feature .ico{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;
-    background:var(--sage); border:1px solid var(--border-2); margin-bottom:15px}
+  .feature:hover{transform:translateY(-3px); box-shadow:0 24px 48px -24px rgba(0,0,0,.6)}
+  .feature h3{font-size:20px; font-weight:600; margin-top:16px}
+  .feature p{color:var(--muted); margin-top:10px; font-size:16px; line-height:1.6}
+  .feature .ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+    background:rgba(25,197,159,.1); border:1px solid rgba(25,197,159,.2)}
   .feature .ico svg{width:22px;height:22px;stroke:var(--primary)}
-  .feature h3{font-size:19px; font-weight:600}
-  .feature p{color:var(--muted); margin-top:8px; font-size:15.5px}
 
   /* connect-AI band */
-  .band{background:linear-gradient(180deg,var(--paper),var(--paper-2));
+  .band{background:linear-gradient(180deg,var(--card),var(--card-2));
     border-top:1px solid var(--border-2); border-bottom:1px solid var(--border-2)}
-  .ways{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:8px}
-  @media(max-width:900px){ .ways{grid-template-columns:1fr} }
-  .way{border:1px solid var(--border); border-radius:16px; padding:22px; background:var(--bg)}
-  .way .tag{font-size:12px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.07em}
-  .way h3{font-size:18px; margin-top:10px}
-  .way p{color:var(--muted); font-size:15px; margin-top:8px}
-  .way .badge{display:inline-block;margin-top:12px;font-size:12px;background:var(--sage);
-    border:1px solid var(--border-2);border-radius:999px;padding:4px 10px;color:var(--ink)}
+  .ways{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:12px}
+  @media(max-width:960px){ .ways{grid-template-columns:1fr} }
+  .way{border:1px solid var(--border); border-radius:16px; padding:26px; background:var(--bg)}
+  .way .tag{font-size:12px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.08em}
+  .way h3{font-size:19px; margin-top:12px}
+  .way p{color:var(--muted); font-size:16px; margin-top:10px; line-height:1.6}
+  .way .badge{display:inline-block;margin-top:14px;font-size:12px;background:rgba(25,197,159,.1);
+    border:1px solid rgba(25,197,159,.2);border-radius:999px;padding:5px 12px;color:var(--primary)}
 
   /* open source strip */
-  .os{display:flex; align-items:center; justify-content:space-between; gap:24px;
-    background:var(--paper); border:1px solid var(--border); border-radius:20px; padding:28px 30px; flex-wrap:wrap}
-  .os h2{font-size:26px;font-weight:500}
-  .os p{color:var(--muted); margin-top:6px}
-  .pills{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
-  .pill{font-size:12.5px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:5px 11px}
+  .os{display:flex; align-items:center; justify-content:space-between; gap:28px;
+    background:var(--card); border:1px solid var(--border); border-radius:20px; padding:32px 36px; flex-wrap:wrap}
+  .os h2{font-size:28px;font-weight:500}
+  .os p{color:var(--muted); margin-top:8px; font-size:17px}
+  .pills{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
+  .pill{font-size:13px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:6px 14px}
+
+  /* download cards */
+  .download-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+  @media(max-width:960px){ .download-grid{grid-template-columns:1fr} }
+  .download-card{display:flex; flex-direction:column; background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:28px; transition:transform .15s ease, box-shadow .2s ease}
+  .download-card:hover{transform:translateY(-3px); box-shadow:0 24px 48px -24px rgba(0,0,0,.6)}
+  .download-card .os-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;
+    background:rgba(25,197,159,.1); border:1px solid rgba(25,197,159,.2); margin-bottom:18px}
+  .download-card .os-icon svg{width:24px;height:24px;stroke:var(--primary)}
+  .download-card h3{font-size:20px; font-weight:600}
+  .download-card p{color:var(--muted); margin-top:8px; font-size:15px; line-height:1.6}
+  .download-card .file{margin-top:auto; padding-top:20px; font-size:13px; color:var(--muted)}
 
   /* final cta */
-  .final{text-align:center; padding:26px 0 6px}
-  .final h2{font-size:clamp(30px,5vw,46px);font-weight:500;line-height:1.05}
-  .final p{color:var(--muted); margin-top:14px; font-size:18px}
-  .final .hero-cta{justify-content:center; margin-top:26px}
+  .final{text-align:center; padding:40px 0 20px}
+  .final h2{font-size:clamp(32px,5.5vw,52px);font-weight:500;line-height:1.05}
+  .final p{color:var(--muted); margin-top:16px; font-size:19px}
+  .final .hero-cta{justify-content:center; margin-top:32px}
 
-  footer{border-top:1px solid var(--border-2); margin-top:48px; padding:30px 0 50px; color:var(--muted); font-size:14px}
-  .foot{display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap}
+  footer{border-top:1px solid var(--border-2); margin-top:64px; padding:36px 0 56px; color:var(--muted); font-size:15px}
+  .foot{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap}
   .foot a:hover{color:var(--ink)}
 </style>
 </head>
@@ -153,7 +151,7 @@
         <a href="#open">Open source</a>
       </div>
       <div class="nav-cta">
-        <a class="btn btn-ghost" href="/demo">Live demo</a>
+        <a class="btn btn-ghost" href="https://github.com/ovixis/marcopolo">GitHub</a>
         <a class="btn btn-primary" href="#download">Download</a>
       </div>
     </nav>
@@ -166,32 +164,20 @@
       <div>
         <span class="eyebrow">◆ Open-source travel companion</span>
         <h1 class="serif">Every flight, stay & day — <em>charted</em> in one desktop app.</h1>
-        <p class="lead">Marco Polo aggregates live flights, hotels and experiences, then plans the route and the budget. Bring your own AI — even with no API key.</p>
+        <p class="lead">Marco Polo aggregates live flights, hotels and experiences, then plans the route and the budget. Bring your own AI, no API key needed.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#download">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14"/></svg>
             Download
           </a>
-          <a class="btn btn-ghost" href="/demo">Try the live demo</a>
+          <a class="btn btn-ghost" href="https://github.com/ovixis/marcopolo">View on GitHub</a>
         </div>
-        <p class="subnote">Free &amp; open source · Linux builds ready · macOS &amp; Windows soon.</p>
+        <p class="subnote">Free &amp; open source · macOS, Windows &amp; Linux · MIT licensed.</p>
       </div>
 
       <div class="stage">
-        <img class="compass" src="logo.svg" alt="" aria-hidden="true" />
-        <div class="card">
-          <div class="card-head">
-            <img src="marco-portrait.png" alt="Marco" />
-            <div>
-              <div class="t">Ask Marco <span class="dot" style="display:inline-block;vertical-align:middle;margin-left:4px"></span></div>
-              <div class="s">on your device · no API key</div>
-            </div>
-          </div>
-          <div class="bubble me">Weekend in Paris under €800 for two — the full plan.</div>
-          <div class="bubble marco">
-            Charted it ✈️ CDG from €96 return, a central 4★ stay, a Seine dinner cruise — day-by-day with a budget table. Total <strong>€742</strong> for two.
-            <div class="chips"><span class="chip">✦ Flights</span><span class="chip">✦ Hotels</span><span class="chip">✦ Experiences</span></div>
-          </div>
+        <div class="app-shot">
+          <img src="app-dark.png" alt="Marco Polo desktop app" />
         </div>
       </div>
     </section>
@@ -208,7 +194,7 @@
         <div class="feature">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5a2.1 2.1 0 0 0-3-3L13 8 4.8 6.2 3 8l6 3.5-2 3.5-2.5.5L6 17l1.5 2.5.5-2.5 3.5-2 3.5 6z"/></svg></div>
           <h3>Aggregated search</h3>
-          <p>Live flights (Duffel), hotels (LiteAPI) and experiences in one place — real prices, times and names, never invented.</p>
+          <p>Live flights (Duffel), hotels (LiteAPI) and experiences in one place. Real prices, times and names, never invented.</p>
         </div>
         <div class="feature">
           <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a4 4 0 0 1 4 4v1a4 4 0 0 1 0 8 3 3 0 0 1-8 0 4 4 0 0 1 0-8V7a4 4 0 0 1 4-4Z"/><path d="M12 9v10"/></svg></div>
@@ -233,22 +219,22 @@
       </div>
       <div class="ways">
         <div class="way">
-          <div class="tag">On this device</div>
-          <h3 class="serif">A local model</h3>
-          <p>Auto-detects Ollama, LM Studio, Jan or llama.cpp already running on your machine. Private, offline, zero key.</p>
+          <div class="tag">CLI agent</div>
+          <h3 class="serif">Claude Code or Kimi Code</h3>
+          <p>Auto-detects the AI CLI you already have installed. Runs on your existing subscription, no key to manage.</p>
           <span class="badge">No API key</span>
         </div>
         <div class="way">
           <div class="tag">Desktop bridge</div>
-          <h3 class="serif">The app you pay for</h3>
-          <p>Drives Claude Desktop or ChatGPT you're already signed into — Marco types the question and reads the answer back.</p>
+          <h3 class="serif">Claude Desktop or Kimi</h3>
+          <p>Drives the desktop app you're already signed into. Marco types the question and reads the answer back.</p>
           <span class="badge">Your subscription</span>
         </div>
         <div class="way">
-          <div class="tag">Cloud</div>
-          <h3 class="serif">Your own key</h3>
-          <p>Claude, OpenAI, Grok, Kimi or any OpenAI-compatible endpoint. The key stays on your device, sent only to your provider.</p>
-          <span class="badge">Full control</span>
+          <div class="tag">Local model</div>
+          <h3 class="serif">Ollama, LM Studio, Jan</h3>
+          <p>Auto-detects a local model server already running on your machine. Private, offline, zero key.</p>
+          <span class="badge">Full privacy</span>
         </div>
       </div>
     </div>
@@ -280,27 +266,30 @@
       <div class="sec-head">
         <div class="k">Download</div>
         <h2 class="serif">Get Marco Polo</h2>
-        <p>Version 0.1.0 · free &amp; open source. Linux builds are ready now.</p>
+        <p>Version 0.1.0 · free &amp; open source. macOS, Windows and Linux builds.</p>
       </div>
-      <div class="grid">
-        <a class="feature" href="/downloads/MarcoPolo-0.1.0-x86_64.AppImage" download>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14"/></svg></div>
-          <h3>Linux · AppImage</h3>
-          <p>Universal — runs on any distro. <code>chmod +x</code> then launch. ~80&nbsp;MB.</p>
+      <div class="download-grid">
+        <a class="download-card" href="https://github.com/ovixis/marcopolo/releases/latest/download/Marco.Polo_0.1.0_aarch64.dmg" download>
+          <div class="os-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14"/></svg></div>
+          <h3>macOS</h3>
+          <p>Apple Silicon &amp; Intel. Download the <code>.dmg</code>, drag to Applications, and launch.</p>
+          <span class="file">Marco.Polo_0.1.0_aarch64.dmg</span>
         </a>
-        <a class="feature" href="/downloads/marco-polo_0.1.0_amd64.deb" download>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg></div>
-          <h3>Debian / Ubuntu</h3>
-          <p><code>.deb</code> package — <code>sudo apt install ./marco-polo_0.1.0_amd64.deb</code></p>
+        <a class="download-card" href="https://github.com/ovixis/marcopolo/releases/latest" download>
+          <div class="os-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
+          <h3>Windows</h3>
+          <p>Windows 10 &amp; 11. Download the <code>.msi</code> installer or portable <code>.exe</code>.</p>
+          <span class="file">Coming soon — build from source</span>
         </a>
-        <a class="feature" href="/downloads/marco-polo-0.1.0-1.x86_64.rpm" download>
-          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg></div>
-          <h3>Fedora / RHEL</h3>
-          <p><code>.rpm</code> package — <code>sudo dnf install ./marco-polo-0.1.0-1.x86_64.rpm</code></p>
+        <a class="download-card" href="https://github.com/ovixis/marcopolo/releases/latest" download>
+          <div class="os-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M8 12l2 2 4-4"/></svg></div>
+          <h3>Linux</h3>
+          <p>AppImage, <code>.deb</code> and <code>.rpm</code>. Universal packages for every distro.</p>
+          <span class="file">Coming soon — build from source</span>
         </a>
       </div>
-      <p style="text-align:center;color:var(--muted);margin-top:22px;font-size:15px">
-        macOS &amp; Windows builds are coming soon — or build from source on
+      <p style="text-align:center;color:var(--muted);margin-top:28px;font-size:16px">
+        Windows and Linux builds are coming soon. Or build from source on
         <a href="https://github.com/ovixis/marcopolo" style="color:var(--primary);font-weight:600">GitHub</a>.
       </p>
     </div>
@@ -315,7 +304,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l4-4m-4 4l-4-4M5 21h14"/></svg>
           Get Marco Polo
         </a>
-        <a class="btn btn-ghost" href="/demo">Explore the demo</a>
+        <a class="btn btn-ghost" href="https://github.com/ovixis/marcopolo">Contribute on GitHub</a>
       </div>
     </div>
   </section>
@@ -323,11 +312,11 @@
 
 <footer>
   <div class="wrap foot">
-    <div class="brand" style="font-size:15px"><img src="logo.svg" alt="" style="width:24px;height:24px" /><span class="serif" style="font-size:17px">Marco Polo</span></div>
+    <div class="brand" style="font-size:16px"><img src="logo.svg" alt="" style="width:26px;height:26px" /><span class="serif" style="font-size:18px">Marco Polo</span></div>
     <div>Open-source travel aggregator · built by Ovixis</div>
-    <div style="display:flex;gap:18px">
+    <div style="display:flex;gap:20px">
       <a href="https://github.com/ovixis/marcopolo">GitHub</a>
-      <a href="/demo">Live demo</a>
+      <a href="#download">Download</a>
       <a href="#top">Top ↑</a>
     </div>
   </div>
