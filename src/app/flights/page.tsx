@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FlaskConical, Plane, TriangleAlert } from "lucide-react";
+import gsap from "gsap";
 
 import { FlightOfferCard } from "@/components/flights/flight-offer-card";
 import { FlightSearchForm } from "@/components/flights/flight-search-form";
@@ -13,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AnimatedSection } from "@/components/animation/animated-section";
+import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 import { durationToMinutes } from "@/lib/format";
 import {
   searchFlights,
@@ -46,11 +49,23 @@ export default function FlightsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<BackendError | null>(null);
   const [sort, setSort] = useState<SortKey>("price");
+  const listRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
 
   const offers = useMemo(
     () => (result ? sortOffers(result, sort) : []),
     [result, sort],
   );
+
+  useEffect(() => {
+    if (reduced || !listRef.current || offers.length === 0) return;
+    const cards = listRef.current.querySelectorAll("[data-card]");
+    gsap.fromTo(
+      cards,
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: "power2.out" },
+    );
+  }, [offers, reduced]);
 
   async function handleSearch(query: FlightSearchQuery) {
     setLoading(true);
@@ -66,16 +81,25 @@ export default function FlightsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-8 py-10">
-      <div className="mb-6 flex items-center gap-3">
-        <Plane className="size-6 text-primary" aria-hidden />
-        <h1 className="text-2xl font-semibold tracking-tight">Flights</h1>
-      </div>
+    <div className="mx-auto max-w-4xl px-6 py-8 lg:px-8 lg:py-10">
+      <AnimatedSection direction="up" distance={18}>
+        <div className="mb-6 flex items-center gap-3">
+          <div className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+            <Plane className="size-6" aria-hidden />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Flights</h1>
+            <p className="text-sm text-muted-foreground">Search live routes and fares</p>
+          </div>
+        </div>
+      </AnimatedSection>
 
-      <FlightSearchForm loading={loading} onSearch={handleSearch} />
+      <AnimatedSection direction="up" distance={18} delay={0.05}>
+        <FlightSearchForm loading={loading} onSearch={handleSearch} />
+      </AnimatedSection>
 
       {result?.demo && (
-        <div className="mt-4 flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
+        <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm">
           <FlaskConical className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-500" />
           <p>
             <span className="font-medium">Demo data.</span> No Duffel API key is
@@ -90,7 +114,7 @@ export default function FlightsPage() {
       )}
 
       {error && (
-        <div className="mt-4 flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">
+        <div className="mt-4 flex items-start gap-3 rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">
           <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
           <p>
             <span className="font-medium">Search failed.</span> {error.message}
@@ -101,7 +125,20 @@ export default function FlightsPage() {
       {loading && (
         <div className="mt-6 space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            <div
+              key={i}
+              className="rounded-xl border border-border bg-card p-4 shadow-sm"
+            >
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-6 w-20" />
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 flex-1" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -124,25 +161,36 @@ export default function FlightsPage() {
             </Select>
           </div>
 
-          <div className="space-y-3">
+          <div ref={listRef} className="space-y-3">
             {offers.map((offer) => (
-              <FlightOfferCard key={offer.id} offer={offer} />
+              <div key={offer.id} data-card>
+                <FlightOfferCard offer={offer} />
+              </div>
             ))}
             {offers.length === 0 && (
-              <p className="py-12 text-center text-sm text-muted-foreground">
-                No flights found for this route and date. Try different dates or
-                nearby airports.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-12 text-center">
+                <Plane className="size-6 text-muted-foreground" aria-hidden />
+                <p className="text-sm text-muted-foreground">
+                  No routes on this date — try nearby airports, or shift a day
+                  either way.
+                </p>
+              </div>
             )}
           </div>
         </>
       )}
 
       {!loading && !result && !error && (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          Search a route to see live offers
-          {" — "}try JFK → LHR to explore.
-        </p>
+        <div className="flex flex-col items-center gap-3 py-16 text-center">
+          <div className="grid size-14 place-items-center rounded-2xl bg-secondary text-primary">
+            <Plane className="size-7" aria-hidden />
+          </div>
+          <p className="font-serif text-xl text-foreground">Where to first?</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            Search a route and I&apos;ll pull live offers — airlines, times and
+            prices. Try <span className="font-medium text-foreground">JFK → LHR</span> to explore.
+          </p>
+        </div>
       )}
     </div>
   );

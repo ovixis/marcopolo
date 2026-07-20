@@ -1,34 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import {
-  CircleCheck,
-  CircleX,
-  Loader2,
-  Plug,
-  Send,
-  Settings2,
-  Wrench,
-} from "lucide-react";
+import Image from "next/image";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { CircleCheck, CircleX, Loader2 } from "lucide-react";
+import gsap from "gsap";
 
-import { MarcoFace } from "@/components/chat/marco-face";
-import { cn } from "@/lib/utils";
+import { AiConnectModal } from "@/components/chat/ai-connect-modal";
+import { ChatComposer } from "@/components/chat/chat-composer";
+import { ChatHero } from "@/components/chat/chat-hero";
+import { ChatMessage } from "@/components/chat/chat-message";
+import { useAppState } from "@/components/layout/app-shell";
+import { TripPanel, type TripDetail } from "@/components/trip/trip-panel";
+import { useReducedMotion } from "@/components/animation/use-reduced-motion";
 import {
+  aiBridgeStatus,
   aiChat,
+  aiCliDetect,
+  aiLocalDetect,
   toBackendError,
   type AiChatMessage,
   type AiProvider,
+  type BridgeStatus,
+  type CliAgent,
+  type LocalRuntime,
 } from "@/lib/tauri";
-
-const PROVIDERS: { id: AiProvider; label: string; defaultModel: string }[] = [
-  { id: "anthropic", label: "Claude (Anthropic)", defaultModel: "claude-opus-4-8" },
-  { id: "openai", label: "OpenAI", defaultModel: "gpt-5" },
-  { id: "grok", label: "Grok (xAI)", defaultModel: "grok-4" },
-  { id: "kimi", label: "Kimi (Moonshot)", defaultModel: "kimi-k2" },
-  { id: "custom", label: "Custom (OpenAI-compatible)", defaultModel: "" },
-];
 
 const STORAGE_KEY = "marcopolo.ai.config";
 
@@ -37,6 +32,7 @@ interface AiConfig {
   model: string;
   apiKey: string;
   baseUrl: string;
+  label?: string;
 }
 
 interface UiMessage {
@@ -44,6 +40,7 @@ interface UiMessage {
   content: string;
   tools?: string[];
   error?: boolean;
+  streaming?: boolean;
 }
 
 interface Activity {
@@ -53,24 +50,116 @@ interface Activity {
   ok: boolean;
 }
 
-const TOOL_LABELS: Record<string, string> = {
-  search_flights: "Flights",
-  search_hotels: "Hotels",
-  search_experiences: "Experiences",
-  search_locations: "Places",
-};
-
-const SUGGESTIONS = [
-  "Plan 4 days in Kyoto & Osaka: flights from NYC, a central hotel, food experiences, budget for 2.",
-  "Cheapest nonstop JFK → LHR on August 17?",
-  "Weekend in Paris under €800 for two — the full plan.",
+const INITIAL_DETAILS: TripDetail[] = [
+  { key: "whereTo", label: "Where to", captured: false },
+  { key: "whereFrom", label: "Where from", captured: false },
+  { key: "who", label: "Who's coming", captured: false },
+  { key: "when", label: "When you'd go", captured: false },
+  { key: "what", label: "What you're after", captured: false },
 ];
 
-const inputClass =
-  "w-full rounded-lg border border-border bg-card px-3.5 py-2.5 text-[15px] text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20";
+function isConnected(config: AiConfig): boolean {
+  if (config.model.trim().length === 0) return false;
+  if (config.provider === "cli" || config.provider === "bridge") return true;
+  if (config.provider === "local" || config.provider === "custom") {
+    return config.baseUrl.trim().length > 0;
+  }
+  return config.apiKey.trim().length > 0;
+}
 
-/** The single Ask Marco surface — a self-contained card for the dashboard. */
+function extractDetails(text: string, details: TripDetail[]): TripDetail[] {
+  const lowered = text.toLowerCase();
+  const next = details.map((d) => ({ ...d }));
+
+  // Very lightweight entity extraction for demo UX.
+  const cities = [
+    "paris",
+    "tokyo",
+    "new york",
+    "london",
+    "rome",
+    "barcelona",
+    "kyoto",
+    "osaka",
+    "dubai",
+    "bali",
+    "maldives",
+    "amsterdam",
+    "sydney",
+    "lisbon",
+    "prague",
+  ];
+
+  for (const city of cities) {
+    if (lowered.includes(city)) {
+      if (!next[0].captured) {
+        next[0].value = city.charAt(0).toUpperCase() + city.slice(1);
+        next[0].captured = true;
+      }
+      break;
+    }
+  }
+
+  if (/\b(from|leaving|departing out of|flying out of)\b/.test(lowered)) {
+    const match = lowered.match(
+      /(?:from|leaving|departing out of|flying out of)\s+([a-z\s]+?)(?:\s+(?:to|on|for|with|and|next|this)\b|$)/,
+    );
+    if (match && match[1]) {
+      const value = match[1].trim();
+      if (value.length > 2) {
+        next[1].value = value.charAt(0).toUpperCase() + value.slice(1);
+        next[1].captured = true;
+      }
+    }
+  }
+
+  if (/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|monday|tuesday|wednesday|thursday|friday|saturday|sunday|august|september|october|november|december)\b/.test(lowered)) {
+    const match = lowered.match(
+      /(?:\b(?:on|for|the)\s+)?((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}(?:th|st|nd|rd)?(?:\s*,?\s*\d{4})?)/i,
+    );
+    if (match && match[1]) {
+      next[3].value = match[1].trim();
+      next[3].captured = true;
+    }
+  }
+
+  if (/\b(couple|family|kids|friends|solo|alone|group of)\b/.test(lowered)) {
+    const match = lowered.match(
+      /\b(couple|family(?:\s+with\s+kids)?|friends|solo|alone|group of \d+)\b/i,
+    );
+    if (match && match[1]) {
+      next[2].value = match[1].trim();
+      next[2].captured = true;
+    }
+  }
+
+  if (
+    /\b(beach|mountain|city|culture|food|relax|adventure|romantic|budget|luxury|hiking|museum|nightlife|shopping)\b/.test(
+      lowered,
+    )
+  ) {
+    const match = lowered.match(
+      /\b(beach|mountain|city(?!\s+from)|culture|food|relax|adventure|romantic|budget|luxury|hiking|museum|nightlife|shopping)\b/i,
+    );
+    if (match && match[1]) {
+      next[4].value = match[1].trim();
+      next[4].captured = true;
+    }
+  }
+
+  return next;
+}
+
 export function AskMarco() {
+  const {
+    openTerminal,
+    showAiConnect,
+    openAiConnect,
+    closeAiConnect,
+    setAiConnected,
+    activeTripId,
+  } = useAppState();
+
   const [config, setConfig] = useState<AiConfig>({
     provider: "anthropic",
     model: "claude-opus-4-8",
@@ -81,49 +170,153 @@ export function AskMarco() {
   const [activity, setActivity] = useState<Activity[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [showConnect, setShowConnect] = useState(false);
+  const [cliAgents, setCliAgents] = useState<CliAgent[] | null>(null);
+  const [runtimes, setRuntimes] = useState<LocalRuntime[] | null>(null);
+  const [bridge, setBridge] = useState<BridgeStatus | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [details, setDetails] = useState<TripDetail[]>(INITIAL_DETAILS);
+  const [tripPanelOpen, setTripPanelOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  // Reset chat when the user starts a new trip.
+  useEffect(() => {
+    setMessages([]);
+    setDetails(INITIAL_DETAILS);
+    setTripPanelOpen(false);
+    setInput("");
+  }, [activeTripId]);
+
+  useEffect(() => {
+    if (reduced) return;
+    if (!tripPanelOpen) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    gsap.fromTo(
+      panel,
+      { x: 40, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.45, ease: "power3.out" },
+    );
+  }, [tripPanelOpen, reduced]);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) setConfig(JSON.parse(saved));
-    } catch {
-      // corrupted config — start fresh
+    } catch {}
+  }, []);
+
+  // Reload config when the window regains focus (e.g. after changing agent in Agents page).
+  useEffect(() => {
+    function onFocus() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) setConfig(JSON.parse(saved));
+      } catch {}
     }
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activity]);
 
+  useLayoutEffect(() => {
+    if (reduced || messages.length === 0) return;
+    const nodes = messagesRef.current?.querySelectorAll("[data-message]");
+    if (!nodes || nodes.length === 0) return;
+    gsap.fromTo(
+      nodes[nodes.length - 1],
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+    );
+  }, [messages, reduced]);
+
   function updateConfig(patch: Partial<AiConfig>) {
     setConfig((previous) => {
       const next = { ...previous, ...patch };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // storage unavailable — session-only config
-      }
+      } catch {}
       return next;
     });
   }
 
-  const connected =
-    config.apiKey.trim().length > 0 && config.model.trim().length > 0;
+  const connected = isConnected(config);
+
+  const aiStatusLabel =
+    config.provider === "local"
+      ? config.label ?? "Local"
+      : config.provider === "cli"
+        ? config.label ?? "CLI"
+        : config.provider === "bridge"
+          ? config.label ?? "Desktop app"
+          : config.model;
+
+  useEffect(() => {
+    setAiConnected(connected, connected ? aiStatusLabel : undefined);
+  }, [connected, aiStatusLabel, setAiConnected]);
+
+  useEffect(() => {
+    if (showAiConnect && cliAgents === null && !scanning) {
+      void scanAll();
+    }
+  }, [showAiConnect, cliAgents, scanning]);
+
+  useEffect(() => {
+    const hasDetails = details.some((d) => d.captured);
+    if (hasDetails || sending) {
+      setTripPanelOpen(true);
+    }
+  }, [details, sending]);
+
+
+
+  async function scanAll() {
+    setScanning(true);
+    try {
+      const [cli, local, br] = await Promise.all([
+        aiCliDetect(),
+        aiLocalDetect(),
+        aiBridgeStatus(),
+      ]);
+      setCliAgents(cli);
+      setRuntimes(local);
+      setBridge(br);
+    } catch {
+      setCliAgents((c) => c ?? []);
+      setRuntimes((r) => r ?? []);
+    } finally {
+      setScanning(false);
+    }
+  }
+
+  function openConnect() {
+    if (cliAgents === null && !scanning) {
+      void scanAll().then(() => openAiConnect());
+    } else {
+      openAiConnect();
+    }
+  }
 
   async function send(text?: string) {
     const question = (text ?? input).trim();
     if (!question || sending) return;
+
+    setDetails((prev) => extractDetails(question, prev));
+
     if (!connected) {
-      setShowConnect(true);
+      openConnect();
       setMessages((m) => [
         ...m,
         { role: "user", content: question },
         {
           role: "assistant",
           content:
-            "Connect a model first — pick a provider and paste your API key, then I'm ready to chart your route.",
+            "Connect your AI first — pick one already on this Mac (your subscription or a local model, no API key), then I'm ready to chart your route.",
           error: true,
         },
       ]);
@@ -153,12 +346,28 @@ export function AskMarco() {
           messages: history,
         },
         (event) => {
+          if (event.type === "textDelta") {
+            setMessages((m) => {
+              const last = m[m.length - 1];
+              if (last?.role === "assistant" && last.streaming) {
+                return [
+                  ...m.slice(0, -1),
+                  { ...last, content: last.content + event.text },
+                ];
+              }
+              return [
+                ...m,
+                { role: "assistant", content: event.text, streaming: true },
+              ];
+            });
+            return;
+          }
           if (event.type === "toolStart") {
             setActivity((a) => [
               ...a,
               { name: event.name, summary: event.summary, done: false, ok: true },
             ]);
-          } else {
+          } else if (event.type === "toolEnd") {
             setActivity((a) => {
               const next = [...a];
               for (let i = next.length - 1; i >= 0; i--) {
@@ -172,237 +381,168 @@ export function AskMarco() {
           }
         },
       );
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: reply.text, tools: reply.toolsUsed },
-      ]);
+      setMessages((m) => {
+        const last = m[m.length - 1];
+        if (last?.role === "assistant" && last.streaming) {
+          return [
+            ...m.slice(0, -1),
+            { role: "assistant", content: reply.text || last.content, tools: reply.toolsUsed },
+          ];
+        }
+        return [
+          ...m,
+          { role: "assistant", content: reply.text, tools: reply.toolsUsed },
+        ];
+      });
     } catch (err) {
-      setMessages((m) => [
-        ...m,
-        { role: "assistant", content: toBackendError(err).message, error: true },
-      ]);
+      setMessages((m) => {
+        const base =
+          m[m.length - 1]?.role === "assistant" && m[m.length - 1]?.streaming
+            ? m.slice(0, -1)
+            : m;
+        return [
+          ...base,
+          { role: "assistant", content: toBackendError(err).message, error: true },
+        ];
+      });
     } finally {
       setSending(false);
       setActivity([]);
     }
   }
 
+  const capturedDetails = details.filter((d) => d.captured);
+
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      {/* header — portrait + status + model toggle */}
-      <div className="flex items-center gap-4 border-b border-border p-4">
-        <MarcoFace thinking={sending} width={96} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2.5">
-            <span className="font-serif text-2xl">Ask Marco</span>
-            <span
-              className={cn(
-                "size-2.5 rounded-full",
-                connected ? "bg-emerald-500" : "bg-muted-foreground/40",
-              )}
-              aria-label={connected ? "connected" : "not connected"}
-            />
-          </div>
-          <p className="truncate text-sm text-muted-foreground">
-            {sending
-              ? "charting your route…"
-              : connected
-                ? config.model
-                : "connect a model to begin"}
-          </p>
-        </div>
-        <button
-          onClick={() => setShowConnect((v) => !v)}
-          className="rounded-lg border border-border bg-card p-2.5 text-muted-foreground transition-colors hover:text-foreground"
-          aria-label="Model settings"
-          aria-expanded={showConnect}
-        >
-          <Settings2 className="size-5" />
-        </button>
-      </div>
-
-      {/* collapsible model connect */}
-      {showConnect && (
-        <div className="flex flex-col gap-2.5 border-b border-border bg-secondary/40 p-3">
-          <div className="flex items-center gap-2 text-sm font-medium">
-            <Plug className="size-4 text-primary" aria-hidden />
-            Your model
-          </div>
-          <select
-            className={inputClass}
-            value={config.provider}
-            onChange={(e) => {
-              const provider = e.target.value as AiProvider;
-              const preset = PROVIDERS.find((p) => p.id === provider);
-              updateConfig({ provider, model: preset?.defaultModel ?? "" });
-            }}
-            aria-label="AI provider"
-          >
-            {PROVIDERS.map((p) => (
-              <option key={p.id} value={p.id} className="bg-card">
-                {p.label}
-              </option>
-            ))}
-          </select>
-          <input
-            className={inputClass}
-            placeholder="model, e.g. claude-opus-4-8"
-            value={config.model}
-            onChange={(e) => updateConfig({ model: e.target.value })}
-            aria-label="Model name"
-          />
-          {config.provider === "custom" && (
-            <input
-              className={inputClass}
-              placeholder="base URL, e.g. http://localhost:11434/v1"
-              value={config.baseUrl}
-              onChange={(e) => updateConfig({ baseUrl: e.target.value })}
-              aria-label="Base URL"
-            />
-          )}
-          <input
-            className={inputClass}
-            type="password"
-            placeholder="API key"
-            value={config.apiKey}
-            onChange={(e) => updateConfig({ apiKey: e.target.value })}
-            aria-label="API key"
-          />
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Your key stays on this device and is sent only to your chosen model
-            provider. Marco uses it to run the agent that calls the travel APIs.
-          </p>
-        </div>
-      )}
-
-      {/* conversation */}
-      <div className="flex-1 overflow-y-auto p-6">
-        {messages.length === 0 && (
-          <div className="mx-auto max-w-xl pt-10 text-center">
-            <h2 className="font-serif text-4xl text-foreground">
-              Where shall we go?
-            </h2>
-            <p className="mt-3 text-base text-muted-foreground">
-              I aggregate live flights, hotels, and experiences, then chart the
-              route and the budget. Ask me anything travel.
-            </p>
-            <div className="mt-7 flex flex-col gap-3">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => send(s)}
-                  className="rounded-xl border border-border bg-card px-4 py-3.5 text-left text-[15px] text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mx-auto flex max-w-2xl flex-col gap-4">
-          {messages.map((message, index) =>
-            message.role === "user" ? (
-              <div
-                key={index}
-                className="self-end rounded-2xl rounded-br-sm bg-primary px-4 py-3 text-[15px] text-primary-foreground"
-              >
-                {message.content}
-              </div>
+    <>
+      <div className="flex h-full">
+        {/* chat column */}
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <div ref={messagesRef} className="flex-1 overflow-y-auto">
+            {messages.length === 0 ? (
+              <ChatHero onSuggestion={send} />
             ) : (
-              <div
-                key={index}
-                className={cn(
-                  "self-start rounded-2xl rounded-bl-sm border px-5 py-3.5 text-[15px] leading-relaxed",
-                  message.error
-                    ? "border-destructive/30 bg-destructive/10 text-destructive"
-                    : "border-border bg-card",
-                )}
-              >
-                {message.tools && message.tools.length > 0 && (
-                  <div className="mb-2 flex flex-wrap gap-1.5">
-                    {[...new Set(message.tools)].map((tool) => (
-                      <span
-                        key={tool}
-                        className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-primary"
-                      >
-                        <Wrench className="size-2.5" aria-hidden />
-                        {TOOL_LABELS[tool] ?? tool}
-                      </span>
-                    ))}
+              <div className="pb-4">
+                {messages.map((message, index) => (
+                  <div key={index} data-message>
+                    <ChatMessage message={message} />
                   </div>
-                )}
-                <div className="chat-markdown">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
-                  </ReactMarkdown>
-                </div>
-              </div>
-            ),
-          )}
+                ))}
 
-          {sending && (
-            <div className="self-start rounded-2xl rounded-bl-sm border border-border bg-card px-4 py-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin text-primary" aria-hidden />
-                consulting the maps…
+                {sending &&
+                  !(
+                    messages[messages.length - 1]?.role === "assistant" &&
+                    messages[messages.length - 1]?.streaming
+                  ) && (
+                    <div data-message className="px-6 py-6 sm:px-8">
+                      <div className="mx-auto flex max-w-3xl gap-5">
+                        <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10">
+                          <Image
+                            src="/logo.svg"
+                            alt=""
+                            width={36}
+                            height={36}
+                            className="size-full object-contain"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2
+                              className="size-4 animate-spin text-primary"
+                              aria-hidden
+                            />
+                            <span>consulting the maps</span>
+                            <span className="flex items-center gap-1" aria-hidden>
+                              <span className="marco-dot size-1 rounded-full bg-primary" />
+                              <span className="marco-dot size-1 rounded-full bg-primary" />
+                              <span className="marco-dot size-1 rounded-full bg-primary" />
+                            </span>
+                          </div>
+                          {activity.length > 0 && (
+                            <ul className="mt-3 flex flex-col gap-2">
+                              {activity.map((item, index) => (
+                                <li
+                                  key={index}
+                                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                                >
+                                  {item.done ? (
+                                    item.ok ? (
+                                      <CircleCheck
+                                        className="size-4 text-emerald-500"
+                                        aria-hidden
+                                      />
+                                    ) : (
+                                      <CircleX
+                                        className="size-4 text-destructive"
+                                        aria-hidden
+                                      />
+                                    )
+                                  ) : (
+                                    <Loader2
+                                      className="size-4 animate-spin text-primary"
+                                      aria-hidden
+                                    />
+                                  )}
+                                  <span className="font-medium text-foreground">
+                                    {item.name}
+                                  </span>
+                                  {item.summary}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                <div ref={bottomRef} />
               </div>
-              {activity.length > 0 && (
-                <ul className="mt-2 flex flex-col gap-1.5">
-                  {activity.map((item, index) => (
-                    <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {item.done ? (
-                        item.ok ? (
-                          <CircleCheck className="size-3.5 text-emerald-500" aria-hidden />
-                        ) : (
-                          <CircleX className="size-3.5 text-destructive" aria-hidden />
-                        )
-                      ) : (
-                        <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden />
-                      )}
-                      <span className="font-medium text-foreground">
-                        {TOOL_LABELS[item.name] ?? item.name}
-                      </span>
-                      {item.summary}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
-      </div>
+            )}
+          </div>
 
-      {/* composer */}
-      <div className="border-t border-border p-4">
-        <div className="mx-auto flex max-w-2xl items-end gap-2.5">
-          <textarea
-            className={`${inputClass} max-h-40 min-h-12 resize-none`}
-            rows={1}
-            placeholder={
-              connected ? "Ask Marco… (Enter to send)" : "Connect a model, then ask away…"
-            }
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
+          {/* composer */}
+          <div className="shrink-0 border-t border-border bg-background/90 p-4 backdrop-blur-md">
+            <ChatComposer
+              value={input}
+              onChange={setInput}
+              onSend={() => send()}
+              disabled={sending}
+              placeholder={
+                connected
+                  ? "Ask Marco Polo…"
+                  : "Connect your AI to start planning"
               }
-            }}
-            aria-label="Message"
+            />
+          </div>
+        </div>
+
+        <div ref={panelRef} className="h-full">
+          <TripPanel
+            open={tripPanelOpen}
+            onClose={() => setTripPanelOpen(false)}
+            details={details}
+            onGenerate={() => send("Build the trip plan from what we have so far.")}
+            canGenerate={capturedDetails.length > 0}
+            generating={sending}
           />
-          <button
-            onClick={() => send()}
-            disabled={sending || input.trim().length === 0}
-            className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
-            aria-label="Send"
-          >
-            <Send className="size-5" />
-          </button>
         </div>
       </div>
-    </div>
+
+      <AiConnectModal
+        open={showAiConnect}
+        onClose={closeAiConnect}
+        config={config}
+        onUpdateConfig={updateConfig}
+        cliAgents={cliAgents}
+        runtimes={runtimes}
+        bridge={bridge}
+        scanning={scanning}
+        onScan={scanAll}
+        onOpenTerminal={(cmd) => {
+          closeAiConnect();
+          openTerminal(cmd);
+        }}
+      />
+    </>
   );
 }

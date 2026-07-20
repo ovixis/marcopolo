@@ -5,9 +5,10 @@ import { ComingSoon } from "@/components/coming-soon";
 export default function ItineraryPage() {
   return (
     <ComingSoon
-      icon={CalendarRange}
+      icon={<CalendarRange className="size-8" aria-hidden />}
       title="Itinerary Builder"
-      description="Plan every day of your trip with a drag-and-drop timeline."
+      leadIn="Day by day, chart the course."
+      description="Plan every day of your trip on a drag-and-drop timeline — flights, stays, and experiences in one place."
       phase="Weeks 9-10"
       planned={[
         "Day-by-day columns with drag-and-drop reordering",

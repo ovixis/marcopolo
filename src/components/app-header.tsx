@@ -17,9 +17,6 @@ import {
 import { backendStatus, type BackendStatus } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
 
-// The home ("/") is the unified command center — Ask Marco + the trip overview.
-// Flights, hotels, and experiences run as background actions inside the chat,
-// so they have no menu entry; only what the traveler touches directly stays.
 const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: Compass },
   { href: "/itinerary", label: "Itinerary", icon: CalendarRange },
@@ -30,16 +27,16 @@ const NAV_ITEMS = [
   { href: "/connect", label: "Connect", icon: Plug },
 ];
 
-function StatusChip({ label, live, env }: { label: string; live: boolean; env: string }) {
+function StatusDot({ live, label }: { live: boolean; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-2 py-1 text-[11px] font-medium text-muted-foreground backdrop-blur-sm">
       <span
         className={cn(
-          "size-2 rounded-full",
-          live ? "bg-primary" : "bg-muted-foreground/50",
+          "size-1.5 rounded-full",
+          live ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" : "bg-muted-foreground/50",
         )}
       />
-      {label} {live ? env : "demo"}
+      {label}
     </span>
   );
 }
@@ -53,12 +50,12 @@ export function AppHeader() {
   }, []);
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-6 border-b border-sidebar-border bg-sidebar px-5 text-sidebar-foreground lg:px-7">
+    <header className="glass sticky top-0 z-50 flex h-16 shrink-0 items-center gap-4 px-4 lg:px-6">
       <Link href="/" className="flex shrink-0 items-center gap-2.5">
-        <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-b from-[#175058] to-[#0b2e34] shadow-sm ring-1 ring-black/5">
+        <span className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-b from-[#1a4d52] to-[#0c2f33] shadow-sm ring-1 ring-black/5">
           <Image src="/logo.svg" alt="" width={26} height={26} priority aria-hidden />
         </span>
-        <span className="font-serif text-2xl tracking-tight">Marco Polo</span>
+        <span className="font-serif text-xl tracking-tight sm:text-2xl">Marco Polo</span>
       </Link>
 
       <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
@@ -72,39 +69,28 @@ export function AppHeader() {
               key={href}
               href={href}
               className={cn(
-                "flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2.5 text-[15px] font-medium transition-colors",
+                "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-[15px] font-medium transition-all",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                  ? "bg-primary/10 text-primary shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
               )}
             >
-              <Icon
-                className={cn("size-[18px]", active && "text-primary")}
-                aria-hidden
-              />
-              {label}
+              <Icon className={cn("size-[18px] transition-colors", active && "text-primary")} aria-hidden />
+              <span className="hidden sm:inline">{label}</span>
             </Link>
           );
         })}
       </nav>
 
-      <div className="hidden shrink-0 items-center gap-2 text-xs text-muted-foreground lg:flex">
+      <div className="hidden shrink-0 items-center gap-2 text-xs text-muted-foreground xl:flex">
         {status ? (
           <>
-            <StatusChip
-              label="Flights"
-              live={status.flightsConfigured}
-              env={status.environment}
-            />
-            <StatusChip
-              label="Hotels"
-              live={status.hotelsConfigured}
-              env={status.hotelsEnvironment}
-            />
+            <StatusDot live={status.flightsConfigured} label="Flights" />
+            <StatusDot live={status.hotelsConfigured} label="Hotels" />
             <span className="opacity-70">v{status.version}</span>
           </>
         ) : (
-          <span>starting…</span>
+          <span className="text-muted-foreground">starting…</span>
         )}
       </div>
     </header>

@@ -2,6 +2,19 @@
  * Static sample data used only when the UI runs outside Tauri (plain browser
  * dev server). The desktop app's demo mode lives in `src-tauri/src/demo.rs`.
  */
+import type { CliAgent, LocalRuntime } from "./tauri";
+
+/**
+ * Sample CLI-agent detection for the browser preview: pretend Claude Code is
+ * installed so the "use your subscription" flow is developable without Tauri.
+ */
+export function webFallbackCliAgents(): CliAgent[] {
+  return [
+    { id: "claude-code", label: "Claude Code", bin: "claude", installed: true, path: "/opt/homebrew/bin/claude" },
+    { id: "codex", label: "Codex", bin: "codex", installed: false, path: "" },
+    { id: "gemini-cli", label: "Gemini CLI", bin: "gemini", installed: false, path: "" },
+  ];
+}
 import type {
   FlightOffer,
   FlightSearchQuery,
@@ -11,6 +24,47 @@ import type {
   HotelSearchResult,
   LocationSuggestion,
 } from "./types";
+
+/**
+ * Sample local-model detection for the browser preview: pretend Ollama is up
+ * so the "On this device" connector flow is developable without Tauri.
+ */
+export function webFallbackLocalRuntimes(): LocalRuntime[] {
+  return [
+    {
+      id: "ollama",
+      label: "Ollama",
+      baseUrl: "http://localhost:11434/v1",
+      running: true,
+      models: ["llama3.1:8b", "qwen2.5:14b"],
+      setupHint: "Install from ollama.com, then: ollama pull llama3.1",
+    },
+    {
+      id: "lmstudio",
+      label: "LM Studio",
+      baseUrl: "http://localhost:1234/v1",
+      running: false,
+      models: [],
+      setupHint: "LM Studio → Developer → Start Server",
+    },
+    {
+      id: "jan",
+      label: "Jan",
+      baseUrl: "http://localhost:1337/v1",
+      running: false,
+      models: [],
+      setupHint: "Jan → Settings → Local API Server → Start Server",
+    },
+    {
+      id: "llamacpp",
+      label: "llama.cpp",
+      baseUrl: "http://localhost:8080/v1",
+      running: false,
+      models: [],
+      setupHint: "llama-server -m your-model.gguf",
+    },
+  ];
+}
 
 const SAMPLE_AIRPORTS: LocationSuggestion[] = [
   { iataCode: "JFK", name: "John F. Kennedy International", city: "New York", country: "United States", kind: "AIRPORT" },

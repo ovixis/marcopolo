@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { backendStatus } from "@/lib/tauri";
+import { AnimatedSection } from "@/components/animation/animated-section";
 
 const FALLBACK_ENDPOINT = "http://127.0.0.1:1254/mcp";
 
@@ -86,19 +87,27 @@ export default function ConnectPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-3xl px-8 py-10">
-      <div className="mb-2 flex items-center gap-3">
-        <Plug className="size-6 text-primary" aria-hidden />
-        <h1 className="text-2xl font-semibold tracking-tight">AI Connect</h1>
-      </div>
-      <p className="mb-6 max-w-xl text-muted-foreground">
-        Marco Polo runs a local <strong>MCP server</strong> in the background,
-        so your favorite AI — Claude, ChatGPT, Grok, Kimi, Cursor, and any
-        other MCP-capable client — can search flights and hotels through this
-        app.
-      </p>
+    <div className="mx-auto max-w-3xl px-6 py-8 lg:px-8 lg:py-10">
+      <AnimatedSection direction="up" distance={18}>
+        <div className="mb-2 flex items-center gap-3">
+          <div className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary shadow-sm">
+            <Plug className="size-6" aria-hidden />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">AI Connect</h1>
+            <p className="text-sm text-muted-foreground">Wire Marco into your favorite AI client</p>
+          </div>
+        </div>
+        <p className="mb-6 max-w-xl text-muted-foreground">
+          Marco Polo runs a local <strong>MCP server</strong> in the background,
+          so your favorite AI — Claude, ChatGPT, Grok, Kimi, Cursor, and any
+          other MCP-capable client — can search flights and hotels through this
+          app.
+        </p>
+      </AnimatedSection>
 
-      <Card className="mb-6">
+      <AnimatedSection direction="up" distance={18} delay={0.06}>
+        <Card className="mb-6">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -232,6 +241,7 @@ cloudflared tunnel --url http://127.0.0.1:1254`} />
           </p>
         </TabsContent>
       </Tabs>
+      </AnimatedSection>
     </div>
   );
 }

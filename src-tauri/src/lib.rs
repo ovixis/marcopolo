@@ -1,9 +1,13 @@
 mod ai;
+mod ai_bridge;
+mod ai_cli;
+mod ai_local;
 mod demo;
 mod duffel;
 mod error;
 mod liteapi;
 mod mcp;
+mod shell;
 mod tools;
 mod types;
 
@@ -48,6 +52,34 @@ async fn ai_chat(
     on_event: tauri::ipc::Channel<ai::ChatEvent>,
 ) -> Result<ai::ChatReply, String> {
     ai::chat(&state, request, on_event).await
+}
+
+/// Probe the machine for local model servers (Ollama, LM Studio, …) so the user
+/// can connect Ask Marco with no API key.
+#[tauri::command]
+async fn ai_local_detect() -> Vec<ai_local::LocalRuntime> {
+    ai_local::detect().await
+}
+
+/// Detect installed AI CLIs (Claude Code, Codex, Gemini) the user can run on
+/// their existing subscription — no API key.
+#[tauri::command]
+async fn ai_cli_detect() -> Vec<ai_cli::CliAgent> {
+    ai_cli::detect().await
+}
+
+/// Availability of the desktop-app bridge (installed apps, Accessibility
+/// permission), for the connect UI.
+#[tauri::command]
+async fn ai_bridge_status() -> ai_bridge::BridgeStatus {
+    ai_bridge::status().await
+}
+
+/// Open the macOS Accessibility settings pane so the user can grant Marco Polo
+/// permission to drive their AI app.
+#[tauri::command]
+fn ai_bridge_open_settings() -> Result<(), String> {
+    ai_bridge::open_accessibility_settings()
 }
 
 #[derive(Serialize)]
@@ -112,6 +144,7 @@ pub fn run() {
             // Background MCP server: lets external AI clients (Claude,
             // ChatGPT, Grok, Kimi, …) use Marco Polo's travel search.
             tauri::async_runtime::spawn(mcp::serve(mcp_state));
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -119,7 +152,13 @@ pub fn run() {
             search_locations,
             search_hotels,
             ai_chat,
-            backend_status
+            ai_local_detect,
+            ai_cli_detect,
+            ai_bridge_status,
+            ai_bridge_open_settings,
+            backend_status,
+            shell::run_shell_command,
+            shell::shell_which
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
