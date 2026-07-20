@@ -28,6 +28,8 @@ dotenvy = "0.15"
 axum = "0.8"
 dirs = "5"
 fix-path-env = { git = "https://github.com/tauri-apps/fix-path-env-rs" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
 core-foundation = "0.9"
 
 [dev-dependencies]
