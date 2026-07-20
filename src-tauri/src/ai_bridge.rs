@@ -148,7 +148,9 @@ bridged answers don't run live flight/hotel search."
 }
 
 /// Extract likely travel parameters from the user prompt and pre-fetch live
-/// flight/hotel data so the desktop app can format a real answer.
+/// flight/hotel data so the desktop app can format a real answer. Called only
+/// from the macOS bridge path; the other platforms never reach it.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 async fn prefetch_travel_data(context: &ToolContext, prompt: &str) -> String {
     let lower = prompt.to_lowercase();
 
@@ -314,7 +316,7 @@ pub async fn chat(
 
     #[cfg(not(target_os = "macos"))]
     {
-        let _ = (app_id, prompt);
+        let _ = (context, app_id, prompt);
         Err("The desktop-app bridge is macOS-only for now.".to_owned())
     }
 }
